@@ -19,7 +19,7 @@ public class TypeActivite {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @JsonBackReference
+
     @ManyToMany(mappedBy = "typeactivites")
 
     private Set<Site> sites = new HashSet<>();

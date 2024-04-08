@@ -2,19 +2,23 @@ package net.elghz.siteservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import net.elghz.siteservice.entities.Attribute;
+import net.elghz.siteservice.dtos.siteDTO;
+import net.elghz.siteservice.dtos.typeActiviteDTO;
 import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.entities.TypeActivite;
+import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.exception.SiteNotFoundException;
+import net.elghz.siteservice.importFile.importTypeActivite;
+import net.elghz.siteservice.mapper.siteMapper;
+import net.elghz.siteservice.mapper.typeActiviteMapper;
 import net.elghz.siteservice.repository.ActiviteRepo;
 import net.elghz.siteservice.repository.SiteRepository;
-import net.elghz.siteservice.repository.attributeRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -23,13 +27,23 @@ public class ActiviteService {
     private ActiviteRepo repo;
     private SiteRepository srepo;
 
+    private typeActiviteMapper amapper;
+    private siteMapper smapper;
 
-    public Optional<TypeActivite> getActiviteId(Long id){
-        return  repo.findById(id);
+    public Optional<typeActiviteDTO> getActiviteId(Long id) throws ActiviteNotFoundException {
+        Optional<TypeActivite>  eq = repo.findById(id);
+        if(eq.isPresent()) {
+            typeActiviteDTO equipementDTO = amapper.from(eq.get());
+            return Optional.of(equipementDTO) ;
+        }
+        else{
+            throw  new ActiviteNotFoundException("Aucune activite avec ce id :" +id);
+        }
+
     }
 
-    public List<TypeActivite> allActivities(){
-        return repo.findAll();
+    public List<typeActiviteDTO> allActivities(){
+        return repo.findAll().stream().map(amapper::from).collect(Collectors.toList());
     }
 
     public boolean deleteById(Long id) {
@@ -43,26 +57,27 @@ public class ActiviteService {
     }
 
 
-    public boolean addTypeActivite(TypeActivite a){
+    public boolean addTypeActivite(typeActiviteDTO a){
         String name = a.getName();
         Optional<TypeActivite> aa = repo.findByName(name);
         if(aa.isPresent()){
             return false;
         }
         else {
-            repo.save(a);
+            TypeActivite al = amapper.f(a);
+            repo.save(al);
             return true;}
     }
 
-    public boolean updateActivite(TypeActivite updatedAct) {
-        Long attributeId = updatedAct.getId();
-        Optional<TypeActivite> existingActvOptional = repo.findById(attributeId);
+    public boolean updateActivite(typeActiviteDTO updatedAct) {
+        Long equiId = updatedAct.getId();
+        Optional<TypeActivite> existingAttrOptional = repo.findById(equiId);
 
-        if (existingActvOptional.isPresent()) {
-            TypeActivite existingActv = existingActvOptional.get();
-            existingActv.setName(updatedAct.getName());
+        if (existingAttrOptional.isPresent()) {
+            TypeActivite dtoe= existingAttrOptional.get();
+            amapper.update(updatedAct , dtoe );
 
-            repo.save(existingActv);
+            repo.save(dtoe);
 
             return true;
         } else {
@@ -71,12 +86,12 @@ public class ActiviteService {
     }
     // trouver les activites d'un site donne
 
-    public List<TypeActivite> activitesSite(String name) throws SiteNotFoundException {
+    public List<typeActiviteDTO> activitesSite(String name) throws SiteNotFoundException {
 
         Optional<Site> s = srepo.findByName(name);
         if (s.isPresent()){
             Long id = s.get().getId();
-            return repo.findBySitesId(id);
+            return repo.findBySitesId(id).stream().map(amapper::from).collect(Collectors.toList());
         }
         else {
             throw  new SiteNotFoundException("Aucune site n'est trouvé avec ce nom" +name);
@@ -120,16 +135,24 @@ public class ActiviteService {
     }
 
     // la liste des sites d'une activite donne
-    public Set<Site> getSitesByTypeActivite(Long typeActiviteId) {
+    public Set<siteDTO> getSitesByTypeActivite(Long typeActiviteId) {
         Optional<TypeActivite> typeActiviteOptional = repo.findById(typeActiviteId);
 
         if (typeActiviteOptional.isPresent()) {
             TypeActivite typeActivite = typeActiviteOptional.get();
-            return typeActivite.getSites();
+
+            // Convertir chaque Site en SiteDTO
+            Set<siteDTO> siteDTOs = typeActivite.getSites().stream()
+                    .map(site -> smapper.from(site))
+                    .collect(Collectors.toSet());
+
+            return siteDTOs;
         } else {
             throw new EntityNotFoundException("TypeActivite not found");
         }
     }
+
+    //
 
     //mettre à jour les type d'activite associe à un site
     public void updateSiteTypeActivite(Long siteId, List<Long> typeActiviteIds) {
@@ -150,34 +173,59 @@ public class ActiviteService {
     }
 
     //afficher les sites qu'ont plusieurs type d'activites
-    public Set<Site> getSitesByMultipleTypeActivites(List<Long> typeActiviteIds) {
-        Set<Site> sites = new HashSet<>();
+    public Set<siteDTO> getSitesByMultipleTypeActivites(List<Long> typeActiviteIds) {
+        Map<Long, siteDTO> siteMap = new HashMap<>();
+
         for (Long typeId : typeActiviteIds) {
             Optional<TypeActivite> typeActiviteOptional = repo.findById(typeId);
-            typeActiviteOptional.ifPresent(typeActivite -> sites.addAll(typeActivite.getSites()));
+            typeActiviteOptional.ifPresent(typeActivite -> {
+                Set<siteDTO> siteDTOs = typeActivite.getSites().stream()
+                        .map(smapper::from)
+                        .collect(Collectors.toSet());
+                siteDTOs.forEach(site -> siteMap.put(site.getId(), site));
+            });
         }
-        return sites;
+        return new HashSet<>(siteMap.values());
     }
 
-    public void clearTypeActiviteForSite(Long siteId) {
+    public boolean clearTypeActiviteForSite(Long siteId) {
         Optional<Site> siteOptional = srepo.findById(siteId);
         if (siteOptional.isPresent()) {
             Site site = siteOptional.get();
             site.clearTypeActivites();
             srepo.save(site);
+            return  true;
         } else {
-            throw new EntityNotFoundException("le Site n'existe pas");
+            //throw new EntityNotFoundException("le Site n'existe pas");
+            return false;
         }
     }
 
-    public void clearSitesForTypeActivite(Long typeActiviteId) {
+    public boolean clearSitesForTypeActivite(Long typeActiviteId) {
         Optional<TypeActivite> typeActiviteOptional = repo.findById(typeActiviteId);
         if (typeActiviteOptional.isPresent()) {
             TypeActivite typeActivite = typeActiviteOptional.get();
+
+            // Dissocier l'activité de tous les sites
+            typeActivite.getSites().forEach(site -> site.removeTypeActivite(typeActivite));
             typeActivite.clearSites();
+
+            // Enregistrer les changements
             repo.save(typeActivite);
+            return true;
         } else {
-            throw new EntityNotFoundException(" le TypeActivite n'existe pas");
+            return  false;
+        }
+    }
+
+    public void saveCustomersToDatabase(MultipartFile file){
+        if(importTypeActivite.isValidExcelFile(file)){
+            try {
+                List<TypeActivite> customers = importTypeActivite.getCustomersDataFromExcel(file.getInputStream());
+                this.repo.saveAll(customers);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("The file is not a valid excel file");
+            }
         }
     }
 

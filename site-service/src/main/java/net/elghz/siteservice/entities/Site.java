@@ -1,7 +1,5 @@
 package net.elghz.siteservice.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import net.elghz.siteservice.enumeration.SiteType;
@@ -22,29 +20,45 @@ public class Site {
     private String name;
     @Enumerated(EnumType.STRING)
     private SiteType type;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Attribute> attributes ;
-   // @JsonManagedReference
+   /* @ManyToMany
+    @JoinTable(name = "site_categorie",
+            joinColumns = @JoinColumn(name = "site_id"),
+            inverseJoinColumns = @JoinColumn(name = "categorie_id"))
+    private Set<categorie> categories = new HashSet<>();*/
+
+    //@JsonManagedReference
     @ManyToMany (cascade = CascadeType.ALL)
     @JoinTable(name = "site_activite" ,joinColumns = @JoinColumn(name = "site_id"),
     inverseJoinColumns = @JoinColumn(name = "activite_id"))
     private Set<TypeActivite> typeactivites = new HashSet<>();
+    @ManyToMany(cascade = CascadeType.ALL)
 
-    public Site(SiteType type, List<Attribute> attributes, Set<TypeActivite> activites) {
-        this.type = type;
-        this.attributes = attributes;
-        this.typeactivites =activites;
-    }
+    @JoinTable(name = "site_attribut",
+            joinColumns = @JoinColumn(name = "site_id"),
+            inverseJoinColumns = @JoinColumn(name = "attribut_id"))
+    private Set<Attribute> attributs = new HashSet<>();
+
+
+    @OneToMany(cascade = CascadeType.ALL , mappedBy = "site")
+    private List<equipement> equipements= new ArrayList<>();
+    @ManyToOne @JoinColumn(name="CT_Id")
+    private CentreTechnique centreTechnique;
+    @OneToMany
+            (mappedBy = "site" , cascade = CascadeType.ALL)
+    private  List<Photo > photos = new ArrayList<>();
 
     public Site(SiteType siteType) {
-    }
+    }/*
 
-    public void addAttribute(Attribute attribute) {
-        if (this.attributes == null) {
-            this.attributes = new ArrayList<>();
+    public void addCategorie(categorie categorie) {
+        if (this.categories == null) {
+            this.categories = new HashSet<>();
         }
-        this.attributes.add(attribute);
+        this.categories.add(categorie);
     }
+*/
+
+
 
     public void addTypeActivite(TypeActivite typeActivite) {
         if (this.typeactivites == null) {
@@ -57,6 +71,55 @@ public class Site {
 
     public void clearTypeActivites (){
         this.typeactivites.clear();
-
     }
+
+    public void removeTypeActivite(TypeActivite typeActivite) {
+
+        this.typeactivites.remove(typeActivite);
+        typeActivite.removeSite(this);
+    }
+
+/*
+    public void removeCategori(categorie e) {
+        categories.remove(e);
+        e.setSites(null);
+    }*/
+    public  void  addEquipement(equipement e){
+        equipements.add(e);
+    }
+
+    public void removeEquipement(equipement e) {
+        equipements.remove(e);
+        e.setSite(null);
+    }
+    public void addAttribute(Attribute attribute) {
+        if (this.attributs == null) {
+            this.attributs = new HashSet<>();
+        }
+        this.attributs.add(attribute);
+
+        attribute.getSites().add(this);
+    }
+
+    public void removeAttribute(Attribute attribute) {
+        if (attributs != null) {
+            attributs.remove(attribute);
+            attribute.getSites().remove(this);
+        }
+    }
+
+    public void addPhoto(Photo photo) {
+        photos.add(photo);
+        photo.setSite(this);
+    }
+
+    public void ajouterImage(String imageName){
+        this.photos.add(new Photo(imageName, this));
+    }
+
+    public void removePhoto(Photo photo) {
+        photos.remove(photo);
+        photo.setSite(null);
+    }
+
 }

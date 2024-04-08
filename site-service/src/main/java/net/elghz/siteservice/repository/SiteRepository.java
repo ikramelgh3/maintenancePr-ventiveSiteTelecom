@@ -13,4 +13,6 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     List <Site> findByTypeactivitesId(Long Id);
 
     Optional<Site> findByName(String name);
+
+    boolean existsByName(String siteName);
 }
