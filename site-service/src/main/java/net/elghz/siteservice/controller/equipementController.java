@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +81,9 @@ public class equipementController {
     public ResponseEntity<String> deleteEquipement(@PathVariable Long id) {
         boolean deleted = serv.deleteById(id);
         if (deleted) {
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+            String uploadDir = "site-service/equipement-images/" +currentDate;
+            FileUploadUtil.cleanDir(uploadDir);
             return new ResponseEntity<>("L'équipement a été supprimé avec succès.", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("L'équipement n'a pas été trouvé.", HttpStatus.NOT_FOUND);
@@ -105,7 +110,8 @@ public class equipementController {
 
     private void saveUplodedImages(MultipartFile[] images, equipement eq) throws IOException {
         if(images.length>0){
-            String uploadDir = "site-service/equipement-images/" +eq.getId();
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+            String uploadDir = "site-service/equipement-images/" +currentDate;
             for(MultipartFile multipartFile: images){
                 if(multipartFile.isEmpty())continue;
                 String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());

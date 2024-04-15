@@ -35,6 +35,9 @@ public class equipement {
     @OneToMany(mappedBy = "equipement" , cascade = CascadeType.ALL)
     private List<PhotoEquipement> photoEquipements = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "salle_id")
+    private salle salle;
     public void addPhoto(PhotoEquipement photo) {
         photoEquipements.add(photo);
         photo.setEquipement(this);

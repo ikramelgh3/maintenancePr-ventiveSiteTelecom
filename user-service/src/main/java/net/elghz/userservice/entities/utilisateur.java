@@ -1,7 +1,11 @@
 package net.elghz.userservice.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
@@ -11,4 +15,12 @@ public class utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nom;
+    @Column (unique = true)
+    @NonNull
+    private String username;
+    @NonNull
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<Role> roles = new ArrayList<>();
 }

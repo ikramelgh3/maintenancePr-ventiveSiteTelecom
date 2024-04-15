@@ -1,15 +1,10 @@
 package net.elghz.siteservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import net.elghz.siteservice.dtos.attributeDTO;
-import net.elghz.siteservice.dtos.equipementDTO;
-import net.elghz.siteservice.dtos.siteDTO;
-import net.elghz.siteservice.dtos.typeActiviteDTO;
-import net.elghz.siteservice.entities.Attribute;
-import net.elghz.siteservice.entities.Photo;
-import net.elghz.siteservice.entities.Site;
-import net.elghz.siteservice.entities.categorie;
+import net.elghz.siteservice.dtos.*;
+import net.elghz.siteservice.entities.*;
 import net.elghz.siteservice.enumeration.SiteType;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.exception.NotFoundException;
@@ -23,6 +18,7 @@ import net.elghz.siteservice.mapper.categorieMapper;
 import net.elghz.siteservice.mapper.siteMapper;
 import net.elghz.siteservice.repository.CategorieRepo;
 import net.elghz.siteservice.repository.PhotoRepo;
+import net.elghz.siteservice.repository.SiteRepository;
 import net.elghz.siteservice.repository.attributeRepo;
 import net.elghz.siteservice.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +31,8 @@ import net.elghz.siteservice.service.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 
@@ -47,6 +41,8 @@ public class siteController {
     @Autowired private categorieService cserv;
     @Autowired
     private ImporterSite importerSite;
+    @Autowired
+    SiteRepository repo;
 @Autowired
     private attributeRepo arepo;
 @Autowired
@@ -74,7 +70,7 @@ public class siteController {
             return new ResponseEntity<>("Aucune site n'est trouvé", HttpStatus.NOT_FOUND);
         }
     }
-
+/*
     @GetMapping("site/type/{type}")
     public ResponseEntity<?> getSitesByType(@PathVariable String type) {
         try {
@@ -88,16 +84,11 @@ public class siteController {
         } catch (IllegalArgumentException ex) {
             return new ResponseEntity<>("Aucun site trouvé pour le type: " + type, HttpStatus.NOT_FOUND);
         }
-    }
+    }*/
 
     @GetMapping("/site/id/{id}")
     public ResponseEntity<?> findSiteById(@PathVariable Long id) throws SiteNotFoundException {
-        Optional<siteDTO> s = serv.findById(id);
-        if (s.isPresent()) {
-            return ResponseEntity.ok(s.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aucune site n'est trouvé avec ce ID");
-        }
+       return serv.findSiteById(id);
 
     }
 
@@ -105,7 +96,10 @@ public class siteController {
     public ResponseEntity<?> delete(@PathVariable Long id) {
         boolean deleted = serv.deleteById(id);
         if (deleted) {
-            String uploadDir = "../site-images/" +id;
+          //  removeExtraImagesName(repo.findById(id).get());
+
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+            String uploadDir = "site-service/site-images/" +currentDate;
             FileUploadUtil.cleanDir(uploadDir);
             return new ResponseEntity<>("Le site est supprimé", HttpStatus.OK);
         } else {
@@ -113,33 +107,25 @@ public class siteController {
         }
     }
 
+    @PostMapping("/siteMobile/add")
+    public ResponseEntity <?> addSite(@RequestBody SiteMobile mb){
 
-    @PostMapping("/site/add")
-    public ResponseEntity<?> saveSite(@RequestBody siteDTO siteDTO) {
-        try {
-            return serv.saveSite(siteDTO);
-        } catch (Exception e) {
-            // Gérer l'erreur et retourner une réponse appropriée en cas d'exception
-            return new ResponseEntity<>("Une erreur s'est produite lors de la sauvegarde du site.", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return  serv.saveSiteMobile(mb);
+    }
+
+    @PostMapping("/siteFixe/add")
+    public ResponseEntity <?> addSite(@RequestBody SiteFixe mb){
+
+        return  serv.saveSiteFixe(mb);
     }
 
 
-    @PutMapping("/site/{id}")
-    public ResponseEntity<String> updateSite(@PathVariable Long id, @RequestBody siteDTO updatedSite) {
-        updatedSite.setId(id);
-        boolean updated = serv.updateSite(updatedSite);
-        if (updated) {
-            return new ResponseEntity<>("Le site est bien modifié", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Aucun site n'est trouvé avec ce Id: " + id, HttpStatus.NOT_FOUND);
-        }
-    }
 
+    //afficher les sites par type
     @GetMapping("/{sideId}/activities")
-    public ResponseEntity<Set<typeActiviteDTO>> getSitesByTypeActivite(@PathVariable("sideId") Long s) {
-        Set<typeActiviteDTO> sites = serv.getActivitiesBySite(s);
-        return ResponseEntity.ok().body(sites);
+    public ResponseEntity<?> getSitesByTypeActivite(@PathVariable("sideId") Long s) {
+        return  serv.getActivitiesBySite(s);
+
     }
 
     @GetMapping("/site/{name}/equipements")
@@ -189,7 +175,7 @@ public class siteController {
 
     @GetMapping("/sites/export/excel")
     public void exportToExcel(HttpServletResponse servletResponse) throws IOException {
-        List<siteDTO> siteDTOS = serv.allSites();
+        List<Site> siteDTOS = repo.findAll();
         SiteExcelExporter exporter = new SiteExcelExporter(ctService, dcService);
         exporter.export(siteDTOS, servletResponse);
     }
@@ -201,7 +187,7 @@ public class siteController {
         }
 
         try {
-            importerSite.importSites(file.getInputStream());
+            importerSite.importSites(file.getInputStream() );
             return new ResponseEntity<>("Les sites ont été importés avec succès.", HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
@@ -212,7 +198,7 @@ public class siteController {
         }
     }
 
-
+/*
     @PostMapping("/site/{siteId}/add-attribute/{attributeId}")
     public ResponseEntity<?> addAttributeToSite(@PathVariable Long siteId, @PathVariable Long attributeId) {
         return serv.addAttributeToSite(siteId, attributeId);
@@ -227,7 +213,7 @@ public class siteController {
     public ResponseEntity<?> getAttributesOfSite(@PathVariable Long siteId) {
         return serv.getAttributesOfSite(siteId);
     }
-
+*/
     @PostMapping("/{ctId}/assign-site/{siteId}")
     public ResponseEntity<String> assignCentreToSite(@PathVariable Long ctId, @PathVariable Long siteId) throws NotFoundException {
         String message = serv.assignCentreTechniqueToSite(ctId, siteId);
@@ -265,7 +251,8 @@ public class siteController {
 
     private void saveUplodedImages(MultipartFile[] images, Site site) throws IOException {
       if(images.length>0){
-          String uploadDir = "site-service/site-images/" +site.getId();
+          String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+          String uploadDir = "site-service/site-images/" +currentDate;
           for(MultipartFile multipartFile: images){
               if(multipartFile.isEmpty())continue;
               String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -273,7 +260,6 @@ public class siteController {
           }
       }
     }
-
     private void setExtraImagesName(MultipartFile[] images, Site site) {
         if(images.length>0){
             for (MultipartFile multipartFile: images){
@@ -289,6 +275,27 @@ public class siteController {
             }
         }
     }
+
+
+    private void removeExtraImagesName( Site site) {
+        List<Photo> images = site.getPhotos();
+        if(site.getPhotos().size()>0){
+
+            for (Photo multipartFile: images){
+
+                   site.removePhoto(multipartFile);
+                   multipartFile.setSite(null);
+
+
+                }
+            }
+        }
+
+
+
+
+
+
 
 
 }

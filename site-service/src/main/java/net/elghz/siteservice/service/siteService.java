@@ -10,9 +10,8 @@ import net.elghz.siteservice.enumeration.SiteType;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.exception.NotFoundException;
 import net.elghz.siteservice.exception.SiteNotFoundException;
-import net.elghz.siteservice.mapper.equipementMapper;
-import net.elghz.siteservice.mapper.siteMapper;
-import net.elghz.siteservice.mapper.typeActiviteMapper;
+import net.elghz.siteservice.mapper.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -39,33 +38,48 @@ public class siteService {
     private EntityManager entityManager;
     private CTRepo ctRepo;
 
+    @Autowired
+    private siteMobileMapper siteMobileMap;
+    @Autowired
+    private siteFixeMapper siteFixeMap;
     private CategorieRepo catrepo;
     private attributeRepo attributeRepository;
 
-    public Optional<List<siteDTO>> findByType(SiteType type) {
-        List<Site> sites = repo.findByType(type);
+    /*
+        public Optional<List<siteDTO>> findByType(SiteType type) {
+            List<Site> sites = repo.findByType(type);
 
 
-        return Optional.ofNullable(sites.stream().map(smapper::from).collect(Collectors.toList()));
+            return Optional.ofNullable(sites.stream().map(smapper::from).collect(Collectors.toList()));
 
-    }
-    public List<siteDTO> allSites(){
+        }*/
+    public List<siteDTO> allSites() {
         return repo.findAll().stream().map(smapper::from).collect(Collectors.toList());
     }
 
 
+    public Optional<siteDTO> findById(Long id) throws SiteNotFoundException {
 
-    public Optional <siteDTO> findById(Long id) throws SiteNotFoundException{
-
-        Optional<Site>  eq = repo.findById(id);
-        if(eq.isPresent()) {
+        Optional<Site> eq = repo.findById(id);
+        if (eq.isPresent()) {
             siteDTO equipementDTO = smapper.from(eq.get());
-            return Optional.of(equipementDTO) ;
+            return Optional.of(equipementDTO);
+        } else {
+            throw new SiteNotFoundException("Aucune site avec ce id :" + id);
+        }
+
+    }
+
+    public  ResponseEntity<?> findSiteById(Long id) throws SiteNotFoundException {
+
+        Optional<Site> eq = repo.findById(id);
+        if (eq.isPresent()) {
+            siteDTO equipementDTO = smapper.from(eq.get());
+            return new ResponseEntity<> (Optional.of(equipementDTO), HttpStatus.OK);
         }
         else{
-            throw  new SiteNotFoundException("Aucune site avec ce id :" +id);
+            return new ResponseEntity<>("Aucune Site avec ce ID: "+id, HttpStatus.NOT_FOUND);
         }
-
     }
 
     public boolean deleteById(Long id) {
@@ -77,6 +91,7 @@ public class siteService {
             return false;
         }
     }
+
     private boolean isSiteNameUnique(String siteName) {
         Optional<Site> existingSite = repo.findByName(siteName);
         return existingSite.isEmpty();
@@ -90,37 +105,64 @@ public class siteService {
         return repo.existsById(equipementId);
     }
 
-    /*public ResponseEntity<?> saveSite(siteDTO site) {
-        String siteName = site.getName();
-        if (isSiteNameUnique(siteName)) {
 
-            Site savedSite = repo.save(smapper.from(site));
-            return new ResponseEntity<>(savedSite, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("Le nom de site est déjà utilisé.", HttpStatus.BAD_REQUEST);
-        }
-    }
-*/
-
-    @Transactional
-    public ResponseEntity<?> saveSite(siteDTO site) {
+    public ResponseEntity<?> saveSiteMobile(SiteMobile site) {
         String siteName = site.getName();
 
         if (!isSiteNameUnique(siteName)) {
             return new ResponseEntity<>("Le nom de site est déjà utilisé.", HttpStatus.BAD_REQUEST);
-        }
-        Site siteEntity = smapper.from(site);
-
-        for (Attribute attribute : siteEntity.getAttributs()) {
-
-            categorie categorie = attribute.getCategorie();
-
-            entityManager.persist(categorie);
-            entityManager.persist(attribute);
+        } else {
+//            Site s = smapper.from(site);
+            site.setTypeSite("Mobile");
+            //siteDTO dto =smapper.mapToSiteDTO(site);
+           // Site s = smapper.from(dto);
+            repo.save(site);
+            return new ResponseEntity<>(site, HttpStatus.CREATED);
         }
 
-        Site savedSite = repo.save(siteEntity);
-        return new ResponseEntity<>(savedSite, HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<?> saveSiteFixe (SiteFixe site) {
+        String siteName = site.getName();
+
+        if (!isSiteNameUnique(siteName)) {
+            return new ResponseEntity<>("Le nom de site est déjà utilisé.", HttpStatus.BAD_REQUEST);
+        } else {
+            site.setTypeSite("Fixe");
+            repo.save(site);
+            return new ResponseEntity<>(site, HttpStatus.CREATED);
+        }
+
+    }
+
+
+    public ResponseEntity<?> addSite(Site site) {
+        if (site instanceof SiteFixe) {
+            // Traitement spécifique pour les sites fixes
+            return new ResponseEntity<>(site, HttpStatus.CREATED);
+        } else if (site instanceof SiteMobile) {
+            // Traitement spécifique pour les sites mobiles
+            return new ResponseEntity<>(site, HttpStatus.CREATED);
+        } else {
+            throw new IllegalArgumentException("Type de site non pris en charge");
+        }
+    }
+
+
+
+    public  boolean updateSiteFixe(SiteFixeDTO updatedSiteDTO){
+
+        Long siteId = updatedSiteDTO.getId();
+        Optional<Site> existingSiteOptional = repo.findById(siteId);
+
+        if (existingSiteOptional.isPresent()) {
+            Site existingSite = existingSiteOptional.get();
+            siteFixeMap.update(updatedSiteDTO, existingSite);
+            repo.save(existingSite);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
@@ -130,16 +172,15 @@ public class siteService {
 
         if (existingSiteOptional.isPresent()) {
             Site existingSite = existingSiteOptional.get();
-           // smapper.update(updatedSiteDTO, existingSite);
+            existingSite.update(updatedSiteDTO);
             repo.save(existingSite);
             return true;
         } else {
-            return false;
+            return false; // Aucun site trouvé avec l'ID donné
         }
     }
-
     //les activite d'un site donne
-    public Set<typeActiviteDTO> getActivitiesBySite(Long s) {
+    public  ResponseEntity<?>getActivitiesBySite(Long s) {
         Optional<Site> siteOptional = repo.findById(s);
 
         if (siteOptional.isPresent()) {
@@ -147,15 +188,15 @@ public class siteService {
             Set<typeActiviteDTO> typeActiviteDTOs = ss.getTypeactivites().stream()
                     .map(amapper::from)
                     .collect(Collectors.toSet());
-            return typeActiviteDTOs;
+            return  new ResponseEntity<>(typeActiviteDTOs, HttpStatus.OK );
         } else {
-            throw new EntityNotFoundException("Le site avec l'ID " + s + " n'existe pas.");
+            return  new ResponseEntity<>("Le site avec l'ID " + s + " n'existe pas.", HttpStatus.NOT_FOUND);
         }
     }
 
     //afficher les equipements d'un site donné
 
-    public List<equipementDTO> equipements(String name)  throws  EquipementNotFoundException, SiteNotFoundException{
+    public List<equipementDTO> equipements(String name) throws EquipementNotFoundException, SiteNotFoundException {
 
         Optional<Site> siteOptional = repo.findByName(name);
         if (siteOptional.isPresent()) {
@@ -165,29 +206,29 @@ public class siteService {
                 throw new EquipementNotFoundException("Audun équipement trouvé dans le site avec le nom: " + name);
             }
             List<equipementDTO> equipementDTOS = equipements.stream()
-                    .map(equipement -> mapperEqui.fromEquipement(equipement) )
+                    .map(equipement -> mapperEqui.fromEquipement(equipement))
                     .collect(Collectors.toList());
             return equipementDTOS;
         } else {
             throw new SiteNotFoundException("Aucun site trouvé avec le nom: " + name);
         }
     }
+
     //ajouter un equipement à un site donnee
-    public boolean addEquipementToSite(Long idIte , equipementDTO e){
+    public boolean addEquipementToSite(Long idIte, equipementDTO e) {
 
         Optional<Site> s = repo.findById(idIte);
-        if (s.isPresent()){
+        if (s.isPresent()) {
             equipement ee = mapperEqui.from(e);
-            Site ss  = s.get();
+            Site ss = s.get();
             ee.setSite(ss);
             ss.addEquipement(ee);
             repo.save(ss);
-            return  true;
-        }
-        else {
+            return true;
+        } else {
             return false;
         }
-        }
+    }
 
     public boolean removeEquipementFromSite(Long siteId, Long equipementId) {
         Optional<Site> siteOptional = repo.findById(siteId);
@@ -209,29 +250,30 @@ public class siteService {
             return false;
         }
     }
-/*
-    public void associerCategorieAuSite(Long siteId, Long categorieId) {
-        Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found"));
-        categorie categorie = catrepo.findById(categorieId).orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
-        site.addCategorie(categorie);
-        repo.save(site);
-    }
+    /*
+        public void associerCategorieAuSite(Long siteId, Long categorieId) {
+            Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found"));
+            categorie categorie = catrepo.findById(categorieId).orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
-    public void dissocierCategorieDuSite(Long siteId, Long categorieId) {
-        Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found"));
-        categorie categorie = catrepo.findById(categorieId).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+            site.addCategorie(categorie);
+            repo.save(site);
+        }
 
-        site.removeCategori(categorie);
-        repo.save(site);
-    }
-*/
+        public void dissocierCategorieDuSite(Long siteId, Long categorieId) {
+            Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found"));
+            categorie categorie = catrepo.findById(categorieId).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+            site.removeCategori(categorie);
+            repo.save(site);
+        }
+    */
     public boolean exists(Long siteId) {
         return repo.existsById(siteId);
     }
 
 
-
+/*
     public ResponseEntity<?> addAttributeToSite(Long siteId, Long attributeId) {
         Optional<Site> optionalSite = repo.findById(siteId);
         Optional<Attribute> optionalAttribute = attributeRepository.findById(attributeId);
@@ -252,8 +294,8 @@ public class siteService {
             return new ResponseEntity<>("Le site ou l'attribut n'existe pas.", HttpStatus.NOT_FOUND);
         }
     }
-
-
+*/
+/*
     public ResponseEntity<?> removeAttributeFromSite(Long siteId, Long attributeId) {
         Optional<Site> optionalSite = repo.findById(siteId);
         Optional<Attribute> optionalAttribute = attributeRepository.findById(attributeId);
@@ -283,7 +325,7 @@ public class siteService {
         } else {
             return new ResponseEntity<>("Le site n'existe pas.", HttpStatus.NOT_FOUND);
         }
-    }
+    }*/
 
 
     public String assignCentreTechniqueToSite(Long centreTechniqueId, Long siteId) {
@@ -327,31 +369,33 @@ public class siteService {
         CentreTechnique centreTechnique = ctRepo.findById(ctId)
                 .orElseThrow(() -> new NotFoundException("Centre technique non trouvé avec l'ID : " + ctId));
 
-        if( centreTechnique.getSites().isEmpty()){
+        if (centreTechnique.getSites().isEmpty()) {
             return new ResponseEntity<>("Aucune site n'est associe à ce centre technqiue", HttpStatus.OK);
-        }
-        else{
-            return  new ResponseEntity<>(centreTechnique.getSites(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(centreTechnique.getSites(), HttpStatus.OK);
         }
     }
 
 
-    public ResponseEntity<?> getCTSite(Long id){
+    public ResponseEntity<?> getCTSite(Long id) {
         Optional<Site> s = repo.findById(id);
-        if(s.isPresent()){
+        if (s.isPresent()) {
             siteDTO dto = smapper.from(s.get());
             Optional<CentreTechniqueDTO> ctDTO = Optional.ofNullable(dto.getCentreTechnique());
-            if(ctDTO.isPresent()){
-                return  new ResponseEntity<>("Le centre technique associe à ce site est : "+dto.getName() , HttpStatus.OK);
+            if (ctDTO.isPresent()) {
+                return new ResponseEntity<>("Le centre technique associe à ce site est : " + dto.getName(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Aucune Centre technique n'est associe à ce site ", HttpStatus.OK);
             }
-            else {
-                return  new ResponseEntity<>("Aucune Centre technique n'est associe à ce site " , HttpStatus.OK);
-            }
-        }
-        else {
-            return new ResponseEntity<>("Site non trouvé avec l'ID : "+ id , HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>("Site non trouvé avec l'ID : " + id, HttpStatus.NOT_FOUND);
         }
     }
+
+
+
+
+
 
 
 }

@@ -133,6 +133,10 @@ public class DCService {
         }
     }
 
+
+    public DR getDRFromDC(String name){
+        return repo.findByName(name).get().getDr();
+    }
     public Long DCIdByNamr(String name){
         DC dc= repo.findByName(name).get();
         return  dc.getId();

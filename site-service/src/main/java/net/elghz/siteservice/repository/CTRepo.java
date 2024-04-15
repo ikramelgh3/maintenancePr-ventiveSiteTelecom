@@ -12,4 +12,6 @@ public interface CTRepo extends JpaRepository<CentreTechnique, Long> {
     Optional<CentreTechnique> findByName(String dr);
 
     List<CentreTechnique> findByDc(DC dc);
+
+  //  CentreTechnique findByDc(Long id);
 }

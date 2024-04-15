@@ -14,12 +14,5 @@ public class UserServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(UserServiceApplication.class, args);
     }
-    @Bean
-    CommandLineRunner commandLineRunner ( userRepository repo){
 
-        return args -> {
-            List<utilisateur> users = List.of(utilisateur.builder().nom("elgh").build(),utilisateur.builder().nom("agj").build());
-            repo.saveAll(users);
-        };
-    }
 }

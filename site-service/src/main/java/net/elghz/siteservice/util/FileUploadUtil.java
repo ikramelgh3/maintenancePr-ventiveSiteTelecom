@@ -39,6 +39,14 @@ public class FileUploadUtil {
                     }
                 }
             });
+            if (Files.list(dirPath).count() == 0) {
+                try {
+                    Files.delete(dirPath);
+                    System.out.println("Le dossier a été supprimé: " + dir);
+                } catch (IOException ex) {
+                    System.out.println("Le dossier ne peut pas être supprimé: " + dir);
+                }
+            }
 
         }
         catch (IOException ex){

@@ -20,8 +20,8 @@ public class Attribute {
     @JoinColumn(name = "categorie_id")
     private categorie categorie;
 
-    @ManyToMany(mappedBy = "attributs")
-    private Set<Site> sites = new HashSet<>();
+    //@ManyToMany(mappedBy = "attributs")
+    //private Set<Site> sites = new HashSet<>();
 
     public Attribute(String attributeName, String attributeValue) {
         this.attributeValue=attributeValue;

@@ -6,6 +6,7 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import net.elghz.siteservice.dtos.CentreTechniqueDTO;
 import net.elghz.siteservice.dtos.attributeDTO;
 import net.elghz.siteservice.dtos.siteDTO;
 import net.elghz.siteservice.dtos.typeActiviteDTO;
@@ -14,10 +15,7 @@ import net.elghz.siteservice.enumeration.SiteType;
 import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.mapper.typeActiviteMapper;
 import net.elghz.siteservice.repository.*;
-import net.elghz.siteservice.service.ActiviteService;
-import net.elghz.siteservice.service.CTService;
-import net.elghz.siteservice.service.DCService;
-import net.elghz.siteservice.service.DRService;
+import net.elghz.siteservice.service.*;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -58,9 +56,11 @@ public class ImporterSite {
     @Autowired
     CTService ctService;
 
+    @Autowired
+    siteService service;
     @Transactional
     public void importSites(InputStream inputStream) throws IOException {
-        try (Workbook workbook = WorkbookFactory.create(inputStream)) {
+        /*try (Workbook workbook = WorkbookFactory.create(inputStream)) {
             Sheet sheet = workbook.getSheetAt(0);
 
             Iterator<Row> rowIterator = sheet.iterator();
@@ -85,7 +85,7 @@ public class ImporterSite {
                 cell = row.getCell(2); // Type
                 if (cell != null && cell.getCellType() == CellType.STRING) {
                     String type = cell.getStringCellValue();
-                    site.setType(SiteType.valueOf(type.toUpperCase()));
+                    site.setCode(type);
                 }
 
                 // Centre technique
@@ -131,97 +131,304 @@ public class ImporterSite {
                 // Save the site
                 repo.save(site);
             }
-        }
+        }*/
     }
 
 
 
     @Transactional
-    public void importSitesParTypeActivite(InputStream inputStream , Long id) throws IOException {
+    public void importSitesParTypeActivite(InputStream inputStream, Long id) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(inputStream)) {
 
-            if(acrepo.findById(id).isPresent()){
-                TypeActivite typeActivite = acrepo.findById(id).get();
+            Optional<TypeActivite> optionalTypeActivite = acrepo.findById(id);
+            if (optionalTypeActivite.isPresent()) {
+                TypeActivite typeActivite = optionalTypeActivite.get();
 
                 Sheet sheet = workbook.getSheetAt(0);
-
 
                 Iterator<Row> rowIterator = sheet.iterator();
                 rowIterator.next(); // Pass the header row
 
                 while (rowIterator.hasNext()) {
                     Row row = rowIterator.next();
-                    Site site = new Site();
-                    site.addTypeActivite(typeActivite);
-                    // Code to set ID if needed
-
-                    Cell cell = row.getCell(1); // Name
+                   Cell  cell = row.getCell(2);
                     if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String siteName = cell.getStringCellValue();
-                        // Vérifie si un site avec le même nom existe déjà dans la base de données
-                        if (repo.existsByName(siteName)) {
-                            throw new DataIntegrityViolationException("Un site avec le nom '" + siteName + "' existe déjà dans la base de données.");
-                        }
-                        site.setName(siteName);
-                    }
+                        String typeSite = cell.getStringCellValue();
+                        System.out.println(typeSite);
+                       if(typeSite.equals("Mobile")){
+                           SiteMobile site = new SiteMobile();
+                           site.addTypeActivite(typeActivite);
+                           service.saveSiteMobile(site);
+                           site.setTypeSite(typeSite);
 
-                    cell = row.getCell(2); // Type
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String type = cell.getStringCellValue();
-                        site.setType(SiteType.valueOf(type.toUpperCase()));
-                    }
 
-                    // Centre technique
-                    cell = row.getCell(3); // Centre technique
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String centreTechniqueName = cell.getStringCellValue();
-                        Optional<CentreTechnique> optionalCentreTechnique = ctrepo.findByName(centreTechniqueName);
+                           cell = row.getCell(1); // Name
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String siteName = cell.getStringCellValue();
+                               if (repo.existsByName(siteName)) {
+                                   throw new DataIntegrityViolationException("Un site avec le nom '" + siteName + "' existe déjà dans la base de données.");
+                               }
+                               site.setName(siteName);
+                           }
 
-                        if (optionalCentreTechnique.isPresent()) {
-                            CentreTechnique centreTechnique = optionalCentreTechnique.get();
-                            site.setCentreTechnique(centreTechnique);
-                        }
-                    }
+                           cell = row.getCell(0);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String code = cell.getStringCellValue();
+                               site.setCode(code);
+                           }
 
-                    // DC
-                    cell = row.getCell(4); // DC
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String dcName = cell.getStringCellValue();
-                        Optional<DC> optionalDC = dcRepo.findByName(dcName);
 
-                        if (optionalDC.isPresent()) {
-                            DC dc = optionalDC.get();
-                            if(site.getCentreTechnique() != null) {
-                                site.getCentreTechnique().setDc(dc);
+
+                           // Centre technique
+                           cell = row.getCell(3
+                           ); // Centre technique
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String centreTechniqueName = cell.getStringCellValue();
+                               Optional<CentreTechnique> optionalCentreTechnique = ctrepo.findByName(centreTechniqueName);
+
+                               CentreTechnique centreTechnique;
+                               if (optionalCentreTechnique.isPresent()) {
+                                   centreTechnique = optionalCentreTechnique.get();
+                               } else {
+                                   // Créer un nouveau centre technique s'il n'existe pas
+                                   centreTechnique = new CentreTechnique();
+                                   centreTechnique.setName(centreTechniqueName);
+                                   // Sauvegarder le nouveau centre technique dans la base de données
+                                   centreTechnique = ctrepo.save(centreTechnique);
+                               }
+                               site.setCentreTechnique(centreTechnique);
+                           }
+
+                           // DC
+                           cell = row.getCell(4); // DC
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String dcName = cell.getStringCellValue();
+                               Optional<DC> optionalDC = dcRepo.findByName(dcName);
+
+                               DC dc;
+                               if (optionalDC.isPresent()) {
+                                   dc = optionalDC.get();
+                               } else {
+                                   // Créer un nouveau DC s'il n'existe pas
+                                   dc = new DC();
+                                   dc.setName(dcName);
+                                   // Sauvegarder le nouveau DC dans la base de données
+                                   dc = dcRepo.save(dc);
+                               }
+                               if (site.getCentreTechnique() != null) {
+                                   site.getCentreTechnique().setDc(dc);
+                               }
+                           }
+
+                           // DR
+                           cell = row.getCell(5); // DR
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String drName = cell.getStringCellValue();
+                               Optional<DR> optionalDR = drRepo.findByName(drName);
+
+                               DR dr;
+                               if (optionalDR.isPresent()) {
+                                   dr = optionalDR.get();
+                               } else {
+                                   // Créer un nouveau DR s'il n'existe pas
+                                   dr = new DR();
+                                   dr.setName(drName);
+                                   // Sauvegarder le nouveau DR dans la base de données
+                                   dr = drRepo.save(dr);
+                               }
+                               if (site.getCentreTechnique() != null && site.getCentreTechnique().getDc() != null) {
+                                   site.getCentreTechnique().getDc().setDr(dr);
+                               }
+                           }
+
+                           cell = row.getCell(6);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String addr = cell.getStringCellValue();
+                               site.setAddresse(addr);
+                           }
+                           cell = row.getCell(7);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String lg = cell.getStringCellValue();
+                               site.setLatitude(Double.valueOf(lg));
+                           } cell = row.getCell(8);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String longi = cell.getStringCellValue();
+                               site.setLongitude(Double.valueOf(longi));
+                           } cell = row.getCell(9);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String typeIns = cell.getStringCellValue();
+                               site.setTypeInstallation(typeIns);
+                           } cell = row.getCell(10);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String type = cell.getStringCellValue();
+                               site.setTypeAlimentation(type);
+                           } cell = row.getCell(11);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String type = cell.getStringCellValue();
+                               site.setPresenceGESecours(Boolean.valueOf(type));
+                           } cell = row.getCell(12);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               String type = cell.getStringCellValue();
+                               site.setTypeTransmission(type);
+                           } cell = row.getCell(13);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               SiteMobile mb = (SiteMobile) site;
+                               String type = cell.getStringCellValue();
+                               mb.setSupportAntennes(type);
+                           } cell = row.getCell(14);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               SiteMobile mb = (SiteMobile) site;
+                               String type = cell.getStringCellValue();
+                               mb.setHauteurSupportAntenne(Double.valueOf(type));
+                           } cell = row.getCell(15);
+                           if (cell != null && cell.getCellType() == CellType.STRING) {
+                               SiteMobile mb = (SiteMobile) site;
+                               String type = cell.getStringCellValue();
+                               mb.setLieuInsatallationBTS(type);
+
+                           }
+
+                           // Enregistrer le site
+                           service.saveSiteMobile(site);
+                       }
+
+                       else if
+                            (typeSite.equals("Fixe")){
+                                SiteFixe site = new SiteFixe();
+                                site.addTypeActivite(typeActivite);
+                                service.saveSiteFixe(site);
+                                site.setTypeSite(typeSite);
+
+
+                                cell = row.getCell(1); // Name
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String siteName = cell.getStringCellValue();
+                                    if (repo.existsByName(siteName)) {
+                                        throw new DataIntegrityViolationException("Un site avec le nom '" + siteName + "' existe déjà dans la base de données.");
+                                    }
+                                    site.setName(siteName);
+                                }
+
+                                cell = row.getCell(0);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String code = cell.getStringCellValue();
+                                    site.setCode(code);
+                                }
+
+
+
+                                // Centre technique
+                                cell = row.getCell(3
+                                ); // Centre technique
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String centreTechniqueName = cell.getStringCellValue();
+                                    Optional<CentreTechnique> optionalCentreTechnique = ctrepo.findByName(centreTechniqueName);
+
+                                    CentreTechnique centreTechnique;
+                                    if (optionalCentreTechnique.isPresent()) {
+                                        centreTechnique = optionalCentreTechnique.get();
+                                    } else {
+                                        // Créer un nouveau centre technique s'il n'existe pas
+                                        centreTechnique = new CentreTechnique();
+                                        centreTechnique.setName(centreTechniqueName);
+                                        // Sauvegarder le nouveau centre technique dans la base de données
+                                        centreTechnique = ctrepo.save(centreTechnique);
+                                    }
+                                    site.setCentreTechnique(centreTechnique);
+                                }
+
+                                // DC
+                                cell = row.getCell(4); // DC
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String dcName = cell.getStringCellValue();
+                                    Optional<DC> optionalDC = dcRepo.findByName(dcName);
+
+                                    DC dc;
+                                    if (optionalDC.isPresent()) {
+                                        dc = optionalDC.get();
+                                    } else {
+                                        // Créer un nouveau DC s'il n'existe pas
+                                        dc = new DC();
+                                        dc.setName(dcName);
+                                        // Sauvegarder le nouveau DC dans la base de données
+                                        dc = dcRepo.save(dc);
+                                    }
+                                    if (site.getCentreTechnique() != null) {
+                                        site.getCentreTechnique().setDc(dc);
+                                    }
+                                }
+
+                                // DR
+                                cell = row.getCell(5); // DR
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String drName = cell.getStringCellValue();
+                                    Optional<DR> optionalDR = drRepo.findByName(drName);
+
+                                    DR dr;
+                                    if (optionalDR.isPresent()) {
+                                        dr = optionalDR.get();
+                                    } else {
+                                        // Créer un nouveau DR s'il n'existe pas
+                                        dr = new DR();
+                                        dr.setName(drName);
+                                        // Sauvegarder le nouveau DR dans la base de données
+                                        dr = drRepo.save(dr);
+                                    }
+                                    if (site.getCentreTechnique() != null && site.getCentreTechnique().getDc() != null) {
+                                        site.getCentreTechnique().getDc().setDr(dr);
+                                    }
+                                }
+
+                                cell = row.getCell(6);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String addr = cell.getStringCellValue();
+                                    site.setAddresse(addr);
+                                }
+                                cell = row.getCell(7);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String lg = cell.getStringCellValue();
+                                    site.setLatitude(Double.valueOf(lg));
+                                } cell = row.getCell(8);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String longi = cell.getStringCellValue();
+                                    site.setLongitude(Double.valueOf(longi));
+                                } cell = row.getCell(9);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String typeIns = cell.getStringCellValue();
+                                    site.setTypeInstallation(typeIns);
+                                } cell = row.getCell(10);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String type = cell.getStringCellValue();
+                                    site.setTypeAlimentation(type);
+                                } cell = row.getCell(11);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String type = cell.getStringCellValue();
+                                    site.setPresenceGESecours(Boolean.valueOf(type));
+                                } cell = row.getCell(12);
+                                if (cell != null && cell.getCellType() == CellType.STRING) {
+                                    String type = cell.getStringCellValue();
+                                    site.setTypeTransmission(type);
+                                }
+
+                                // Enregistrer le site
+                                service.saveSiteFixe(site);
                             }
-                        }
+
+                       else {
+                           System.out.println("siite fixe ");
+                       }
                     }
 
-                    // DR
-                    cell = row.getCell(5); // DR
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        String drName = cell.getStringCellValue();
-                        Optional<DR> optionalDR = drRepo.findByName(drName);
-
-                        if (optionalDR.isPresent()) {
-                            DR dr = optionalDR.get();
-                            if(site.getCentreTechnique() != null && site.getCentreTechnique().getDc() != null) {
-                                site.getCentreTechnique().getDc().setDr(dr);
-
-                            }
-                        }
-                    }
-
-                    // Save the site
-                    repo.save(site);
-            }
 
 
-            }else{
-                throw new ActiviteNotFoundException("Aucune activite trouvée avec l'id : " + id);
 
+                }
+
+            } else {
+                throw new ActiviteNotFoundException("Aucune activité trouvée avec l'id : " + id);
             }
         }
     }
+
 
 }

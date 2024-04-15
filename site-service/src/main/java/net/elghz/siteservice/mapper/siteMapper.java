@@ -27,10 +27,54 @@ public class siteMapper {
     public Site from (siteDTO   siteDTO){
         return modelMapper.map(siteDTO,Site.class);
     }
+
+    public siteDTO mapToSiteDTO(SiteFixeDTO siteFixeDTO) {
+        return modelMapper.map(siteFixeDTO, siteDTO.class);
+    }
+
+    public siteDTO mapToSiteDTO(SiteMobileDTO siteMobileDTO) {
+        return modelMapper.map(siteMobileDTO, siteDTO.class);
+    }
+
+    public salleDTO from (salle e){
+        return modelMapper.map(e, salleDTO.class);
+    }
+
+    public salle from (salleDTO   siteDTO){
+        return modelMapper.map(siteDTO,salle.class);
+    }
+
+
+    public immubleDTO from (immuble e){
+        return modelMapper.map(e, immubleDTO.class);
+    }
+
+    public immuble from (immubleDTO   siteDTO){
+        return modelMapper.map(siteDTO,immuble.class);
+    }
+
+    public etageDTO from (etage e){
+        return modelMapper.map(e, etageDTO.class);
+    }
+
+    public etage from (etageDTO   siteDTO){
+        return modelMapper.map(siteDTO,etage.class);
+    }
+
+
     public void update(siteDTO dto, Site site) {
         site.setName(dto.getName());
-        site.setType(dto.getType());
+        site.setAddresse(dto.getAddresse());
+        site.setCode(dto.getCode());
+       // site.setCentreTechnique(dto.getCentreTechnique());
+        site.setLatitude(dto.getLatitude());
+        site.setLongitude(dto.getLongitude());
+        site.setPresenceGESecours(dto.getPresenceGESecours());
+        site.setTypeInstallation(dto.getTypeInstallation());
+        site.setTypeAlimentation(dto.getTypeAlimentation());
 
+        //site.setType(dto.getType());
+/*
         if (dto.getAttributs() != null) {
             Set<Attribute> attributs = new HashSet<>();
             for (attributeDTO attributDTO : dto.getAttributs()) {
@@ -38,7 +82,7 @@ public class siteMapper {
             }
             site.setAttributs(attributs);
         }
-
+*/
         if (dto.getEquipements() != null) {
             List<equipement> equipements = new ArrayList<>();
             for (equipementDTO equipementDTO : dto.getEquipements()) {

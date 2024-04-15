@@ -4,10 +4,10 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import net.elghz.siteservice.controller.DCController;
 import net.elghz.siteservice.controller.centreTechniqueController;
-import net.elghz.siteservice.dtos.attributeDTO;
-import net.elghz.siteservice.dtos.categorieDTO;
-import net.elghz.siteservice.dtos.siteDTO;
-import net.elghz.siteservice.dtos.typeActiviteDTO;
+import net.elghz.siteservice.dtos.*;
+import net.elghz.siteservice.entities.Site;
+import net.elghz.siteservice.entities.SiteFixe;
+import net.elghz.siteservice.entities.SiteMobile;
 import net.elghz.siteservice.service.CTService;
 import net.elghz.siteservice.service.DCService;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -23,12 +23,15 @@ public class SiteExcelExporter extends AbstractExporter {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
-    @Autowired  private  final CTService c ;
-    @Autowired  private final DCService dcController ;
-    public SiteExcelExporter( CTService c ,DCService dcController) {
+    @Autowired
+    private final CTService c;
+    @Autowired
+    private final DCService dcController;
+
+    public SiteExcelExporter(CTService c, DCService dcController) {
         workbook = new XSSFWorkbook();
-        this.dcController=dcController;
-        this.c=c;
+        this.dcController = dcController;
+        this.c = c;
     }
 
     private void createCell(XSSFRow row, int columnIndex, String value, CellStyle style) {
@@ -36,7 +39,9 @@ public class SiteExcelExporter extends AbstractExporter {
         sheet.autoSizeColumn(columnIndex);
         cell.setCellValue(value);
         cell.setCellStyle(style);
-    }public void export(List<siteDTO> sitesDTO, HttpServletResponse response) throws IOException {
+    }
+
+    public void export(List<Site> sitesDTO, HttpServletResponse response) throws IOException {
         super.setResponseHeader("Les sites", response, "application/octet-stream", ".xlsx");
 
         sheet = workbook.createSheet("Les sites");
@@ -50,20 +55,20 @@ public class SiteExcelExporter extends AbstractExporter {
         int columnIndex = 0;
         createCell(headerRow, columnIndex++, "code", headerCellStyle);
         createCell(headerRow, columnIndex++, "name", headerCellStyle);
-        createCell(headerRow, columnIndex++, "type", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Type", headerCellStyle);
         createCell(headerRow, columnIndex++, "Centre Technique", headerCellStyle);
         createCell(headerRow, columnIndex++, "DC", headerCellStyle);
         createCell(headerRow, columnIndex++, "DR", headerCellStyle);
-
-        Set<String> attributeNames = new HashSet<>();
-        for (siteDTO site : sitesDTO) {
-            for (attributeDTO attribute : site. getAttributs()) {
-                attributeNames.add(attribute.getName());
-            }
-        }
-        for (String attributeName : attributeNames) {
-            createCell(headerRow, columnIndex++, attributeName, headerCellStyle);
-        }
+        createCell(headerRow, columnIndex++, "Adresse", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Latitude", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Longitude", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Type d’installation", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Type d'alimentation", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Présence GE de secours", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Type de transmission ", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Support Antennes", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Hauteur du support d’antenne ", headerCellStyle);
+        createCell(headerRow, columnIndex++, "Lieu d'installation BTS ", headerCellStyle);
 
         int rowIndex = 1;
         XSSFCellStyle dataCellStyle = workbook.createCellStyle();
@@ -71,35 +76,99 @@ public class SiteExcelExporter extends AbstractExporter {
         dataFont.setFontHeight(14);
         dataCellStyle.setFont(dataFont);
 
-        for (siteDTO siteDTO : sitesDTO) {
+        for (Site siteDTO : sitesDTO) {
             XSSFRow row = sheet.createRow(rowIndex++);
-            String centreTechniqueName = siteDTO.getCentreTechnique() != null ? siteDTO.getCentreTechnique().getName() : "-";
-            String dc = siteDTO.getCentreTechnique() != null ? String.valueOf(c.getDCByCTId(siteDTO.getId())) : "-";
-            String dr = "-";
-            if (siteDTO.getCentreTechnique() != null) {
-                Long id = dcController.DCIdByNamr(dc);
-                dr = String.valueOf(dcController.getDRByDC(id));
-            }
-            createCell(row, 0, String.valueOf(siteDTO.getId()), dataCellStyle);
-            createCell(row, 1, siteDTO.getName(), dataCellStyle);
-            createCell(row, 2, siteDTO.getType().toString(), dataCellStyle);
-            createCell(row, 3, centreTechniqueName, dataCellStyle);
-            createCell(row, 4, dc, dataCellStyle);
-            createCell(row, 5, dr, dataCellStyle);
+        /*
+        String centreTechniqueName = siteDTO.getCentreTechnique() != null ? siteDTO.getCentreTechnique().getName() : "-";
+        String dc = siteDTO.getCentreTechnique() != null ? String.valueOf(c.getDCByCTId(siteDTO.getId())) : "-";
+        String dr = "-";
+        /*
+        if (siteDTO.getCentreTechnique() != null) {
+            Long id = dcController.DCIdByNamr(dc);
+            dr = String.valueOf(dcController.getDRByDC(id));
+        }*/
 
+            if (siteDTO != null) {
 
-            columnIndex = 6;
-            for (String attributeName : attributeNames) {
-                boolean attributeFound = false;
-                for (attributeDTO attribute : siteDTO.getAttributs()) {
-                    if (attribute.getName().equals(attributeName)) {
-                        createCell(row, columnIndex++, attribute.getAttributeValue(), dataCellStyle);
-                        attributeFound = true;
-                        break;
+                if (siteDTO.getCentreTechnique() != null) {
+                    String centreTechniqueName = siteDTO.getCentreTechnique().getName();
+
+                    String dc = String.valueOf(c.getDCFromCT(centreTechniqueName).getName());
+                    if (dc != null) {
+
+                        String dr = String.valueOf(dcController.getDRFromDC(dc).getName());
+
+                        if (dr != null) {
+                            createCell(row, 0, siteDTO.getCode(), dataCellStyle);
+                            createCell(row, 1, siteDTO.getName(), dataCellStyle);
+                            createCell(row, 2, siteDTO.getTypeSite(), dataCellStyle);
+                            createCell(row, 3, centreTechniqueName, dataCellStyle);
+                            createCell(row, 4, dc, dataCellStyle);
+                            createCell(row, 5, dr, dataCellStyle);
+                            createCell(row, 6, siteDTO.getAddresse(), dataCellStyle);
+                            createCell(row, 7, String.valueOf(siteDTO.getLatitude()), dataCellStyle);
+                            createCell(row, 8, String.valueOf(siteDTO.getLongitude()), dataCellStyle);
+                            createCell(row, 9, siteDTO.getTypeInstallation(), dataCellStyle);
+                            createCell(row, 10, siteDTO.getTypeAlimentation(), dataCellStyle);
+                            createCell(row, 11, String.valueOf(siteDTO.getPresenceGESecours()), dataCellStyle);
+                            createCell(row, 12, siteDTO.getTypeTransmission(), dataCellStyle);
+
+                            if (siteDTO.getTypeSite() != null) {
+                                if (siteDTO.getTypeSite().equals("Mobile") && siteDTO instanceof SiteMobile) {
+                                    SiteMobile mb = (SiteMobile) siteDTO;
+                                    createCell(row, 13, mb.getSupportAntennes(), dataCellStyle);
+                                    createCell(row, 14, String.valueOf(mb.getHauteurSupportAntenne()), dataCellStyle);
+                                    createCell(row, 15, mb.getLieuInsatallationBTS(), dataCellStyle);
+                                } else {
+
+                                    createCell(row, 13, "", dataCellStyle);
+                                    createCell(row, 14, "", dataCellStyle);
+                                    createCell(row, 15, "", dataCellStyle);
+                                }
+                            } else {
+
+                                createCell(row, 13, "", dataCellStyle);
+                                createCell(row, 14, "", dataCellStyle);
+                                createCell(row, 15, "", dataCellStyle);
+                            }
+                        }
                     }
-                }
-                if (!attributeFound) {
-                    createCell(row, columnIndex++, "", dataCellStyle);
+                }else {
+
+
+                    createCell(row, 0, siteDTO.getCode(), dataCellStyle);
+                    createCell(row, 1, siteDTO.getName(), dataCellStyle);
+                    createCell(row, 2, siteDTO.getTypeSite(), dataCellStyle);
+                    createCell(row, 3, "", dataCellStyle);
+                    createCell(row, 4, "", dataCellStyle);
+                    //createCell(row, 5, dr, dataCellStyle);
+                    createCell(row, 6, siteDTO.getAddresse(), dataCellStyle);
+                    createCell(row, 7, String.valueOf(siteDTO.getLatitude()), dataCellStyle);
+                    createCell(row, 8, String.valueOf(siteDTO.getLongitude()), dataCellStyle);
+                    createCell(row, 9, siteDTO.getTypeInstallation(), dataCellStyle);
+                    createCell(row, 10, siteDTO.getTypeAlimentation(), dataCellStyle);
+                    createCell(row, 11, String.valueOf(siteDTO.getPresenceGESecours()), dataCellStyle);
+                    createCell(row, 12, siteDTO.getTypeTransmission(), dataCellStyle);
+
+                    if (siteDTO.getTypeSite() != null) {
+                        if (siteDTO.getTypeSite().equals("Mobile") && siteDTO instanceof SiteMobile) {
+                            SiteMobile mb = (SiteMobile) siteDTO;
+                            createCell(row, 13, mb.getSupportAntennes(), dataCellStyle);
+                            createCell(row, 14, String.valueOf(mb.getHauteurSupportAntenne()), dataCellStyle);
+                            createCell(row, 15, mb.getLieuInsatallationBTS(), dataCellStyle);
+                        } else {
+
+                            createCell(row, 13, "", dataCellStyle);
+                            createCell(row, 14, "", dataCellStyle);
+                            createCell(row, 15, "", dataCellStyle);
+                        }
+                    } else {
+
+                        createCell(row, 13, "", dataCellStyle);
+                        createCell(row, 14, "", dataCellStyle);
+                        createCell(row, 15, "", dataCellStyle);
+                    }
+                    //System.out.println("Le site est NULL");
                 }
             }
         }
