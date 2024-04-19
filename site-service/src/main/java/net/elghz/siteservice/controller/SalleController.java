@@ -123,5 +123,15 @@ public class SalleController {
         }
     }
 
+
+    @GetMapping("/getAllEquipements/salle/{numeroSalle}")
+    public ResponseEntity<?> allEquipementSalle(@PathVariable int numeroSalle ){
+        return dcService.getAllEquipementFromSalle(numeroSalle);
+    }
+
+    @GetMapping("/allEquipement/site/{name}")
+    public ResponseEntity<?> getAllEquiOfSite(@PathVariable String name){
+        return  dcService.getAllEquipementSite(name);
+    }
 }
 

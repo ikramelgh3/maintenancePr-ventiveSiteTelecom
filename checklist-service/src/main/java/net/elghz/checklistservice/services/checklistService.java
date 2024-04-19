@@ -4,7 +4,11 @@ import net.elghz.checklistservice.dtos.ChecklistDTO;
 import net.elghz.checklistservice.dtos.PointMesureDTO;
 import net.elghz.checklistservice.entities.Checklist;
 import net.elghz.checklistservice.entities.PointMesure;
+import net.elghz.checklistservice.feign.EquipementRestClient;
+import net.elghz.checklistservice.feign.RespoRestClient;
 import net.elghz.checklistservice.mapper.mapper;
+import net.elghz.checklistservice.model.ResponsableMaintenance;
+import net.elghz.checklistservice.model.equipement;
 import net.elghz.checklistservice.repository.checklistRepo;
 import net.elghz.checklistservice.repository.pointMesureRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +26,44 @@ public class checklistService {
     @Autowired private checklistRepo repo;
     @Autowired private pointMesureRepo prepo;
     @Autowired private mapper mp;
+    @Autowired private RespoRestClient respoRest;
+    @Autowired private EquipementRestClient equipRest;
 
     public ResponseEntity<?> addChecklist(ChecklistDTO checklist){
         Checklist ch = mp.from(checklist);
         repo.save(ch);
         return new ResponseEntity<>("Checklist bien ajoutée" , HttpStatus.OK);
     }
-    public ResponseEntity<?> findById( Long id){
+
+    public ResponseEntity<?> ajouterChecklist(ChecklistDTO dto , Long id){
+        ResponsableMaintenance rsp= respoRest.findById(id);
+        if (rsp==null){
+            return new ResponseEntity<>("Aucune responsable n'est trouvé avec ce id", HttpStatus.NOT_FOUND);
+        }
+        Checklist ch = mp.from(dto);
+        ch.setRespo_Id(id);
+        ch.setRespoMaint(rsp);
+        repo.save(ch);
+        return new ResponseEntity<>("La checklist est bien ajoutée", HttpStatus.OK);
+
+
+    }
+    public ChecklistDTO findById( Long id){
         Optional<Checklist> ch = repo.findById(id);
 
         if(ch.isPresent()){
             ChecklistDTO dto = mp.from(ch.get());
-            return new ResponseEntity<>(dto, HttpStatus.OK);
+            ResponsableMaintenance rsp= respoRest.findById(dto.getRespo_ID());
+            equipement e = equipRest.findEquipById(dto.getEquipement_id());
+            dto.setEqui(e);
+            dto.setRespoMaint(rsp);
+            return dto;
         }
         else {
-            return new ResponseEntity<>("Aucune checklist n'est trouvée avec ce id: "+id , HttpStatus.NOT_FOUND);
+          return null;
         }
     }
+
 
     public ResponseEntity <?> deleteChecklist( Long id)
     {
@@ -70,6 +95,14 @@ public class checklistService {
 
        List<Checklist> checklists= repo.findAll();
        List<ChecklistDTO> dto = checklists.stream().map(mp::from).collect(Collectors.toList());
+       for(ChecklistDTO c:dto){
+           Long idr = c.getRespo_ID();
+           ResponsableMaintenance r = respoRest.findById(idr);
+           equipement e = equipRest.findEquipById(c.getEquipement_id());
+           c.setEqui(e);
+           c.setRespoMaint(r);
+           repo.save(mp.from(c));
+       }
        if(dto.size()!=0){
             return new ResponseEntity<>(dto, HttpStatus.OK);}
        else{
@@ -158,26 +191,53 @@ public class checklistService {
     }
 
 
-    public ResponseEntity<?> ajouterChecklistComplet(ChecklistDTO checklistDTO) {
-        // Convertir le DTO en entité Checklist
-        Checklist ch = mp.from(checklistDTO);
+    public ResponseEntity<?> ajouterChecklistComplet(ChecklistDTO checklistDTO , Long id, Long idEq) {
 
-        // Récupérer les points de mesure de la checklist
-        List<PointMesure> pointsMesure = ch.getPointMesures();
-
-        // Boucler à travers les points de mesure
-        for (PointMesure p : pointsMesure) {
-            // Définir la checklist pour chaque point de mesure
-            p.setChecklist(ch);
+        ResponsableMaintenance rsp= respoRest.findById(id);
+        if (rsp==null){
+            return new ResponseEntity<>("Aucune responsable de maintenance n'est trouvé avec ce id", HttpStatus.NOT_FOUND);
+        }
+        equipement e =equipRest.findEquipById(idEq);
+        if(e==null){
+            return new ResponseEntity<>("Aucune equiepement n'est trouvé avec ce id", HttpStatus.NOT_FOUND);
         }
 
-        // Sauvegarder la checklist avec ses points de mesure associés
+        Checklist ch = mp.from(checklistDTO);
+        List<PointMesure> pointsMesure = ch.getPointMesures();
+        for (PointMesure p : pointsMesure) {
+            p.setChecklist(ch);
+        }
+        ch.setRespo_Id(id);
+        ch.setRespoMaint(rsp);
+        ch.setEquipement_id(idEq);
+        ch.setEqui(e);
         repo.save(ch);
-
-        // Vous n'avez pas besoin de sauvegarder les points de mesure individuellement car ils sont déjà associés à la checklist
-
         return new ResponseEntity<>("La checklist est bien ajoutée", HttpStatus.OK);
     }
+
+
+    public List<ChecklistDTO> getChecklistByRespo(Long idr){
+
+        return repo.findByRespoId(idr).stream().map(mp::from).collect(Collectors.toList());
+
+    }
+
+    public List<ChecklistDTO> getChecklistByEquip(Long idEq){
+
+
+        List<Checklist> ch = repo.findByEqui_Id(idEq);
+        equipement e =equipRest.findEquipById(idEq);
+        for(Checklist c :ch ){
+            Long IdR = c.getRespo_Id();
+            ResponsableMaintenance r = respoRest.findById(IdR);
+            c.setRespoMaint(r);
+            c.setEqui(e);
+        }
+
+        return ch.stream().map(mp::from).collect(Collectors.toList());
+
+    }
+
 
 
 }

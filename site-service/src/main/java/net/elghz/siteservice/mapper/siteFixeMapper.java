@@ -31,13 +31,7 @@ public class siteFixeMapper {
         site.setPresenceGESecours(dto.getPresenceGESecours());
         site.setTypeInstallation(dto.getTypeInstallation());
         site.setTypeAlimentation(dto.getTypeAlimentation());
-     if (dto.getEquipements() != null) {
-        List<equipement> equipements = new ArrayList<>();
-        for (equipementDTO equipementDTO : dto.getEquipements()) {
-            equipements.add(equipementMapper.from(equipementDTO));
-        }
-        site.setEquipements(equipements);
-    }
+
 
         if (dto.getTypeactivites() != null) {
         Set<TypeActivite> typeActivites = new HashSet<>();

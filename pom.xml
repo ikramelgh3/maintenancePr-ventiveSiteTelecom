@@ -7,6 +7,14 @@
     <groupId>net.elghz</groupId>
     <artifactId>maintenancePreventive</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>PlanningMaintenance</module>
+        <module>checklist-service</module>
+        <module>user-service</module>
+        <module>intervention-service</module>
+        <module>site-service</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

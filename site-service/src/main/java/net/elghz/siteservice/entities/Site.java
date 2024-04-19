@@ -51,8 +51,6 @@ public  class Site {
     private Set<Attribute> attributs = new HashSet<>();
 */
 
-    @OneToMany(cascade = CascadeType.ALL , mappedBy = "site")
-    private List<equipement> equipements= new ArrayList<>();
     @ManyToOne @JoinColumn(name="CT_Id")
     private CentreTechnique centreTechnique;
     @OneToMany
@@ -96,14 +94,7 @@ public  class Site {
         categories.remove(e);
         e.setSites(null);
     }*/
-    public  void  addEquipement(equipement e){
-        equipements.add(e);
-    }
 
-    public void removeEquipement(equipement e) {
-        equipements.remove(e);
-        e.setSite(null);
-    }
     /*
     public void addAttribute(Attribute attribute) {
         if (this.attributs == null) {

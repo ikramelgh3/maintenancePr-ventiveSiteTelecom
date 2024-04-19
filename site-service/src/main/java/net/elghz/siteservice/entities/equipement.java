@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.elghz.siteservice.model.ChecklistDTO;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,10 +29,8 @@ public class equipement {
     private String statut;
     private Date dateMiseService;
     private Date dateMiseHorsService;
-
-    @ManyToOne
-    @JoinColumn(name = "site_id")
-    private Site site;
+    @Transient
+    private List<ChecklistDTO> checklistDTOS = new ArrayList<>();
     @OneToMany(mappedBy = "equipement" , cascade = CascadeType.ALL)
     private List<PhotoEquipement> photoEquipements = new ArrayList<>();
 

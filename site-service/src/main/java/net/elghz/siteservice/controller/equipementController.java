@@ -136,4 +136,11 @@ public class equipementController {
         }
     }
 
+    @GetMapping("/equip/id/{id}")
+    public equipementDTO findEquipById(@PathVariable Long id){
+        return serv.findById(id);
+    }
+
+
+
 }

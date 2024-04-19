@@ -35,13 +35,6 @@ public class siteMobileMapper {
         site.setLieuInsatallationBTS(dto.getLieuInsatallationBTS());
         site.setHauteurSupportAntenne(dto.getHauteurSupportAntenne());
         site.setSupportAntennes(dto.getSupportAntennes());
-        if (dto.getEquipements() != null) {
-            List<equipement> equipements = new ArrayList<>();
-            for (equipementDTO equipementDTO : dto.getEquipements()) {
-                equipements.add(equipementMapper.from(equipementDTO));
-            }
-            site.setEquipements(equipements);
-        }
 
         if (dto.getTypeactivites() != null) {
             Set<TypeActivite> typeActivites = new HashSet<>();

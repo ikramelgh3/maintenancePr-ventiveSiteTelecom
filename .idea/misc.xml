@@ -14,10 +14,14 @@
         <option value="$PROJECT_DIR$/site-service/pom.xml" />
         <option value="$PROJECT_DIR$/GestionParam/pom.xml" />
         <option value="$PROJECT_DIR$/checklist-service/pom.xml" />
+        <option value="$PROJECT_DIR$/PlanningMaintenance/pom.xml" />
+        <option value="$PROJECT_DIR$/planningMaintenance/pom.xml" />
+        <option value="$PROJECT_DIR$/intervention-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/PlanningMaintenance/pom.xml" />
         <option value="$PROJECT_DIR$/equipement-service/pom.xml" />
       </set>
     </option>

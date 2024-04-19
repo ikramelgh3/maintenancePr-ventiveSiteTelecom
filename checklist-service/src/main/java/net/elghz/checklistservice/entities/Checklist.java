@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.elghz.checklistservice.model.ResponsableMaintenance;
+import net.elghz.checklistservice.model.equipement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,13 @@ public class Checklist {
     private String description;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "checklist")
     private List<PointMesure> pointMesures = new ArrayList<>();
+
+    private Long respo_Id;
+    @Transient
+    private ResponsableMaintenance respoMaint;
+    private Long equipement_id;
+    @Transient
+    private equipement equi ;
 
     public void addPointMesure(PointMesure p) {
         pointMesures.add(p);

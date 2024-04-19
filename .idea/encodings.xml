@@ -7,6 +7,8 @@
     <file url="file://$PROJECT_DIR$/discovery-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/equipement-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/intervention-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/planningMaintenance/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/site-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />

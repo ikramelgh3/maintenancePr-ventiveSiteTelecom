@@ -10,5 +10,7 @@ public interface equipementRepo  extends JpaRepository<equipement,Long> {
 
     Optional<equipement> findByNomOrNumeroSerie(String dr , String num);
     Optional<equipement> findByNom(String dr);
+
+    Optional<equipement> findByNumeroSerie(String numSerie);
 }
 

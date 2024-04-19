@@ -36,7 +36,7 @@ public    class siteDTO {
 
     private Set<typeActiviteDTO> typeactivites = new HashSet<>();
 
-    private List<equipementDTO> equipements= new ArrayList<>();
+
 
     private CentreTechniqueDTO centreTechnique;
 

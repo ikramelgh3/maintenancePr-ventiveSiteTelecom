@@ -196,61 +196,6 @@ public class siteService {
 
     //afficher les equipements d'un site donné
 
-    public List<equipementDTO> equipements(String name) throws EquipementNotFoundException, SiteNotFoundException {
-
-        Optional<Site> siteOptional = repo.findByName(name);
-        if (siteOptional.isPresent()) {
-            Site site = siteOptional.get();
-            List<equipement> equipements = site.getEquipements();
-            if (equipements.isEmpty()) {
-                throw new EquipementNotFoundException("Audun équipement trouvé dans le site avec le nom: " + name);
-            }
-            List<equipementDTO> equipementDTOS = equipements.stream()
-                    .map(equipement -> mapperEqui.fromEquipement(equipement))
-                    .collect(Collectors.toList());
-            return equipementDTOS;
-        } else {
-            throw new SiteNotFoundException("Aucun site trouvé avec le nom: " + name);
-        }
-    }
-
-    //ajouter un equipement à un site donnee
-    public boolean addEquipementToSite(Long idIte, equipementDTO e) {
-
-        Optional<Site> s = repo.findById(idIte);
-        if (s.isPresent()) {
-            equipement ee = mapperEqui.from(e);
-            Site ss = s.get();
-            ee.setSite(ss);
-            ss.addEquipement(ee);
-            repo.save(ss);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean removeEquipementFromSite(Long siteId, Long equipementId) {
-        Optional<Site> siteOptional = repo.findById(siteId);
-        if (siteOptional.isPresent()) {
-            Site site = siteOptional.get();
-            Optional<equipement> equipementOptional = site.getEquipements().stream()
-                    .filter(e -> e.getId().equals(equipementId))
-                    .findFirst();
-            if (equipementOptional.isPresent()) {
-                equipement equipement = equipementOptional.get();
-                site.removeEquipement(equipement);
-                repo.save(site);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-
-            return false;
-        }
-    }
-
     /*
         public void associerCategorieAuSite(Long siteId, Long categorieId) {
             Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found"));

@@ -10,6 +10,7 @@ import net.elghz.siteservice.mapper.CTMapper;
 import net.elghz.siteservice.mapper.equipementMapper;
 import net.elghz.siteservice.mapper.siteMapper;
 import net.elghz.siteservice.repository.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +26,11 @@ public class SalleService {
 
     private SalleRepo repo;
     private EtageRepo dcRepo;
-
+    private SiteRepository srepo;
     private siteMapper smapper;
     private equipementMapper eqmapper;
     private equipementRepo eqrepo;
+
     public Optional<salleDTO> getCatId(Long id) throws NotFoundException {
 
         Optional<salle>  eq = repo.findById(id);
@@ -164,6 +166,67 @@ public class SalleService {
                 .orElseThrow(() -> new NotFoundException("Equipement non trouvé avec l'ID : " + idEq));
         centreTechnique.removePhoto(dc);
         repo.save(centreTechnique);
+    }
+
+    public ResponseEntity<?> getAllEquipementFromSalle(int numSalle){
+
+       Optional<salle> optS= repo.findByNumeroSalle(numSalle);
+
+       if(optS.isPresent()){
+
+           List<equipement > equipementDTOS = optS.get().getEquipementList();
+           List<equipementDTO> equipementDTOList = new ArrayList<>();
+           for(equipement e : equipementDTOS){
+               equipementDTO dto = eqmapper.fromEquipement(e);
+               equipementDTOList.add(dto);
+
+
+
+           }
+           return  new ResponseEntity<>(equipementDTOList , HttpStatus.OK);
+       }
+        return  new ResponseEntity<>("Aucune equipement avec ce numero: "+numSalle , HttpStatus.NOT_FOUND);
+    }
+
+    //afficher salle ou existe un equipement
+
+    public ResponseEntity<?> getSalleOfEqui( String numSerie){
+
+       Optional<equipement>  opteq= eqrepo.findByNumeroSerie(numSerie);
+       if(opteq.isPresent()){
+           salle s = opteq.get().getSalle();
+           salleDTO sDTO = smapper.from(s);
+
+           return
+                   new ResponseEntity<>(sDTO , HttpStatus.OK);
+       }
+
+
+        return  new ResponseEntity<>("Aucube equipement avec ce numero de serie  :"+numSerie , HttpStatus.NOT_FOUND);
+    }
+    // afficher les equipement d'un site
+
+
+    public  ResponseEntity<?>  getAllEquipementSite(String nameSite){
+        List<equipementDTO> equipements = new ArrayList<>();
+        Optional<Site> s= srepo.findByName(nameSite);
+        if(s.isPresent()){
+            for(immuble im: s.get().getImmubles()){
+                for(etage e: im.getEtageList()){
+                    for(salle sal : e.getSalles()){
+                      List<equipement> ee=sal.getEquipementList();
+                      for(equipement equi : ee){
+                          equipementDTO dto = eqmapper.fromEquipement(equi);
+                          equipements.add(dto);
+                      }
+
+                    }
+                }
+            }
+            return new ResponseEntity<>(equipements , HttpStatus.OK);
+
+        }
+        return  new ResponseEntity<>("Aucune site trouvé avec ce nom: "+nameSite, HttpStatus.NOT_FOUND);
     }
 
 }

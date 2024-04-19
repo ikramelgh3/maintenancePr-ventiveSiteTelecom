@@ -16,6 +16,6 @@ public class Competence {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String competence;
-    @ManyToMany(mappedBy = "competences")
-    private Set<TechnicienDetails> techniciens = new HashSet<>();
+    @ManyToMany(mappedBy = "competences" , cascade = CascadeType.ALL)
+    private Set<Technicien> techniciens = new HashSet<>();
 }

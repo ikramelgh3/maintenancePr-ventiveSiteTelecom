@@ -128,50 +128,8 @@ public class siteController {
 
     }
 
-    @GetMapping("/site/{name}/equipements")
-    public ResponseEntity<?> getAllEquipementSite(@PathVariable String name) {
-
-        try {
-            List<equipementDTO> equipements = serv.equipements(name);
-            return new ResponseEntity<>(equipements, HttpStatus.OK);
-        } catch (SiteNotFoundException ex) {
-            return new ResponseEntity<>("Acune site n'est trouvé avec ce nom :" + name, HttpStatus.NOT_FOUND);
-        } catch (EquipementNotFoundException ex) {
-            return new ResponseEntity<>("Acune equipement n'est rouvé dans ce site :" + name, HttpStatus.NOT_FOUND);
-        }
 
 
-    }
-
-    @PostMapping("add/equipement/site/{id}")
-    public ResponseEntity<?> ajouterEquipementToSite(@RequestBody equipementDTO dto, @PathVariable Long id) {
-        boolean b = serv.addEquipementToSite(id, dto);
-        if (b) {
-            return new ResponseEntity<>("L'équipement est bien ajouté au site", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Aucune site n'est trouve avec ce id " + id, HttpStatus.NOT_FOUND);
-        }
-
-    }
-
-    @DeleteMapping("/{siteId}/equipements/{equipementId}")
-    public ResponseEntity<?> removeEquipementFromSite(@PathVariable Long siteId, @PathVariable Long equipementId) {
-        boolean removed = serv.removeEquipementFromSite(siteId, equipementId);
-        if (removed) {
-            return ResponseEntity.ok("L'équipement a été supprimé du site avec succès.");
-        } else {
-
-            boolean siteExists = serv.checkSiteExists(siteId);
-            if (!siteExists) {
-                return new ResponseEntity<>("Le site avec l'ID spécifié n'existe pas.", HttpStatus.NOT_FOUND);
-            }
-            boolean equipementExists = serv.checkEquipementExists(equipementId);
-            if (!equipementExists) {
-                return new ResponseEntity<>("L'équipement avec l'ID spécifié n'existe pas.", HttpStatus.NOT_FOUND);
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("L'équipement spécifié n'est pas associé à ce site.");
-        }
-    }
 
     @GetMapping("/sites/export/excel")
     public void exportToExcel(HttpServletResponse servletResponse) throws IOException {

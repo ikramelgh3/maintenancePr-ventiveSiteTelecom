@@ -5,8 +5,12 @@ import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.entities.TypeActivite;
 import net.elghz.siteservice.entities.equipement;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
+import net.elghz.siteservice.feign.checklistRestClient;
 import net.elghz.siteservice.mapper.equipementMapper;
+import net.elghz.siteservice.model.ChecklistDTO;
 import net.elghz.siteservice.repository.equipementRepo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +23,9 @@ import java.util.stream.Collectors;
 public class equipementService {
     private equipementRepo repo;
     private equipementMapper mapperEqui;
+    private checklistRestClient restClient;
+
+
 
     public equipementService ( equipementRepo repo,   equipementMapper mapperEqui){
         this.repo= repo;
@@ -93,22 +100,22 @@ public class equipementService {
         else
             return "Aucune équipement n'existe avec ce nom :" +name;
     }
-    //afficher les  sites ou il existe un equipement
-    public List<Site> equipementSite(String name) throws EquipementNotFoundException{
 
-        Optional<equipement> optEqui = repo.findByNom(name);
-        if(optEqui.isPresent()){
-            List <Site> sites = new ArrayList<>();
-            sites.add(optEqui.get().getSite());
 
-            return sites;
+
+    public equipementDTO findById(Long id){
+        Optional<equipement> opt = repo.findById(id);
+        if(!opt.isPresent()){
+            throw new RuntimeException("Equipement non trouvé");
         }
-        else{
-            throw  new EquipementNotFoundException("Aucune equipement n'est trouvé avec ce nom: "+ name );
-        }
+        equipement rep = opt.get();
+        equipementDTO dt = mapperEqui.from(rep);
+        // responsableDTO dt = mp.from(rep);
+        return dt;
+
+
+
     }
-
-
 
 
 }

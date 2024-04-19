@@ -23,14 +23,17 @@ public class salle {
     @JoinColumn(name = "etage_id")
     private etage etage;
 
-
-
     @OneToMany(mappedBy = "salle" , cascade = CascadeType.ALL)
     private List<equipement> equipementList = new ArrayList<>();
 
     public void addEquipement(equipement eqq) {
         equipementList.add(eqq);
         eqq.setSalle(this);
+    }
+
+    public void removeEquipement(equipement e) {
+        equipementList.remove(e);
+        e.setSalle(null);
     }
 
     public void removePhoto(equipement photo) {
