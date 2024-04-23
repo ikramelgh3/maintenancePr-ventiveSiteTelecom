@@ -5,6 +5,7 @@ import lombok.*;
 import net.elghz.siteservice.dtos.SiteFixeDTO;
 import net.elghz.siteservice.dtos.siteDTO;
 import net.elghz.siteservice.enumeration.SiteType;
+import net.elghz.siteservice.model.Planning;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,16 +25,16 @@ public  class Site {
     private String code;
     @Column(unique = true)
     private String name;
-
     private String typeSite;
     private Double latitude;
     private Double longitude;
     private String addresse;
-
     private String typeInstallation;
     private String typeAlimentation;
     private String typeTransmission;
     private Boolean presenceGESecours;
+    @Transient
+    private  List<Planning> plannings = new ArrayList<>();
 
     @OneToMany
             (mappedBy = "site" , cascade = CascadeType.ALL)

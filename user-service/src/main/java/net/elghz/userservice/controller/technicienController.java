@@ -2,6 +2,7 @@ package net.elghz.userservice.controller;
 
 import net.elghz.userservice.dtos.CompetenceDTO;
 
+import net.elghz.userservice.dtos.EquipeTechnicienDTO;
 import net.elghz.userservice.dtos.TechnicienDTO;
 import net.elghz.userservice.service.competenceService;
 
@@ -33,6 +34,11 @@ public class technicienController {
     @GetMapping("/technicen/id/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id){
          return  ser.findById(id);
+    }
+
+    @GetMapping("/technicien/{id}")
+    public TechnicienDTO findTechnicienById(@PathVariable Long id) {
+        return ser.findTechnicienById(id);
     }
     @DeleteMapping("/technicien/delete/{id}")
     public ResponseEntity<?> deleteR(@PathVariable Long id){
@@ -74,4 +80,19 @@ public class technicienController {
         return ser.rendreTechnicienDisponible(id);
     }
 
+    @GetMapping("/get/technicienDispo/WithCompetence")
+    public List<TechnicienDTO> getTechnicienDispoWithCompetences(@RequestParam List<Long> idC){
+        return ser.getTechnicienWithCompetencesAndDisponible(idC);
+    }
+
+    @GetMapping("/techniciens/internes")
+    public List<TechnicienDTO> getTechniciensInternes(){
+
+        return ser.getTechniciensInternes();
+    }
+    @GetMapping("/techniciens/externes")
+    public List<TechnicienDTO> getTechniciensExterns(){
+
+        return ser.getTechniciensExternes();
+    }
 }

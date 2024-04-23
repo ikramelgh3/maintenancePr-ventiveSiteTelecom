@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class checklistService {
-
     @Autowired private checklistRepo repo;
     @Autowired private pointMesureRepo prepo;
     @Autowired private mapper mp;

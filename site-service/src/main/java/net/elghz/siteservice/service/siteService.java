@@ -1,13 +1,9 @@
 package net.elghz.siteservice.service;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import net.elghz.siteservice.dtos.*;
-import net.elghz.siteservice.enumeration.SiteType;
-import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.exception.NotFoundException;
 import net.elghz.siteservice.exception.SiteNotFoundException;
 import net.elghz.siteservice.mapper.*;
@@ -19,7 +15,6 @@ import net.elghz.siteservice.repository.*;
 
 import net.elghz.siteservice.entities.*;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -70,16 +65,40 @@ public class siteService {
 
     }
 
-    public  ResponseEntity<?> findSiteById(Long id) throws SiteNotFoundException {
+    public ResponseEntity<?> findSiteById(Long id) throws SiteNotFoundException {
+        Optional<Site> optionalSite = repo.findById(id);
+        if (optionalSite.isPresent()) {
+            Site site = optionalSite.get();
+            if (site instanceof SiteMobile) {
+                SiteMobile sm = (SiteMobile) site;
+                SiteMobileDTO dto = smapper.fromMobile(sm);
+                return new ResponseEntity<>(dto, HttpStatus.OK);
+            } else if (site instanceof SiteFixe) {
+                SiteFixe sf = (SiteFixe) site;
+                SiteFixeDTO dto = smapper.fromFixe(sf);
+                return new ResponseEntity<>(dto, HttpStatus.OK);
+            } else {
+                // Gérer d'autres types de site si nécessaire
+                return new ResponseEntity<>("Type de site non pris en charge", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            throw new SiteNotFoundException("Aucun site trouvé avec l'ID: " + id);
+        }
+    }
 
-        Optional<Site> eq = repo.findById(id);
-        if (eq.isPresent()) {
-            siteDTO equipementDTO = smapper.from(eq.get());
-            return new ResponseEntity<> (Optional.of(equipementDTO), HttpStatus.OK);
+    public siteDTO getSite(Long id) {
+        Optional<Site> optionalSite = repo.findById(id);
+        if (optionalSite.isPresent()) {
+            Site site = optionalSite.get();
+            if (site instanceof SiteMobile) {
+                SiteMobile sm = (SiteMobile) site;
+                return smapper.fromMobile(sm);
+            } else if (site instanceof SiteFixe) {
+                SiteFixe sf = (SiteFixe) site;
+                return smapper.fromFixe(sf);
+            }
         }
-        else{
-            return new ResponseEntity<>("Aucune Site avec ce ID: "+id, HttpStatus.NOT_FOUND);
-        }
+        throw new RuntimeException("Site not found with ID: " + id);
     }
 
     public boolean deleteById(Long id) {
@@ -134,6 +153,8 @@ public class siteService {
         }
 
     }
+
+
 
 
     public ResponseEntity<?> addSite(Site site) {

@@ -1,15 +1,10 @@
 package net.elghz.siteservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import net.elghz.siteservice.dtos.*;
 import net.elghz.siteservice.entities.*;
-import net.elghz.siteservice.enumeration.SiteType;
-import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.exception.NotFoundException;
 import net.elghz.siteservice.exception.SiteNotFoundException;
-import net.elghz.siteservice.export.ActivitieExcelExporter;
 import net.elghz.siteservice.export.SiteExcelExporter;
 import net.elghz.siteservice.importFile.ImporterSite;
 //import net.elghz.siteservice.importFile.importerSite;
@@ -85,10 +80,16 @@ public class siteController {
             return new ResponseEntity<>("Aucun site trouvé pour le type: " + type, HttpStatus.NOT_FOUND);
         }
     }*/
-
+/*
     @GetMapping("/site/id/{id}")
     public ResponseEntity<?> findSiteById(@PathVariable Long id) throws SiteNotFoundException {
        return serv.findSiteById(id);
+
+    }*/
+
+    @GetMapping("/site/id/{id}")
+    public siteDTO findType(@PathVariable Long id) throws SiteNotFoundException {
+        return serv.getSite(id);
 
     }
 

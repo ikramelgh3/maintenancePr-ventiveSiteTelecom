@@ -28,6 +28,22 @@ public class siteMapper {
         return modelMapper.map(siteDTO,Site.class);
     }
 
+    public SiteMobileDTO fromMobile (SiteMobile e){
+        return modelMapper.map(e, SiteMobileDTO.class);
+    }
+
+    public SiteMobile fromMobileDTO (SiteMobileDTO   siteDTO){
+        return modelMapper.map(siteDTO,SiteMobile.class);
+    }
+
+    public SiteFixeDTO fromFixe (SiteFixe e){
+        return modelMapper.map(e, SiteFixeDTO.class);
+    }
+
+    public SiteFixe fromFixeDTO (SiteFixeDTO   siteDTO){
+        return modelMapper.map(siteDTO,SiteFixe.class);
+    }
+
     public siteDTO mapToSiteDTO(SiteFixeDTO siteFixeDTO) {
         return modelMapper.map(siteFixeDTO, siteDTO.class);
     }

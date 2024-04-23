@@ -1,13 +1,7 @@
 package net.elghz.userservice.mapper;
 
-import net.elghz.userservice.dtos.CompetenceDTO;
-import net.elghz.userservice.dtos.TechnicienDTO;
-import net.elghz.userservice.dtos.responsableDTO;
-import net.elghz.userservice.dtos.utilisateurDTO;
-import net.elghz.userservice.entities.Competence;
-import net.elghz.userservice.entities.ResponsableMaintenance;
-import net.elghz.userservice.entities.Technicien;
-import net.elghz.userservice.entities.utilisateur;
+import net.elghz.userservice.dtos.*;
+import net.elghz.userservice.entities.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +24,14 @@ public class mapper {
 
     public Technicien from (TechnicienDTO   attrDTO){
         return modelMapper.map(attrDTO,Technicien.class);
+    }
+
+    public EquipeTechnicienDTO from (EquipeIntervenant e){
+        return modelMapper.map(e, EquipeTechnicienDTO.class);
+    }
+
+    public EquipeIntervenant from (EquipeTechnicienDTO   attrDTO){
+        return modelMapper.map(attrDTO, EquipeIntervenant.class);
     }
 
     public utilisateurDTO from (utilisateur e){

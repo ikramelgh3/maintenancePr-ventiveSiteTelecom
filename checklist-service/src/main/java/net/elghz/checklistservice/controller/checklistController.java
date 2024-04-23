@@ -20,8 +20,8 @@ public class checklistController {
          return ser.allChecklist();
     }
     //à utiliser associe checklist au responsable
-    @PostMapping ("/checklist/PointMesure/add/{idRes}/{idE}")
-    public ResponseEntity<?> addChecklistComplet(@RequestBody ChecklistDTO ch , @PathVariable Long idRes ,@PathVariable Long idE){
+    @PostMapping ("/checklist/PointMesure/add")
+    public ResponseEntity<?> addChecklistComplet(@RequestBody ChecklistDTO ch , @RequestBody Long idRes ,@RequestBody Long idE){
         return  ser.ajouterChecklistComplet(ch, idRes , idE);
     }
     @PostMapping ("/checklist/add")
@@ -65,9 +65,11 @@ public class checklistController {
         return ser.getChecklistByRespo(idR);
     }
 
-    @GetMapping("/checklists/equip/{idEqui}")
-    List<ChecklistDTO> getChecklistsByEqui( @PathVariable Long idEqui){
+    @GetMapping("/checklists/equip")
+    List<ChecklistDTO> getChecklistsByEqui( @RequestParam Long idEqui){
         return ser.getChecklistByEquip(idEqui);
     }
+
+
 
 }

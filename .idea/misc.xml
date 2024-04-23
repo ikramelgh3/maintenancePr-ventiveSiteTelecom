@@ -17,12 +17,18 @@
         <option value="$PROJECT_DIR$/PlanningMaintenance/pom.xml" />
         <option value="$PROJECT_DIR$/planningMaintenance/pom.xml" />
         <option value="$PROJECT_DIR$/intervention-service/pom.xml" />
+        <option value="$PROJECT_DIR$/anomalie-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pieceJointes-service/pom.xml" />
+        <option value="$PROJECT_DIR$/actionCorrective-service/pom.xml" />
+        <option value="$PROJECT_DIR$/rapport-service/pom.xml" />
+        <option value="$PROJECT_DIR$/gatway-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/PlanningMaintenance/pom.xml" />
         <option value="$PROJECT_DIR$/equipement-service/pom.xml" />
+        <option value="$PROJECT_DIR$/pieceJointes-service/pom.xml" />
       </set>
     </option>
   </component>

@@ -26,7 +26,7 @@ public class Checklist {
     private ResponsableMaintenance respoMaint;
     private Long equipement_id;
     @Transient
-    private equipement equi ;
+    private equipement equi;
 
     public void addPointMesure(PointMesure p) {
         pointMesures.add(p);

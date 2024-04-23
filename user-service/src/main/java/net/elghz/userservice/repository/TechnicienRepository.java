@@ -15,4 +15,6 @@ public interface TechnicienRepository extends JpaRepository<Technicien, Long> {
     List<Technicien> findByCompetences_Competence(String competenceName);
 
     List<Technicien> findByDisponibiliteIsTrue();
+
+
 }

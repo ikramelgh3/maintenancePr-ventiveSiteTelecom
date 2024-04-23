@@ -7,6 +7,7 @@ import net.elghz.userservice.dtos.TechnicienDTO;
 import net.elghz.userservice.entities.Competence;
 import net.elghz.userservice.entities.Role;
 import net.elghz.userservice.entities.Technicien;
+import net.elghz.userservice.enumeration.TypeTechnicien;
 import net.elghz.userservice.mapper.mapper;
 import net.elghz.userservice.repository.CompetenceRepository;
 import net.elghz.userservice.repository.RoleRepository;
@@ -122,6 +123,19 @@ public class technicienService {
         } catch (Exception e) {
             return new ResponseEntity<>("Une erreur s'est produite lors de l'ajout des techniciens : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public TechnicienDTO findTechnicienById(Long id){
+
+        Optional<Technicien> technicien = repo.findById(id);
+        if (!technicien.isPresent()){
+
+            return null ;
+        }
+
+        TechnicienDTO  dto = mp.from(technicien.get());
+
+        return  dto;
     }
 
     public ResponseEntity<?> findById( Long id){
@@ -275,5 +289,40 @@ public ResponseEntity getAllTechniciensWithCompetences() {
         }
     }
 
+    public List<TechnicienDTO> getTechnicienWithCompetencesAndDisponible(List<Long> idC) {
+        List<TechnicienDTO> technicienDTOList = new ArrayList<>();
 
+        for (Long i : idC) {
+            Competence c = crepo.findById(i).orElse(null);
+
+            if (c != null) {
+                CompetenceDTO dto = mp.from(c);
+                List<Technicien> techniciens = repo.findByCompetences_Competence(dto.getCompetence());
+
+                List<Technicien> techniciensDisponibles = techniciens.stream()
+                        .filter(Technicien::isDisponible)
+                        .collect(Collectors.toList());
+
+                technicienDTOList.addAll(techniciensDisponibles.stream()
+                        .map(mp::from)
+                        .collect(Collectors.toList()));
+            }
+        }
+
+        return technicienDTOList;
+    }
+
+
+    public List<TechnicienDTO> getTechniciensInternes() {
+        return repo.findAll().stream()
+                .filter(technicien -> technicien.getType() == TypeTechnicien.INTERNE).map(mp::from)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<TechnicienDTO> getTechniciensExternes() {
+        return repo.findAll().stream()
+                .filter(technicien -> technicien.getType() == TypeTechnicien.EXTERNE).map(mp::from)
+                .collect(Collectors.toList());
+    }
 }

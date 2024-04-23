@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.elghz.userservice.entities.Competence;
+import net.elghz.userservice.enumeration.TypeTechnicien;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,9 +17,11 @@ public class TechnicienDTO extends utilisateurDTO{
     private int nbreIntervetion;
     private int niveau;
 
+    private TypeTechnicien type;
     //private net.elghz.userservice.entities.utilisateur utilisateur;
 
     Set<CompetenceDTO>  competences = new HashSet<>();
+    //private Set<EquipeTechnicienDTO> equipes = new HashSet<>();
 
 
 }
