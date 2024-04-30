@@ -1,0 +1,23 @@
+.divCon{
+  display: none;
+}
+input{
+
+  padding:5px ;
+  width: 400px;
+  outline: none;
+  border: none;
+  background: white;
+  margin-top: 5px;
+}
+::placeholder {
+  color: darkgrey;
+
+}
+.details{
+  margin-left: -10px;
+}
+.details .divDetail{
+  margin-top: -20px;
+  margin-left: 15px;
+}

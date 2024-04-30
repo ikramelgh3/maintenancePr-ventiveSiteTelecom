@@ -40,14 +40,11 @@ public class siteService {
     private CategorieRepo catrepo;
     private attributeRepo attributeRepository;
 
-    /*
-        public Optional<List<siteDTO>> findByType(SiteType type) {
-            List<Site> sites = repo.findByType(type);
 
+    public List<siteDTO> sitesByType(String type){
+        return repo.findByTypeSite(type).stream().map(smapper::from).collect(Collectors.toList());
+    }
 
-            return Optional.ofNullable(sites.stream().map(smapper::from).collect(Collectors.toList()));
-
-        }*/
     public List<siteDTO> allSites() {
         return repo.findAll().stream().map(smapper::from).collect(Collectors.toList());
     }

@@ -30,6 +30,8 @@ public class PlanningMaintenance {
     private String semestre;
     @Enumerated(EnumType.STRING)
     private PlanningStatus status;
+    private String description;
+    private Date dateCreation;
     private Long id_Site;
     @Transient
     private Site site;

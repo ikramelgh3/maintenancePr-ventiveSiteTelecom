@@ -25,6 +25,7 @@ import java.util.Set;
 
 @RestController
 @AllArgsConstructor
+
 public class anomalieController {
 
     private anomalieService ser;

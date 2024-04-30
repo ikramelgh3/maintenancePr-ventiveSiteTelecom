@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface SiteRepository extends JpaRepository<Site, Long> {
 
-    //List<Site> findByType(SiteType type);
+    List<Site> findByTypeSite(String type);
     List <Site> findByTypeactivitesId(Long Id);
 
     Optional<Site> findByName(String name);

@@ -10,4 +10,5 @@ public interface userRepository extends JpaRepository<utilisateur,Long> {
     boolean existsByUsername(String username);
 
     List<utilisateur> findByRoles_RoleName(String technicien);
+
 }

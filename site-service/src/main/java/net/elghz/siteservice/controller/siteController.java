@@ -57,13 +57,14 @@ public class siteController {
     }
 
     @GetMapping("/sites")
-    public ResponseEntity<?> allSites() {
-        List<siteDTO> s = serv.allSites();
-        if (!s.isEmpty()) {
-            return new ResponseEntity<>(s, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Aucune site n'est trouvé", HttpStatus.NOT_FOUND);
-        }
+    public List<siteDTO> allSites() {
+        return serv.allSites();
+
+    }
+
+    @GetMapping("get/sites/type/{type}")
+    public List<siteDTO> getSitesByType(@PathVariable String type){
+        return serv.sitesByType(type);
     }
 /*
     @GetMapping("site/type/{type}")

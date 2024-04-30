@@ -10,6 +10,7 @@ import java.util.Collection;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class utilisateurDTO {
 
+    private Long id;
     private String nom;
 
     private String username;

@@ -7,13 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class responsableDTO {
-
-    private String nom;
-
-    private String username;
-
-    private String password;
+public class responsableDTO extends utilisateurDTO {
 
     private List<ChecklistDTO> checklist = new ArrayList<>();
 }

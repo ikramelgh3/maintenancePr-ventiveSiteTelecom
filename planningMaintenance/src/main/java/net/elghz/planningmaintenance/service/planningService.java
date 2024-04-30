@@ -1,9 +1,11 @@
 package net.elghz.planningmaintenance.service;
 
+import jakarta.ws.rs.NotFoundException;
 import lombok.AllArgsConstructor;
 import net.elghz.planningmaintenance.dto.PlanningMaintenanceDTO;
 import net.elghz.planningmaintenance.entities.PlanningMaintenance;
 import net.elghz.planningmaintenance.enumeration.PlanningStatus;
+import net.elghz.planningmaintenance.exception.PlanningNameExistsException;
 import net.elghz.planningmaintenance.feign.InterventionRestClient;
 import net.elghz.planningmaintenance.feign.ResponsableMaintRestClient;
 import net.elghz.planningmaintenance.feign.SiteRestClient;
@@ -15,7 +17,10 @@ import net.elghz.planningmaintenance.repository.planningRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,35 +35,89 @@ public class planningService {
     private ResponsableMaintRestClient rrepo;
     private InterventionRestClient irepo;
 
-    public ResponseEntity<?> addPlanning(PlanningMaintenanceDTO pl) {
+    public PlanningMaintenanceDTO addPlanning(PlanningMaintenanceDTO pl) {
         PlanningMaintenance pln = mp.from(pl);
         Optional<PlanningMaintenance> planningMaintenance = repo.findByName(pln.getName());
         if (!planningMaintenance.isPresent()) {
           //  pln.setStatus(PlanningStatus.EN_ATTENTE_VALIDATION);
+            pln.setStatus(PlanningStatus.EN_ATTENTE);
+            pln.setDateCreation(new Date());
             repo.save(pln);
-            return new ResponseEntity<>("Le planning est bien ajouté.", HttpStatus.OK);
+            return pl;
+
         }
-        return new ResponseEntity<>("Il existe déjà un planning avec ce nom.", HttpStatus.OK);
+        return  null;
+    }
+
+    public int getSize(){
+         return repo.findAll().size();
+    }
+    public PlanningMaintenance updatePlanning(Long id, PlanningMaintenanceDTO planningDTO) throws PlanningNameExistsException {
+        // Vérifier si le planning avec l'ID existe
+        Optional<PlanningMaintenance> optionalPlanning = repo.findById(id);
+        if (optionalPlanning.isPresent()) {
+            PlanningMaintenance existingPlanning = optionalPlanning.get();
+
+            // Vérifier si un autre planning avec le même nom existe déjà
+            if (repo.existsByNameAndIdIsNot(planningDTO.getName(), id)) {
+                throw new PlanningNameExistsException("Un planning avec ce nom existe déjà");
+            }
+
+            // Mettre à jour les champs du planning
+            existingPlanning.setName(planningDTO.getName());
+            existingPlanning.setDateDebutRealisation(planningDTO.getDateDebutRealisation());
+            existingPlanning.setDateFinRealisation(planningDTO.getDateFinRealisation());
+            existingPlanning.setDescription(planningDTO.getDescription());
+            existingPlanning.setSite(planningDTO.getSite());
+            existingPlanning.setResponsableMaint(planningDTO.getResponsableMaint());
+            existingPlanning.setSemestre(planningDTO.getSemestre());
+
+            // Sauvegarder et retourner le planning mis à jour
+            return repo.save(existingPlanning);
+        } else {
+            throw new NotFoundException("Planning not found with id: " + id);
+        }
+    }
+    public boolean checkPlanningExists(String name) {
+        return repo.existsByName(name);
     }
 
 
-    public ResponseEntity<?> addPlanningComplet(PlanningMaintenanceDTO pl ,Long idRespo ,Long idSite  ){
+    public PlanningMaintenanceDTO addPlanningComplet(PlanningMaintenanceDTO pl ,Long idRespo ,Long idSite  ){
         PlanningMaintenance pln = mp.from(pl);
         Optional<PlanningMaintenance> planningMaintenance = repo.findByName(pln.getName());
         if (!planningMaintenance.isPresent()){
 
             Site site = srepo.findType(idSite);
             pln.setSite(site);
+            pln.setStatus(PlanningStatus.EN_ATTENTE);
             pln.setId_Site(idSite);
             pln.setId_Respo(idRespo);
             pln.setResponsableMaint(rrepo.findById(idRespo));
+            pln.setDateCreation(new Date());
            // pln.setStatus(PlanningStatus.EN_ATTENTE_VALIDATION);
             repo.save(pln);
-            return new ResponseEntity<>("Le planning est bien ajouté." , HttpStatus.OK);
+            return pl;
         }
 
 
-        return  new ResponseEntity<>("Il exist déja un planning avec ce nom." , HttpStatus.OK);
+        return  null;
+    }
+
+
+    public PlanningMaintenanceDTO addPlanningCom(PlanningMaintenanceDTO pl ,Long idRespo  ){
+        PlanningMaintenance pln = mp.from(pl);
+        Optional<PlanningMaintenance> planningMaintenance = repo.findByName(pln.getName());
+        if (!planningMaintenance.isPresent()){
+            pln.setId_Respo(idRespo);
+            pln.setResponsableMaint(rrepo.findById(idRespo));
+            // pln.setStatus(PlanningStatus.EN_ATTENTE_VALIDATION);
+            repo.save(pln);
+           return  pl;
+        }
+
+
+        return  null;
     }
 
 
@@ -75,35 +134,60 @@ public class planningService {
         return  new ResponseEntity<>(dto , HttpStatus.OK);
     }
 
+    public PlanningMaintenanceDTO findPlanningByIdWithDetails(Long id) {
+        Optional<PlanningMaintenance> planningOptional = repo.findById(id);
+
+        if (planningOptional.isPresent()) {
+            PlanningMaintenance planningMaintenance = planningOptional.get();
+            PlanningMaintenanceDTO dto = mp.from(planningMaintenance);
+
+            // Récupérer et définir le responsable associé au planning
+            Long idRespo = dto.getId_Respo();
+            ResponsableMaint responsable = rrepo.findById(idRespo);
+            dto.setResponsableMaint(responsable);
+
+            // Récupérer et définir le site associé au planning
+            Long idSite = dto.getId_Site();
+            Site site = srepo.findType(idSite);
+            dto.setSite(site);
+
+            // Récupérer et définir les interventions associées au planning
+            List<Intervention> interventions = irepo.getInterventionsOfPlanning(dto.getId());
+            dto.setInterventionList(interventions);
+
+            return dto;
+        } else {
+            throw new RuntimeException("Aucun planning trouvé avec l'ID : " + id);
+        }
+    }
 
     public PlanningMaintenanceDTO findPlanningById( Long id){
 
         Optional<PlanningMaintenance> planningMaintenance = repo.findById(id);
+
         if (!planningMaintenance.isPresent()){
 
           throw  new RuntimeException("Aucune planning n'est trouvé avec ce id: "+id);
         }
-
         PlanningMaintenanceDTO  dto = mp.from(planningMaintenance.get());
-
+        Long idS = dto.getId_Site();
+        Site s = srepo.findType(idS);
+        dto.setSite(s);
         return  dto;
     }
-    public ResponseEntity<?> deletePlanning( Long id){
+    public void deletePlanning( Long id){
 
         Optional<PlanningMaintenance> planningMaintenance = repo.findById(id);
-        if (!planningMaintenance.isPresent()){
 
-            return new ResponseEntity<>("Aucune planning n'est trouvé avec ce id: "+id , HttpStatus.NOT_FOUND);
-        }
 
         repo.delete(planningMaintenance.get());
 
-        return  new ResponseEntity<>("Le planning est bien supprimé" , HttpStatus.OK);
+
     }
 
 
 
-    public ResponseEntity<?> getAll(){
+    public List<PlanningMaintenanceDTO> getAll(){
         List<PlanningMaintenance> planningMaintenances = repo.findAll();
         List<PlanningMaintenanceDTO> planningMaintenancesDtos = planningMaintenances.stream().map(mp::from).collect(Collectors.toList());
         for( PlanningMaintenanceDTO dto :planningMaintenancesDtos){
@@ -121,15 +205,23 @@ public class planningService {
 
 
         } if(planningMaintenancesDtos.size()!=0){
-            return new ResponseEntity<>(planningMaintenancesDtos, HttpStatus.OK);}
+           return planningMaintenancesDtos;}
         else{
-            return new ResponseEntity<>("Aucune planning n'est trouvé", HttpStatus.NOT_FOUND);
+            return null;
         }
     }
 
 
-    public ResponseEntity<?> findByStatus(PlanningStatus status){
-         return  new ResponseEntity<>(repo.findByStatus(status).stream().map(mp::from).collect(Collectors.toList()), HttpStatus.OK);
+    public List<PlanningMaintenanceDTO> findByStatus(PlanningStatus status){
+
+        List<PlanningMaintenanceDTO> dto=  repo.findByStatus(status).stream().map(mp::from).collect(Collectors.toList());
+        for(PlanningMaintenanceDTO d :dto){
+            Site s = srepo.findType(d.getId_Site());
+            ResponsableMaint a = rrepo.findById(d.getId_Respo());
+            d.setSite(s);
+            d.setResponsableMaint(a);
+        }
+         return  dto;
     }
 
     public ResponseEntity<?>  getStatusOfPlanning( Long id){
@@ -194,7 +286,38 @@ public class planningService {
         return irepo.getInterventionsOfPlanning(idPl);
     }
 
+    public boolean existsById(Long id) {
 
+        Optional<PlanningMaintenance> pl  = repo.findById(id);
+        if(pl.isPresent()){
+            return true;
+        }
+        else
+            return false;
+    }
+
+
+    public List<PlanningMaintenanceDTO> planningByTypeSite(String type){
+        List<Site> sites= srepo.getSitesByType(type);
+        List<PlanningMaintenanceDTO> pl = new ArrayList<>();
+        for(Site s :sites){
+           List<PlanningMaintenanceDTO>  dt = repo.findById_Site(s.getId()).stream().map(mp::from).collect(Collectors.toList());
+           for(PlanningMaintenanceDTO d :dt){
+               d.setResponsableMaint(rrepo.findById(d.getId_Respo()));
+               d.setSite(srepo.findType(d.getId_Site()));
+               pl.add(d);
+
+           }
+
+        }
+        return pl;
+
+    }
+
+
+
+
+    //une fois une intervention est realise donc le status de planning est en cours
     //si tous les intervention sont realise alors le planning est bien etabli cad ferme
 
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Site {
 
+    private Long id;
     private String code;
     private String typeSite;
     private String name;

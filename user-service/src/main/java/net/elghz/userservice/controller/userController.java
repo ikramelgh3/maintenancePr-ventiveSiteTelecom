@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
+
 @AllArgsConstructor
+
 public class userController {
 
     private userRepository repo;

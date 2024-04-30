@@ -31,6 +31,10 @@ public    class siteDTO {
     private Boolean presenceGESecours;
 
 
+    private String supportAntennes;
+    private Double hauteurSupportAntenne;
+    private String lieuInsatallationBTS;
+
     private List<immubleDTO> immubles = new ArrayList<>();
 
 

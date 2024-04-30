@@ -14,14 +14,18 @@ public class ResponsableMaintController {
   @Autowired
   private responsableMaintenanceService ser;
 
+  @GetMapping("/all/Respo")
+  public List<responsableDTO> getAll(){
+    return ser.responsables();
+  }
     @PostMapping("/add/respo")
     public ResponseEntity<?> addResp(@RequestBody responsableDTO resp){
          return  ser.ajouterRespo(resp);
     }
 
   @GetMapping("/respo/id/{id}")
-  public ResponsableMaintenance findById(@PathVariable Long id){
-    return  ser.findByIdR(id);
+  public responsableDTO findById(@PathVariable Long id){
+    return  ser.findById(id);
   }
 
   @GetMapping("/checklist/respo/{username}")

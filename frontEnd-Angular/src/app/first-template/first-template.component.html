@@ -1,0 +1,75 @@
+<mat-toolbar style="background-color: #072f5f; color: white;" >
+  <button mat-icon-button (click)="drawer.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+   <img src="assets/img/logo.png" style="width: 90px ;height: 90px;" >
+
+  <span style="flex: auto"></span>
+
+  <mat-icon style="margin-right: 30px"> message</mat-icon>
+  <button mat-button style="color: white; margin-right: 30px"  [matMenuTriggerFor]="importMenu">
+    <mat-icon>person_outline</mat-icon>
+    <mat-icon iconPositionEnd>keyboard_arrow_down</mat-icon>
+    Profil </button>
+
+
+  <mat-menu #importMenu>
+    <button mat-menu-item> Consulter profil</button>
+    <button mat-menu-item> Se déconnecter</button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-drawer-container>
+    <mat-drawer #drawer opened="true" mode="side" position="start">
+      <mat-list>
+
+        <mat-list-item >
+          <button mat-button >
+            <mat-icon  >dashboard</mat-icon>Tableau de bord</button>
+        </mat-list-item>
+        <mat-list-item>
+        <button mat-button routerLink="/PlanningsMaintenance" >
+          <mat-icon>event</mat-icon>Maintenances</button>
+        </mat-list-item>
+        <mat-list-item>
+          <button mat-button >
+            <mat-icon>assignment</mat-icon>Interventions</button>
+        </mat-list-item>
+
+        <mat-list-item>
+          <button mat-button >
+            <mat-icon>report_problem</mat-icon>Anomalies</button>
+        </mat-list-item>
+        <mat-list-item>
+          <button mat-button  >
+            <mat-icon>location_city</mat-icon>Sites</button>
+        </mat-list-item>
+        <mat-list-item>
+          <button mat-button>
+            <mat-icon>build</mat-icon>Equipements</button>
+        </mat-list-item>
+        <mat-list-item>
+          <button mat-button >
+            <mat-icon>engineering</mat-icon>Intervenants</button>
+        </mat-list-item>
+        <mat-list-item>
+          <button mat-button >
+            <mat-icon>description</mat-icon>Rapports</button>
+        </mat-list-item>
+
+        <mat-list-item>
+          <button mat-button >
+            <mat-icon>people</mat-icon>Utilisateurs</button>
+        </mat-list-item>
+      </mat-list>
+
+    </mat-drawer>
+
+  <mat-drawer-content>
+    <div style="min-height: 590px ;">
+
+      <router-outlet></router-outlet>
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>

@@ -1,0 +1,123 @@
+<div class="container">
+  <div style="background-color: white;width: 500px; position: relative; margin-top: -10px">
+
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <input matInput  placeholder="Rechercher parmi {{totalItems}}  resultats...">
+    </div>
+
+    <mat-menu #importMenu>
+      <button mat-menu-item sty class="buttonChoix" (click)="OpenNewPlanning()">
+        <mat-icon>add</mat-icon> Ajouer Planning
+      </button>
+      <button mat-menu-item class="buttonChoix">
+        <mat-icon>cloud_upload</mat-icon> Importer Plannings
+      </button>
+
+      <button mat-menu-item class="buttonChoix">
+        <mat-icon>cloud_download</mat-icon> Exporter
+      </button>
+    </mat-menu>
+    <div style="display: flex; align-items: center;">
+
+    <button mat-icon-button (click)="getPlanning()"> <mat-icon style="color: black">refresh</mat-icon></button> &nbsp;
+      <button mat-stroked-button (click)="filterByStatus('EN_ATTENTE')" style="color: #072f5f">En attente</button>&nbsp;
+    <button mat-stroked-button (click)="filterByStatus('EN_COURS ')" style="color: #4CAF50">En cours</button>&nbsp;
+    <button mat-stroked-button (click)="filterByStatus('TERMINE')" style="color:#2196F3">Terminé</button>&nbsp;
+
+      </div>
+    <div style="margin-left: 50px"> <button mat-stroked-button (click)="getPlanningByType('FIXE ')" style="color: #1976D2">Site Fixe</button>&nbsp;
+      <button mat-stroked-button (click)="getPlanningByType('MOBILE ')" style="color:#4CAF50">Site Mobile</button>&nbsp;
+      <button mat-stroked-button (click)="getPlanningByType('CONTROLEUR ')" style="color:#FF5722">Controleur Mobile</button>&nbsp;</div>
+
+
+    <mat-divider></mat-divider>
+    <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucun planning trouvé. </div>
+
+
+
+    <div  style="width: 500px;">
+      <mat-list>
+        <ng-container *ngFor="let planning of plannings | paginate: {itemsPerPage:4 , currentPage:p}">
+          <a mat-list-item style="height: 100px; width: 500px; background-color: white; cursor: pointer; display: block; text-decoration: none;"
+             onmouseover="this.style.backgroundColor='#f0f0f0';"
+             onmouseout="this.style.backgroundColor='white';"  (click)="selectPlanning(planning.id)" >
+            <div mat-line style="font-size: 18px; color: #333;">{{ planning.name }}</div>
+            <div mat-line >
+              {{ getShortDescription(planning.description) }}
+              <span *ngIf="isDescriptionLong(planning.description)"></span>
+            </div>
+            <div mat-line style="font-size: 14px; color: #999;">#{{ planning.id }}</div>
+            <div mat-line [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(planning.status) }" style="margin-left: 350px"><i>{{ planning.status }}</i></div>
+          </a>
+          <mat-divider></mat-divider>
+        </ng-container>
+      </mat-list>
+    </div>
+
+    <pagination-controls (pageChange)="p = $event " class="float-right">
+
+    </pagination-controls>
+
+
+
+    <div #planningDetailsContainer class="details" *ngIf="selectedPlanningDetails" style="position: absolute; top: 0; left: 520px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
+      <div style="color: black; margin-left: 500px;">
+        <button mat-icon-button [matMenuTriggerFor]="importMenu1">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #importMenu1>
+          <button mat-menu-item class="buttonChoix" (click)="UpdatePlanning()">
+            <mat-icon>update</mat-icon> Modifier
+          </button>
+          <button mat-menu-item class="buttonChoix" (click)="deletePlanning(selectedPlanningDetails.id)">
+            <mat-icon>delete</mat-icon> Supprimer
+          </button>
+        </mat-menu>
+      </div>
+
+
+      <div class="divDetail"  >
+        <span style=" color: #072f5f;font-size: 12px"><b># {{selectedPlanningDetails.id}}</b></span>&nbsp;&nbsp;
+        <span style=" color: gray;font-size: 12px" [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(selectedPlanningDetails.status) }">{{ selectedPlanningDetails.status }}
+        </span> &nbsp;&nbsp;
+        <span style=" color: gray;font-size: 12px">{{ selectedPlanningDetails.semestre }}  </span><br>
+        <p style="color: black">{{ selectedPlanningDetails.name }}</p>
+        <span style="color: gray;"> Crée le {{selectedPlanningDetails.dateCreation | date: 'dd-MM-yyyy à HH:mm:ss' }}, par Ahmed</span>
+        <div style="max-height: 200px; overflow-y: auto;">
+          <p>Description:</p>
+          <p style="white-space: pre-wrap;">{{ selectedPlanningDetails.description }}</p>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>&nbsp;
+          <span>{{ selectedPlanningDetails.site.name }}</span>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">person</mat-icon></span>&nbsp;
+          <span>{{ selectedPlanningDetails.responsableMaint.nom }}</span>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">event</mat-icon></span>
+          <div>
+            <span style="margin-left: 8px;">Date de réalisation prévue</span><br>
+            <span style="margin-left: 8px;">{{selectedPlanningDetails.dateDebutRealisation | date: 'dd-MM-yyyy à HH:mm:ss' }}</span>
+          </div>
+          <span style="margin-left: 80px;"><mat-icon style="color: gainsboro;">event</mat-icon></span>
+          <div>
+            <span style="margin-left: 8px;">Date de fin prévue</span><br>
+            <span style="margin-left: 8px;">{{selectedPlanningDetails.dateFinRealisation | date: 'dd-MM-yyyy à HH:mm:ss' }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+
+</div>

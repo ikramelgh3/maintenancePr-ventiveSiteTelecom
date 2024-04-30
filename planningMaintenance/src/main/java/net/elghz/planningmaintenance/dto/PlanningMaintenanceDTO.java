@@ -18,10 +18,11 @@ public class PlanningMaintenanceDTO {
     private Date dateDebutRealisation;
     private Date dateFinRealisation;
     private String semestre;
-
     private PlanningStatus status;
     private Long id_Site;
     private Site site;
+    private String description;
+    private Date dateCreation;
     private Long id_Respo;
     private ResponsableMaint responsableMaint;
     List<Intervention> interventionList = new ArrayList<>();

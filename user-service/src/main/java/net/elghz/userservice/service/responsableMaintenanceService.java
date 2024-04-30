@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -47,16 +48,14 @@ public class responsableMaintenanceService {
         return new ResponseEntity<>("Le responsable de maintenance est bien ajouté.", HttpStatus.OK);
     }
 
-    public ResponsableMaintenance findById(Long id){
+    public responsableDTO findById(Long id){
         Optional<ResponsableMaintenance> opt = repo.findById(id);
         if(!opt.isPresent()){
             throw new RuntimeException("Responsable de maintenance n'est pas trouvé");
         }
         ResponsableMaintenance rep = opt.get();
-       // responsableDTO dt = mp.from(rep);
-        return rep;
-
-
+        responsableDTO dt = mp.from(rep);
+        return dt;
 
     }
 
@@ -84,6 +83,10 @@ public class responsableMaintenanceService {
 
     }
 
+
+    public List<responsableDTO> responsables(){
+         return  repo.findAll().stream().map(mp::from).collect(Collectors.toList());
+    }
 
 
 
