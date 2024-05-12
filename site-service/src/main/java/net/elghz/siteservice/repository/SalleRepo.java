@@ -13,4 +13,6 @@ public interface SalleRepo extends JpaRepository<salle, Long> {
     Optional<salle> findByNumeroSalle(int dr);
 
     List<salle> findByEtage(etage dc);
+
+    Optional <salle> findByCodeSalle(String code);
 }

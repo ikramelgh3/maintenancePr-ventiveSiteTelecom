@@ -1,0 +1,308 @@
+<div class="container">
+  <div style="background-color: white;width: 500px; position: relative; margin-top: -10px">
+
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <input matInput [(ngModel)]="searchInput" (input)="search()"  placeholder="Rechercher parmi {{totalItems}} resultats...">
+
+    </div>
+
+    <mat-menu #importMenu1>
+      <button mat-menu-item sty class="buttonChoix" (click)="OpenNewSite()" >
+        <mat-icon>add</mat-icon> Ajouer Site
+      </button>
+      <button mat-menu-item class="buttonChoix" (click)="exporterSites()">
+        <mat-icon>cloud_download</mat-icon> Exporter
+      </button>
+    </mat-menu>
+    <button mat-button [matMenuTriggerFor]="menu1"  style="color: #072f5f" >Type Site </button>
+    <mat-menu #menu1="matMenu">
+      <button mat-menu-item (click)="getSites()" style="color: #072f5f">Tous les sites </button>
+      <button mat-menu-item (click)="getSiteByType('FIXE ')" style="color: #072f5f">Site Fixe </button>
+      <button mat-menu-item (click)="getSiteByType('MOBILE ')" style="color:#072f5f">Site Mobile </button>
+    </mat-menu>
+    <mat-divider></mat-divider>
+
+    <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucun site trouvé. </div>
+    <div  style="width: 500px;">
+      <mat-list>
+
+        <ng-container *ngFor="let site of sites | paginate: {itemsPerPage:4 , currentPage:p}" >
+          <div style="display: flex; align-items: center;">
+            <a mat-list-item style="height: 100px; width: 500px; background-color: white;  cursor: pointer; display: block; text-decoration: none;"
+               onmouseover="this.style.backgroundColor='#f0f0f0';"
+               onmouseout="this.style.backgroundColor='white';"   (click)="getSiteById(site.id)" >
+              <div mat-line style="font-size: 14px; color: #999;">#{{ site.code }}</div>
+              <div mat-line style="font-size: 18px; color: #333;">{{ site.name }}</div>
+              <div mat-line style="font-size: 16px; color: #333;">{{ site.typeSite }}</div>
+              <div mat-line style="font-size: 16px; color: #072f5f;">{{ site.addresse }}</div>
+            </a>
+            <div style="margin-left: auto; margin-right: 20px;">
+
+                <mat-icon (click)="addPict(site.id)" style="cursor: pointer">image</mat-icon>
+
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+        </ng-container>
+
+      </mat-list>
+    </div>
+
+    <pagination-controls (pageChange)="p = $event " class="float-right">
+
+    </pagination-controls>
+
+
+  </div>
+  <div #siteDetails class="details" *ngIf="selectedSiteDetails" style="position: absolute; top: 10px; left: 530px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
+    <div style="color: black; margin-left: 500px; height: 20px">
+      <button mat-icon-button [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #importMenu1>
+        <button mat-menu-item class="buttonChoix" (click)="UpdateSite()">
+          <mat-icon>update</mat-icon> Modifier
+        </button>
+        <button mat-menu-item class="buttonChoix" (click)="deleteSite(this.SiteDetails.id)">
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
+      </mat-menu>
+    </div>
+
+
+    <div class="divDetail"   >
+
+
+        <mat-tab-group animationDuration="0ms" disableRipple>
+          <mat-tab label="Localisation" style="background-color: #072f5f">
+            <br>
+            <div style="margin-left: 40px">
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Adresse</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.addresse}}</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> DR</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.centreTechnique.dc.dr.name}}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> DC</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.centreTechnique.dc.name}}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Centre technique</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.centreTechnique.name}}</span>
+                </div>
+              </div>
+            </div>
+
+          </mat-tab>
+
+          <mat-tab label="Infrastructure" style="background-color: #072f5f">
+            <br>
+            <div style="margin-left: 40px">
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">factory</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Type d'installation</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.typeInstallation}}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">factory</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;">Support antennes</span><br>
+                  <span *ngIf="SiteDetails.supportAntennes" style="margin-left: 8px;">{{ SiteDetails.supportAntennes }}</span>
+                  <span *ngIf="!SiteDetails.supportAntennes" style="margin-left: 8px;">---</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">factory</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Hauteur du support d’antenne</span><br>
+                  <span style="margin-left: 8px; " *ngIf="SiteDetails.hauteurSupportAntenne">{{SiteDetails.hauteurSupportAntenne}}</span>
+                  <span style="margin-left: 8px; " *ngIf="!SiteDetails.hauteurSupportAntenne">---</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">factory</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Lieu d'installation BTS</span><br>
+                  <span style="margin-left: 8px; " *ngIf="SiteDetails.lieuInsatallationBTS">{{SiteDetails.lieuInsatallationBTS}}</span>
+                  <span style="margin-left: 8px; " *ngIf="!SiteDetails.lieuInsatallationBTS">---</span>
+                </div>
+              </div>
+              <br>
+            </div>
+
+          </mat-tab>
+          <mat-tab label="Environnement" style="background-color: #072f5f">
+            <div style="margin-left: 40px">
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">business</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Type d'alimentation</span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.typeAlimentation}}</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center;">
+                <span><mat-icon style="color: gainsboro;">business</mat-icon></span>
+                <div>
+                  <span style="margin-left: 8px;"> Présence GE de secours </span><br>
+                  <span style="margin-left: 8px; ">{{SiteDetails.presenceGESecours}}</span>
+                </div>
+              </div>
+              <br>
+
+
+            </div>
+
+          </mat-tab>
+
+          <mat-tab label="Transmission" style="background-color: #072f5f">
+            <div style="margin-left: 40px">
+            <div style="display: flex; align-items: center;">
+              <span><mat-icon style="color: gainsboro;">usb</mat-icon></span>
+              <div>
+                <span style="margin-left: 8px;"> Type de transmission </span><br>
+                <span style="margin-left: 8px; ">{{SiteDetails.typeTransmission}}</span>
+              </div>
+            </div>
+            <br>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+
+    </div>
+  <div *ngIf="selectedSiteDetails" style="position: absolute; top: 270px; left: 530px; width: 560px; border-radius: 10px; background-color: white; max-height: 300px; overflow-y: auto;">
+    <mat-tab-group animationDuration="0ms" disableRipple >
+
+
+
+      <mat-tab label="Photos" style="background-color: #072f5f">
+        <mat-list>
+          <ng-container *ngFor="let file of files">
+            <div style="position: relative;">
+              <div style="display: flex; justify-content: center; margin-top: 5px;" (click)="openPict(file.processedImage)">
+                <img [src]="file.processedImage" alt="file image" style="width: 150px; height: 150px;">
+              </div>
+              <div style="position: absolute; top: 0; right: 0;">
+                <mat-icon (click)="deletePic(file.id)" style="cursor: pointer;">delete</mat-icon>
+              </div>
+              <br>
+              <span style="font-size: 16px; color: #333333;"> Ajoutée le:  {{file.dateAjout | date :'dd-MM-yyyy à HH:mm:ss' }}</span>
+              <br>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+
+          <div *ngIf="not_foundImg">
+            <p style="margin-left: 50px">Aucune image n'est trouvée dans ce site.</p>
+          </div>
+        </mat-list>
+
+      </mat-tab>
+
+
+      <mat-tab label="Equipements">
+        <ng-template mat-tab-label>
+          <span style="color: white;" >Equipements </span>
+        </ng-template>
+        <mat-list>
+          <ng-container *ngFor="let eq of equipements ">
+            <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">#{{ eq.numeroSerie }}</div>
+
+            <div style="display: flex; align-items: center;">
+              <div mat-line style="font-size: 14px; color: #333; margin-left: 15px;">{{ eq.nom }}</div>
+              <div mat-line style="font-size: 16px; color: #999; margin-left: auto;margin-right: 20px">{{ eq.statut | uppercase }}</div>
+            </div>
+
+            <div mat-line style="font-size: 18px; color: #333; margin-left: 15px;">
+              <span style="font-size: 14px; color: #999;">Immeuble: {{eq.salle.etage.immuble.name}}, Etage: {{eq.salle.etage.numeroEtage}}, Salle: {{eq.salle.numeroSalle}}</span>
+            </div>
+            <mat-divider></mat-divider>
+          </ng-container>
+
+        </mat-list>
+
+        <div *ngIf="not_found" >
+          <p style="margin-left: 50px"> Aucune equipement n'est trouvé dans ce site.</p>
+        </div>
+      </mat-tab>
+      <mat-tab label="Interventions" style="color: white">
+        <ng-template mat-tab-label>
+          <span style="color: white;">Interventions</span>
+        </ng-template>
+        <mat-list>
+          <ng-container *ngFor="let int of Interventions ">
+            <div style="display: flex; align-items: center;">
+              <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">{{ int.name }}</div>
+              <div mat-line style="font-size: 16px; color: #999; margin-left: auto;margin-right: 20px">{{ int.status }}</div>
+            </div>
+            <div mat-line style="font-size: 14px; color: #333; margin-left: 15px;">Demandé par admin le {{ int.dateDebut | date: 'dd-MM-yyyy à HH:mm:ss' }}</div>
+            <mat-divider></mat-divider>
+          </ng-container>
+
+        </mat-list>
+
+        <div *ngIf="not_foundInterv" >
+          <p style="margin-left: 50px"> Aucune intervention n'est trouvé dans ce site.</p>
+        </div>
+
+      </mat-tab>
+      <mat-tab label="Maintenance">
+        <ng-template mat-tab-label>
+          <span style="color: white;">Maintenance</span>
+        </ng-template>
+        <mat-list>
+          <ng-container *ngFor="let pl of plannings ">
+            <div style="display: flex; align-items: center;">
+              <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">{{ pl.name }}</div>
+              <div mat-line style="font-size: 16px; color: #999; margin-left: auto; margin-right: 20px">{{ pl.status }}</div>
+            </div>
+            <div mat-line style="font-size: 14px; color: #999; margin-left: 15px;">#{{ pl.semestre }}</div>
+            <mat-divider></mat-divider>
+          </ng-container>
+
+        </mat-list>
+        <div *ngIf="not_foundPl" >
+          <p style="margin-left: 50px"> Aucune planning n'est trouvé dans ce site.</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+
+
+
+
+
+</div>
+
+
+
+
+

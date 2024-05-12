@@ -5,32 +5,53 @@
       <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <input matInput  placeholder="Rechercher parmi {{totalItems}}  resultats...">
+      <input matInput [(ngModel)]="searchInput" (input)="search()" placeholder="Rechercher parmi {{totalItems}} resultats...">
+
     </div>
 
     <mat-menu #importMenu>
       <button mat-menu-item sty class="buttonChoix" (click)="OpenNewPlanning()">
         <mat-icon>add</mat-icon> Ajouer Planning
       </button>
-      <button mat-menu-item class="buttonChoix">
+      <button mat-menu-item class="buttonChoix" (click)="openImportDialog()">
         <mat-icon>cloud_upload</mat-icon> Importer Plannings
       </button>
 
-      <button mat-menu-item class="buttonChoix">
+      <button mat-menu-item class="buttonChoix" (click)="exportToExcel()">
         <mat-icon>cloud_download</mat-icon> Exporter
       </button>
     </mat-menu>
     <div style="display: flex; align-items: center;">
 
-    <button mat-icon-button (click)="getPlanning()"> <mat-icon style="color: black">refresh</mat-icon></button> &nbsp;
-      <button mat-stroked-button (click)="filterByStatus('EN_ATTENTE')" style="color: #072f5f">En attente</button>&nbsp;
-    <button mat-stroked-button (click)="filterByStatus('EN_COURS ')" style="color: #4CAF50">En cours</button>&nbsp;
-    <button mat-stroked-button (click)="filterByStatus('TERMINE')" style="color:#2196F3">Terminé</button>&nbsp;
 
+
+    <button mat-icon-button (click)="getPlanning()"> <mat-icon style="color: black">refresh</mat-icon></button> &nbsp;
+
+      &nbsp;
+      <button mat-button [matMenuTriggerFor]="menu" style="color: #072f5f">Status</button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="filterByStatus('EN_ATTENTE')" style="color: #072f5f">En attente </button>
+        <button mat-menu-item (click)="filterByStatus('EN_COURS')" style="color: #072f5f">cours </button>
+        <button mat-menu-item (click)="filterByStatus('TERMINE')" style="color: #072f5f">Terminé </button>
+      </mat-menu>
+
+      &nbsp;
+
+      <button mat-button [matMenuTriggerFor]="menu1"  style="color: #072f5f" >Type Site </button>
+      <mat-menu #menu1="matMenu">
+        <button mat-menu-item (click)="getPlanningByType('FIXE ')" style="color: #072f5f">Site Fixe </button>
+        <button mat-menu-item (click)="getPlanningByType('MOBILE ')" style="color:#072f5f">Site Mobile </button>
+        <button mat-menu-item (click)="getPlanningByType('CONTROLEUR ')" style="color:#072f5f">Controleur Mobile</button>
+      </mat-menu>
+
+      &nbsp;
+      <button mat-button [matMenuTriggerFor]="menu2"  style="color: #072f5f">Frequence</button>
+      <mat-menu #menu2="matMenu">
+        <button mat-menu-item (click)="getPlanningBySemestre('Mensuel ')" style="color: #072f5f"> Mensuel </button>
+        <button mat-menu-item (click)="getPlanningBySemestre('Trimestriel ')" style="color:#072f5f">Trimestriel </button>
+        <button mat-menu-item (click)="getPlanningBySemestre('Annuel ')" style="color:#072f5f">Annuel </button>
+      </mat-menu>
       </div>
-    <div style="margin-left: 50px"> <button mat-stroked-button (click)="getPlanningByType('FIXE ')" style="color: #1976D2">Site Fixe</button>&nbsp;
-      <button mat-stroked-button (click)="getPlanningByType('MOBILE ')" style="color:#4CAF50">Site Mobile</button>&nbsp;
-      <button mat-stroked-button (click)="getPlanningByType('CONTROLEUR ')" style="color:#FF5722">Controleur Mobile</button>&nbsp;</div>
 
 
     <mat-divider></mat-divider>
@@ -87,8 +108,8 @@
         <p style="color: black">{{ selectedPlanningDetails.name }}</p>
         <span style="color: gray;"> Crée le {{selectedPlanningDetails.dateCreation | date: 'dd-MM-yyyy à HH:mm:ss' }}, par Ahmed</span>
         <div style="max-height: 200px; overflow-y: auto;">
-          <p>Description:</p>
-          <p style="white-space: pre-wrap;">{{ selectedPlanningDetails.description }}</p>
+          <span style="margin-left: 8px;"> Description</span>
+          <p style="line-height: 1; white-space: pre-wrap; margin-left: 8px;">{{ selectedPlanningDetails.description }}</p>
         </div>
         <div style="display: flex; align-items: center;">
           <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>&nbsp;

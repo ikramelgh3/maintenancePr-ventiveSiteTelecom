@@ -35,7 +35,7 @@ public    class siteDTO {
     private Double hauteurSupportAntenne;
     private String lieuInsatallationBTS;
 
-    private List<immubleDTO> immubles = new ArrayList<>();
+    //private List<immubleDTO> immubles = new ArrayList<>();
 
 
     private Set<typeActiviteDTO> typeactivites = new HashSet<>();
@@ -44,9 +44,7 @@ public    class siteDTO {
 
     private CentreTechniqueDTO centreTechnique;
 
-    private  List<PhotoDTO > photos = new ArrayList<>();
-
-
+   // private  List<PhotoDTO > photos = new ArrayList<>();
 
     public void update(siteDTO dto) {
         this.setName(dto.getName());
@@ -60,4 +58,6 @@ public    class siteDTO {
         this.setTypeAlimentation(dto.getTypeAlimentation());
 
     }
+
+
 }

@@ -1,0 +1,16 @@
+.divCon{
+  display: none;
+}
+input{
+
+  padding:5px ;
+  width: 400px;
+  outline: none;
+  border: none;
+  background: white;
+  margin-top: 5px;
+}
+::placeholder {
+  color: darkgrey;
+
+}

@@ -76,6 +76,14 @@ public class siteMapper {
     public etage from (etageDTO   siteDTO){
         return modelMapper.map(siteDTO,etage.class);
     }
+    public PhotoDTO from (Photo e){
+        return modelMapper.map(e, PhotoDTO.class);
+    }
+
+    public Photo from (PhotoDTO   siteDTO){
+        return modelMapper.map(siteDTO,Photo.class);
+    }
+
 
 
     public void update(siteDTO dto, Site site) {
@@ -108,14 +116,14 @@ public class siteMapper {
             }
             site.setTypeactivites(typeActivites);
         }
-
-        if (dto.getPhotos() != null) {
-            List<Photo> photos = new ArrayList<>();
-            for (PhotoDTO photoDTO : dto.getPhotos()) {
-                photos.add(modelMapper.map(photoDTO, Photo.class));
-            }
-            site.setPhotos(photos);
-        }
+//
+//        if (dto.getPhotos() != null) {
+//            List<Photo> photos = new ArrayList<>();
+//            for (PhotoDTO photoDTO : dto.getPhotos()) {
+//                photos.add(modelMapper.map(photoDTO, Photo.class));
+//            }
+//            site.setPhotos(photos);
+//        }
     }
 
 }

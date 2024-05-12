@@ -17,18 +17,14 @@ import net.elghz.planningmaintenance.repository.planningRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Service
 @AllArgsConstructor
 public class planningService {
-
     private planningRepo repo;
     private mapper mp;
     private SiteRestClient srepo;
@@ -52,27 +48,25 @@ public class planningService {
     public int getSize(){
          return repo.findAll().size();
     }
-    public PlanningMaintenance updatePlanning(Long id, PlanningMaintenanceDTO planningDTO) throws PlanningNameExistsException {
-        // Vérifier si le planning avec l'ID existe
+    public PlanningMaintenance updatePlanning(Long id, PlanningMaintenanceDTO planningDTO , Long site, Long resp) throws PlanningNameExistsException {
         Optional<PlanningMaintenance> optionalPlanning = repo.findById(id);
         if (optionalPlanning.isPresent()) {
             PlanningMaintenance existingPlanning = optionalPlanning.get();
-
-            // Vérifier si un autre planning avec le même nom existe déjà
             if (repo.existsByNameAndIdIsNot(planningDTO.getName(), id)) {
+                System.out.println(planningDTO.getName());
                 throw new PlanningNameExistsException("Un planning avec ce nom existe déjà");
             }
-
-            // Mettre à jour les champs du planning
+            System.out.println(planningDTO.getName());
             existingPlanning.setName(planningDTO.getName());
             existingPlanning.setDateDebutRealisation(planningDTO.getDateDebutRealisation());
             existingPlanning.setDateFinRealisation(planningDTO.getDateFinRealisation());
             existingPlanning.setDescription(planningDTO.getDescription());
-            existingPlanning.setSite(planningDTO.getSite());
-            existingPlanning.setResponsableMaint(planningDTO.getResponsableMaint());
             existingPlanning.setSemestre(planningDTO.getSemestre());
+            existingPlanning.setId_Respo(resp);
+            existingPlanning.setId_Site(site);
+            System.out.println(site);
+            System.out.println(resp);
 
-            // Sauvegarder et retourner le planning mis à jour
             return repo.save(existingPlanning);
         } else {
             throw new NotFoundException("Planning not found with id: " + id);
@@ -82,6 +76,9 @@ public class planningService {
         return repo.existsByName(name);
     }
 
+    public  List<PlanningMaintenanceDTO> findBySemestre(String semestre){
+         return  repo.findBySemestre(semestre).stream().map(mp::from).collect(Collectors.toList());
+    }
 
     public PlanningMaintenanceDTO addPlanningComplet(PlanningMaintenanceDTO pl ,Long idRespo ,Long idSite  ){
         PlanningMaintenance pln = mp.from(pl);
@@ -187,7 +184,7 @@ public class planningService {
 
 
 
-    public List<PlanningMaintenanceDTO> getAll(){
+    public List<PlanningMaintenanceDTO> getAll( ){
         List<PlanningMaintenance> planningMaintenances = repo.findAll();
         List<PlanningMaintenanceDTO> planningMaintenancesDtos = planningMaintenances.stream().map(mp::from).collect(Collectors.toList());
         for( PlanningMaintenanceDTO dto :planningMaintenancesDtos){
@@ -314,8 +311,31 @@ public class planningService {
 
     }
 
+    public List<PlanningMaintenanceDTO> findByKeyword(String keyword){
+         return  repo.findAllPln(keyword).stream().map(mp::from).collect(Collectors.toList());
+    }
 
 
+
+    public List<Intervention> interventionOfSite(Long idSITE){
+        List<PlanningMaintenance> planningMaintenances = repo.findById_Site(idSITE);
+        List<Intervention> interventions = new ArrayList<>();
+        for(PlanningMaintenance pl :planningMaintenances){
+            List <Intervention> in = irepo.getInterventionsOfPlanning(pl.getId());
+            for(Intervention i : in){
+                 interventions.add(i);
+            }
+
+
+        }
+        return  interventions;
+    }
+
+
+
+    public int getNbrePlanning(){
+         return repo.findAll().size();
+    }
 
     //une fois une intervention est realise donc le status de planning est en cours
     //si tous les intervention sont realise alors le planning est bien etabli cad ferme

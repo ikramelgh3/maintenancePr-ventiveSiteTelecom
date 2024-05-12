@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface RespoMaintRepo extends JpaRepository<ResponsableMaintenance , Long> {
    Optional<ResponsableMaintenance>  findByUsername(String username);
+   Optional<ResponsableMaintenance>  findByNom(String nom);
+
 }

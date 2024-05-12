@@ -11,13 +11,13 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 public class FileUploadUtil {
-    public static void saveFile(String uploadDir, String fileName, MultipartFile multipartFile) throws IOException {
+    public static void saveFile(String uploadDir, String fileName, MultipartFile file) throws IOException {
 
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
-        try (InputStream inputStream = multipartFile.getInputStream()) {
+        try (InputStream inputStream = file.getInputStream()) {
             Path filePath = uploadPath.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -53,4 +53,6 @@ public class FileUploadUtil {
             System.out.println("Pas d'accés au dossier: "+dirPath);
         }
     }
+
+
 }

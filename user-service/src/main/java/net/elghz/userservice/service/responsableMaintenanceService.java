@@ -48,6 +48,11 @@ public class responsableMaintenanceService {
         return new ResponseEntity<>("Le responsable de maintenance est bien ajouté.", HttpStatus.OK);
     }
 
+
+    public responsableDTO gindByName(String name){
+        Optional<ResponsableMaintenance> op= repo.findByNom(name);
+        return mp.from(op.get());
+    }
     public responsableDTO findById(Long id){
         Optional<ResponsableMaintenance> opt = repo.findById(id);
         if(!opt.isPresent()){

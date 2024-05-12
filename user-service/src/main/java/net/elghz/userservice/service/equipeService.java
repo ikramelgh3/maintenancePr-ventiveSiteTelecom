@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class equipeService {
+    /*
     private equipeRepository repo;
     private TechnicienRepository trepo;
     private mapper mp;
@@ -60,13 +61,13 @@ public class equipeService {
         }
 
         EquipeIntervenant planningMaintenance = planningMaintenanceOptional.get();
-        Set<Technicien> techniciens = planningMaintenance.getTechniciens();
-        Iterator<Technicien> iterator = techniciens.iterator();
-        while (iterator.hasNext()) {
-            Technicien technicien = iterator.next();
-            iterator.remove();
-            technicien.getEquipes().remove(planningMaintenance);
-        }
+       // Set<Technicien> techniciens = planningMaintenance.getTechniciens();
+        //Iterator<Technicien> iterator = techniciens.iterator();
+//        while (iterator.hasNext()) {
+//            Technicien technicien = iterator.next();
+//            iterator.remove();
+//           // technicien.getEquipes().remove(planningMaintenance);
+//        }
 
         repo.delete(planningMaintenance);
 
@@ -155,7 +156,7 @@ public class equipeService {
         }
         return new ResponseEntity<>("Aucune équipe n'est trouvée avec cet ID : " + id, HttpStatus.NOT_FOUND);
     }
-
+*/
 
 }
 

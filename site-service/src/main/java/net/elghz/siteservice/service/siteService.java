@@ -1,6 +1,7 @@
 package net.elghz.siteservice.service;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
 import net.elghz.siteservice.dtos.*;
@@ -15,6 +16,7 @@ import net.elghz.siteservice.repository.*;
 
 import net.elghz.siteservice.entities.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +34,7 @@ public class siteService {
     @PersistenceContext
     private EntityManager entityManager;
     private CTRepo ctRepo;
+    private photoMapper pmapper;
 
     @Autowired
     private siteMobileMapper siteMobileMap;
@@ -98,13 +101,11 @@ public class siteService {
         throw new RuntimeException("Site not found with ID: " + id);
     }
 
-    public boolean deleteById(Long id) {
+    public void deleteById(Long id) {
         Optional<Site> siteOptional = repo.findById(id);
         if (siteOptional.isPresent()) {
             repo.deleteById(id);
-            return true;
-        } else {
-            return false;
+
         }
     }
 
@@ -137,6 +138,36 @@ public class siteService {
         }
 
     }
+
+
+    public SiteMobileDTO ajouterSiteMobile(SiteMobile site , Long idCt) {
+        String siteName = site.getName();
+
+        CentreTechnique ct = ctRepo.findById(idCt).get();
+
+//            Site s = smapper.from(site);
+            site.setTypeSite("Mobile");
+            site.setCentreTechnique(ct);
+            //siteDTO dto =smapper.mapToSiteDTO(site);
+            // Site s = smapper.from(dto);
+            repo.save(site);
+            return smapper.fromMobile(site);
+        }
+
+    public SiteFixeDTO ajouterSiteFixe(SiteFixe site , Long idCt) {
+        String siteName = site.getName();
+
+        CentreTechnique ct = ctRepo.findById(idCt).get();
+
+//            Site s = smapper.from(site);
+        site.setTypeSite("Fixe");
+        site.setCentreTechnique(ct);
+        //siteDTO dto =smapper.mapToSiteDTO(site);
+        // Site s = smapper.from(dto);
+        repo.save(site);
+        return smapper.fromFixe(site);
+    }
+
 
     public ResponseEntity<?> saveSiteFixe (SiteFixe site) {
         String siteName = site.getName();
@@ -357,8 +388,86 @@ public class siteService {
 
 
 
+public siteDTO findByNamr(String name){
+        Optional<Site> s = repo.findByName(name);
+        if(s.isPresent()){
+            return smapper.from(s.get());
+        }
+        else
+            return null;
+}
+    public List<equipementDTO> getEquipementsOfSite(Long siteId) {
+        Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found with id: " + siteId));
+        List<equipement> equipements = new ArrayList<>();
+
+        for (immuble immeuble : site.getImmubles()) {
+            for (etage etagee : immeuble.getEtageList()) {
+                for (salle sallee : etagee.getSalles()) {
+                    equipements.addAll(sallee.getEquipementList());
+                }
+            }
+        }
+
+        return equipements.stream()
+                .map(mapperEqui::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<immubleDTO> getImmublesOfSite(Long id){
+        Site s = repo.findById(id).get();
+        List<immuble> immubles = s.getImmubles();
+        List<immubleDTO> immubleDTOS = new ArrayList<>();
+        for(immuble i :immubles){
 
 
+            immubleDTOS.add(smapper.from(i));
+        }
+        return immubleDTOS;}
+    public List<PhotoDTO> getPhotosOfSite(Long idS){
+        return repo.findById(idS).get().getPhotos().stream().map(pmapper::from).collect(Collectors.toList());
+    }
+
+    public List<String> getCheminImagesSite(Long id ){
+         Site s= repo.findById(id).get();
+         return s.getPhotosImagePaths();
+    }
 
 
+    public SiteFixeDTO updateSiteFixe(Long id, SiteFixe updatedSite) {
+        SiteFixe existingSite = (SiteFixe) repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
+        existingSite.setCode(updatedSite.getCode());
+        existingSite.setName(updatedSite.getName());
+        existingSite.setTypeSite(updatedSite.getTypeSite());
+        existingSite.setLatitude(updatedSite.getLatitude());
+        existingSite.setLongitude(updatedSite.getLongitude());
+        existingSite.setAddresse(updatedSite.getAddresse());
+        existingSite.setTypeInstallation(updatedSite.getTypeInstallation());
+        existingSite.setTypeAlimentation(updatedSite.getTypeAlimentation());
+        existingSite.setTypeTransmission(updatedSite.getTypeTransmission());
+        existingSite.setPresenceGESecours(updatedSite.getPresenceGESecours());
+        repo.save(existingSite);
+        return smapper.fromFixe(existingSite);
+    }
+
+    public SiteMobileDTO updateSiteMobile(Long id, SiteMobile updatedSite) {
+        SiteMobile existingSite = (SiteMobile) repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
+        existingSite.setCode(updatedSite.getCode());
+        existingSite.setName(updatedSite.getName());
+        existingSite.setTypeSite(updatedSite.getTypeSite());
+        existingSite.setLatitude(updatedSite.getLatitude());
+        existingSite.setLongitude(updatedSite.getLongitude());
+        existingSite.setAddresse(updatedSite.getAddresse());
+        existingSite.setTypeInstallation(updatedSite.getTypeInstallation());
+        existingSite.setTypeAlimentation(updatedSite.getTypeAlimentation());
+        existingSite.setTypeTransmission(updatedSite.getTypeTransmission());
+        existingSite.setPresenceGESecours(updatedSite.getPresenceGESecours());
+        existingSite.setHauteurSupportAntenne(updatedSite.getHauteurSupportAntenne());
+        existingSite.setLieuInsatallationBTS(updatedSite.getLieuInsatallationBTS());
+        existingSite.setSupportAntennes(updatedSite.getSupportAntennes());
+        existingSite.setPhotos(updatedSite.getPhotos());
+        repo.save(existingSite);
+        return smapper.fromMobile(existingSite);
+    }
 }

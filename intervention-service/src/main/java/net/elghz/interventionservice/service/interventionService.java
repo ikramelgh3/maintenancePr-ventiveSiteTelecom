@@ -5,12 +5,11 @@ import lombok.AllArgsConstructor;
 import net.elghz.interventionservice.dto.InterventionDTO;
 import net.elghz.interventionservice.entities.Intervention;
 import net.elghz.interventionservice.enumeration.statusIntervention;
-import net.elghz.interventionservice.feign.EquipeRestClient;
 import net.elghz.interventionservice.feign.PlannigRestClient;
+import net.elghz.interventionservice.feign.TechnicienRestClient;
+import net.elghz.interventionservice.feign.equipementRestClient;
 import net.elghz.interventionservice.mapper.mapper;
-import net.elghz.interventionservice.model.Equipe;
-import net.elghz.interventionservice.model.Planning;
-import net.elghz.interventionservice.model.technicien;
+import net.elghz.interventionservice.model.*;
 import net.elghz.interventionservice.repository.interventionRepo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,8 @@ public class interventionService {
     private interventionRepo repo;
     private mapper mp;
     private PlannigRestClient prepo;
-    private EquipeRestClient erepo;
+    private TechnicienRestClient erepo;
+    private equipementRestClient eqRepo;
 
     public ResponseEntity<?> addIntervention(InterventionDTO pl){
         Intervention pln = mp.from(pl);
@@ -47,7 +47,7 @@ public class interventionService {
         if (!planningMaintenance.isPresent()){
 
             pln.setId_Planning(IdPlanning);
-            pln.setPlanning(prepo.findPlanningId(IdPlanning));
+            pln.setPlanning(prepo.findPlanningById(IdPlanning));
             repo.save(pln);
             return true;
 
@@ -69,10 +69,11 @@ public class interventionService {
         }
 
         InterventionDTO  dto = mp.from(planningMaintenance.get());
-        Long idEqui = dto.getId_Equipe();
-        Equipe e = erepo.findEquipe(idEqui);
-        dto.setEquipe(e);
-
+        Long idEqui = dto.getId_Techn();
+        TechnicienDTO e = erepo.findTechnicienById(idEqui);
+        dto.setTechnicien(e);
+        Equipement equipement = eqRepo.getEquiById(dto.getId_Equipement());
+        dto.setEquipement(equipement);
         return  new ResponseEntity<>(dto , HttpStatus.OK);
     }
 
@@ -86,16 +87,21 @@ public class interventionService {
         }
 
         InterventionDTO  dto = mp.from(planningMaintenance.get());
-        Long idEqui = dto.getId_Equipe();
+        Long idEqui = dto.getId_Techn();
 
         if(idEqui==null){
             return  dto;
         }
-        Equipe e = erepo.findEquipe(idEqui);
+        TechnicienDTO e = erepo.findTechnicienById(idEqui);
         if(e==null){
             return  dto;
         }
-        dto.setEquipe(e);
+        Equipement eq = eqRepo.getEquiById(dto.getId_Equipement());
+        if(e==null){
+            return  dto;
+        }
+        dto.setEquipement(eq);
+        dto.setTechnicien(e);
         return  dto;
     }
 
@@ -117,16 +123,23 @@ public class interventionService {
     public ResponseEntity<?> getAll() {
         List<Intervention> interventions = repo.findAll();
         for (Intervention intervention : interventions) {
-            Long idEqui = intervention.getId_Equipe();
+            Long idEqui = intervention.getId_Techn();
             if (idEqui == null) {
-                intervention.setEquipe(null);
+                intervention.setTechnicien(null);
                 continue;
             }
-            Equipe equipe = erepo.findEquipe(idEqui);
+            TechnicienDTO equipe = erepo.findTechnicienById(idEqui);
             if (equipe == null) {
-                intervention.setEquipe(null);
+                intervention.setTechnicien(null);
             } else {
-                intervention.setEquipe(equipe);
+                intervention.setTechnicien(equipe);
+            }
+
+            Equipement equipement = eqRepo.getEquiById(intervention.getId_Equipement());
+            if (equipement == null) {
+                intervention.setEquipement(null);
+            } else {
+                intervention.setEquipement(equipement);
             }
             repo.save(intervention);
         }
@@ -135,7 +148,6 @@ public class interventionService {
                 .collect(Collectors.toList());
         return new ResponseEntity<>(interventionDTOs, HttpStatus.OK);
     }
-
 
     public ResponseEntity<?> findByStatus(statusIntervention status){
         return  new ResponseEntity<>(repo.findByStatus(status).stream().map(mp::from).collect(Collectors.toList()), HttpStatus.OK);
@@ -180,13 +192,13 @@ public class interventionService {
             return new ResponseEntity<>("Aucune intervention n'est trouvé avec ce id: "+idInte , HttpStatus.NOT_FOUND);
         }
 
-        Equipe e = erepo.findEquipe(idEqui);
+        TechnicienDTO e = erepo.findTechnicienById(idEqui);
         if(e==null){
             return new ResponseEntity<>("Aucune équipe n'est trouvé avec ce id: "+idEqui , HttpStatus.NOT_FOUND);
         }
 
-        intervention.get().setId_Equipe(idEqui);
-        intervention.get().setEquipe(e);
+        intervention.get().setId_Techn(idEqui);
+        intervention.get().setTechnicien(e);
         repo.save(intervention.get());
         return new ResponseEntity<>("L'quipe est bien attribue à l'interevntion: "+idInte , HttpStatus.OK);
 
@@ -201,16 +213,27 @@ public class interventionService {
             return new ResponseEntity<>("Aucune intervention n'est trouvé avec ce id: "+idInte , HttpStatus.NOT_FOUND);
         }
 
-        Equipe e = erepo.findEquipe(idEqui);
+        TechnicienDTO e = erepo.findTechnicienById(idEqui);
         if(e==null){
             return new ResponseEntity<>("Aucune équipe n'est trouvé avec ce id: "+idEqui , HttpStatus.NOT_FOUND);
         }
 
-        intervention.get().setId_Equipe(null);
-        intervention.get().setEquipe(null);
+        intervention.get().setId_Techn(null);
+        intervention.get().setTechnicien(null);
         repo.save(intervention.get());
         return new ResponseEntity<>("L'quipe est bien dessocier  de l'interevntion: "+idInte , HttpStatus.OK);
 
 
+    }
+
+    public List<InterventionDTO> getInterventionOfEqui(Long idEqui){
+         List<Intervention> interventions = repo.findById_Equipement(idEqui);
+         for(Intervention i :interventions){
+              Equipement eq = eqRepo.getEquiById(i.getId_Equipement());
+              i.setEquipement(eq);
+              TechnicienDTO tech = erepo.findTechnicienById(i.getId_Techn());
+              i.setTechnicien(tech);
+         }
+         return  interventions.stream().map(mp::from).collect(Collectors.toList());
     }
 }

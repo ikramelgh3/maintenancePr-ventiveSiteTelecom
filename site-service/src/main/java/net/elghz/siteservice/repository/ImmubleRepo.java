@@ -1,9 +1,6 @@
 package net.elghz.siteservice.repository;
 
-import net.elghz.siteservice.entities.CentreTechnique;
-import net.elghz.siteservice.entities.DC;
-import net.elghz.siteservice.entities.Site;
-import net.elghz.siteservice.entities.immuble;
+import net.elghz.siteservice.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,4 +10,6 @@ public interface ImmubleRepo extends JpaRepository<immuble, Long> {
     Optional<immuble> findByName(String dr);
 
     List<immuble> findBySite(Site site);
+
+    Optional <immuble> findByCodeImmuble(String code);
 }

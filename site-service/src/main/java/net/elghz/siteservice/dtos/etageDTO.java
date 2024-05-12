@@ -14,9 +14,9 @@ import java.util.List;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class etageDTO {
 
-    private  Long id;
+    private Long id;
     private int numeroEtage;
 
-    private List<salleDTO> salles = new ArrayList<>();
+    private immubleDTO immuble; // Référence à l'immuble associé
 
 }

@@ -15,6 +15,8 @@ public interface planningRepo extends PagingAndSortingRepository<PlanningMainten
     Optional<PlanningMaintenance> findByName(String name);
 
     List<PlanningMaintenance> findByStatus(PlanningStatus status);
+
+    List<PlanningMaintenance> findBySemestre(String semestre);
     @Query("SELECT c FROM PlanningMaintenance c WHERE c.id_Site = :idSite")
     List<PlanningMaintenance> findById_Site(Long idSite);
 
@@ -24,4 +26,6 @@ public interface planningRepo extends PagingAndSortingRepository<PlanningMainten
     boolean existsByName(String name);
 
     boolean existsByNameAndIdIsNot(String name, Long id);
+    @Query("SELECT c FROM PlanningMaintenance  c where  c.name like %?1% OR c.semestre like %?1%")
+    public List<PlanningMaintenance> findAllPln(String keyword );
 }

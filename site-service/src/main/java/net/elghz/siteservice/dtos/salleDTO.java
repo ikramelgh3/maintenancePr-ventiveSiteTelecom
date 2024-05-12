@@ -18,7 +18,6 @@ public class salleDTO {
     private int numeroSalle;
     private int capacity;
 
-    //private net.elghz.siteservice.entities.etage etage;
-    private List<equipementDTO> equipementList = new ArrayList<>();
+    private etageDTO etage; // Référence à l'étage associé
 
 }

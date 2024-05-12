@@ -27,6 +27,11 @@ public class ResponsableMaintController {
   public responsableDTO findById(@PathVariable Long id){
     return  ser.findById(id);
   }
+  @GetMapping("/respo/name/{name}")
+  public responsableDTO findByName(@PathVariable String  name){
+    return  ser.gindByName(name);
+  }
+
 
   @GetMapping("/checklist/respo/{username}")
   public ResponseEntity<?> checklistsByRespo(@PathVariable String username){

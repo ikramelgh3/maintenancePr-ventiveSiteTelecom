@@ -17,16 +17,14 @@ import {PlanningdataserviceService} from "../planningdataservice.service";
   styleUrl: './new-planning.component.css'
 })
 export class NewPlanningComponent implements OnInit{
-  Semestre: string[]=[ 'Semestre 1' , 'Semestre 2'];
+  Semestre: string[]=[ 'Trimestriel' , 'Mensuel' , 'Annuel'];
   planning! : PlanningMaintenanceDTO;
   public addForm!:FormGroup;
   responsableDTO!:responsableDTO[];
   site!:Site[];
 
   constructor( @Inject(MAT_DIALOG_DATA) public data:any,private ref:MatDialogRef<NewPlanningComponent>,
-               private fb:FormBuilder , private ser:PlanningServiceService , private router:Router
-               , private not:NotificationService ,private snackBar: MatSnackBar,
-               private refrechS:RefrechSerService,
+               private fb:FormBuilder , private ser:PlanningServiceService ,private snackBar: MatSnackBar,
                private dataser:PlanningdataserviceService ) {
 
   }
@@ -92,8 +90,6 @@ export class NewPlanningComponent implements OnInit{
                 console.log(data);
 
                 this.closePopup();
-
-
                 const snackBarRef3: MatSnackBarRef<any> = this.snackBar.open('Le planning est bien ajouté', '', {
                   duration: 8000,
                   horizontalPosition: 'right',

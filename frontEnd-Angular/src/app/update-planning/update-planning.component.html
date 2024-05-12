@@ -2,7 +2,7 @@
 <div mat-dialog-title class="titleM" style="bottom: 30px">
   <button mat-icon-button (click)="closePopup()" style="bottom: -38px;left: 580px ;"  >
     <mat-icon color="white">cancel</mat-icon></button>
-  <h1>Modifier Planning  # {{Planning.id}}</h1>
+  <h1>Modifier Planning  # {{Planning?.id}}</h1>
 </div>
 <div></div>
 <div mat-dialog-content class="content" [formGroup]="updateForm"  >
@@ -14,10 +14,9 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label> Semestre</mat-label>
+      <mat-label> Fréquence de planification</mat-label>
       <mat-select formControlName="semestre" required>
         <mat-option *ngFor="let val of Semestre" [value] ="val" > {{val}}</mat-option>
-
       </mat-select>
       <mat-error>Veuillez selectionner le semestre</mat-error>
 
@@ -27,16 +26,26 @@
   <div class="row">
     <mat-form-field appearance="outline">
       <mat-label> Responsable de maintenance</mat-label>
-      <input matInput type="text" formControlName="id_Respo" required >
-      <mat-error>Veuillez remplir le champs</mat-error>
+      <mat-select formControlName="Respo" required (selectionChange)="onRespoSelectionChange($event)">
+        <mat-option *ngFor="let val of responsableDTO" [value]="val.id">
+          {{ val.nom }}
+        </mat-option>
+      </mat-select>
+      <mat-error>Veuillez sélectionner le responsable</mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label> Site</mat-label>
-      <input matInput type="text" formControlName="id_Site" required>
-      <mat-error>Veuillez remplir le champs</mat-error>
+      <mat-select formControlName="Sit" required (selectionChange)="onSiteSelectionChange($event)">
+        <mat-option *ngFor="let val of site" [value]="val.id">
+          {{ val.name }}
+        </mat-option>
+      </mat-select>
+      <mat-error>Veuillez sélectionner le site</mat-error>
     </mat-form-field>
+
   </div>
+
   <div class="row">
     <mat-form-field appearance="outline">
       <mat-label> Date debut </mat-label>

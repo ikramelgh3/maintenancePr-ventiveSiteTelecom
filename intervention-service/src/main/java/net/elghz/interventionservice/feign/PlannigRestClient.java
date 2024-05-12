@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient (name = "PLANNING-SERVICE" , url = "http://localhost:8085")
 public interface PlannigRestClient {
 
-    @GetMapping("/find/planningBy/{id}")
-    public Planning findPlanningId(@PathVariable Long id);
+    @GetMapping("/find/planning/{id}")
+    public Planning findPlanningById(@PathVariable Long id);
 
 
 }

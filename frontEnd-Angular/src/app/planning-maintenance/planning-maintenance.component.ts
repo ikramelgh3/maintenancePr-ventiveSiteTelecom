@@ -12,6 +12,7 @@ import {UpdatePlanningComponent} from "../update-planning/update-planning.compon
 import {responsableDTO} from "../models/responsableDTO";
 import {PlanningdataserviceService} from "../planningdataservice.service";
 import {Site} from "../models/Site";
+import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
 
 @Component({
   selector: 'app-planning-maintenance',
@@ -33,7 +34,8 @@ export class PlanningMaintenanceComponent implements OnInit {
   private filteredPlannings!: PlanningMaintenanceDTO[];
   private site!: Site;
   protected noResultsFound: boolean=false;
-
+  searchInput: string = '';
+  private selectedFile!: File;
   constructor(private planningService: PlanningServiceService, private dialog: MatDialog,
               private dialogService: DialogService, private refrechS:RefrechSerService,
               private not: NotificationService, private route: Router,private snackBar: MatSnackBar
@@ -79,6 +81,19 @@ export class PlanningMaintenanceComponent implements OnInit {
      )
   }
 
+  getPlanningBySemestre( seme:String){
+    this.planningService.getPlanningBySemestre(seme).subscribe(
+      (data) => {
+        this.plannings = data;
+        this.noResultsFound = this.plannings.length === 0;
+      },
+      (error)=>
+      {
+        console.log("Error");
+      }
+    )
+
+  }
   getTotalElment(){
     this.planningService.getSize().subscribe((data)=>
     this.totalItems=data,
@@ -89,7 +104,7 @@ export class PlanningMaintenanceComponent implements OnInit {
     this.planningService.getPlannings().subscribe(
       (data) => {
         this.plannings = data;
-        this.noResultsFound = this.plannings.length === 0; // Mettre à jour l'état noResultsFound
+        this.noResultsFound = this.plannings.length === 0;
         console.log(this.plannings);
       }
     )
@@ -98,7 +113,7 @@ export class PlanningMaintenanceComponent implements OnInit {
 
   showSnackBar(message: string, action: string) {
     const config = new MatSnackBarConfig();
-    config.panelClass = ['blue-snackbar']; // Ajoute une classe pour personnaliser le style du snackbar
+    config.panelClass = ['blue-snackbar'];
     this.snackBar.open(message, action, config);
   }
 
@@ -116,7 +131,7 @@ export class PlanningMaintenanceComponent implements OnInit {
   referechDate() {
     this.planningService.getPlannings().subscribe((res: any) => {
       this.plannings = res;
-      this.totalItems = this.plannings.length; // Mettre à jour le nombre total d'éléments
+      this.totalItems = this.plannings.length;
     });
   }
 
@@ -132,12 +147,11 @@ export class PlanningMaintenanceComponent implements OnInit {
               this.selectedPlanningDetails = null;
               // Rediriger vers la page des plannings après la suppression
               const snackBarRef: MatSnackBarRef<any> = this.snackBar.open('Le planning a été supprimé', '', {
-                duration: 8000, // Durée indéfinie, la notification restera affichée
+                duration: 8000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
               });
 
-              // Ajouter un écouteur pour fermer la notification lorsque l'utilisateur interagit avec elle
               snackBarRef.onAction().subscribe(() => {
                 snackBarRef.dismiss();
               });
@@ -192,7 +206,7 @@ export class PlanningMaintenanceComponent implements OnInit {
         }
 
 
-        console.log(data); // Stockez les détails récupérés dans une variable pour les afficher dans le HTML
+        console.log(data);
         if (this.planningDetailsContainer) {
           this.planningDetailsContainer.nativeElement.scrollIntoView({ behavior: 'smooth' });
         }
@@ -209,15 +223,15 @@ export class PlanningMaintenanceComponent implements OnInit {
     this.getPlanningDetailsById(planningId);
 
 
-    console.log(planningId); // Appelez la méthode pour récupérer les détails lorsque vous sélectionnez un planning
+    console.log(planningId);
   }
 
 
   toggleDetails(planning: PlanningMaintenanceDTO) {
     if (this.selectedPlanning === planning) {
-      this.selectedPlanning = null; // Cliquez à nouveau pour masquer les détails
+      this.selectedPlanning = null;
     } else {
-      this.selectedPlanning = planning; // Afficher les détails du planning sélectionné
+      this.selectedPlanning = planning;
       console.log(planning);
     }
   }
@@ -230,7 +244,78 @@ export class PlanningMaintenanceComponent implements OnInit {
       data: { id: this.id }
     });
 
+  }
+  search(): void {
+    if (this.searchInput.trim() !== '') {
+      this.planningService.getPlanningByKeyword(this.searchInput).subscribe(
+        (data: PlanningMaintenanceDTO[]) => {
+          this.plannings = data;
+          this.noResultsFound = this.plannings.length === 0;
+        },
+        (error) => {
+          console.error('Erreur lors de la recherche :', error);
+        }
+      );
+    } else {
+     this.getPlanning();
+    }
+  }
 
+  exportToExcel() {
+    this.planningService.exportToExcel().subscribe(
+      (response: any) => {
+        const fileName = this.getFileNameFromResponse(response);
+        this.downloadFile(response.body, fileName);
+        const snackBarRef: MatSnackBarRef<any> = this.snackBar.open('Les plannings sont bien exporter', '', {
+          duration: 8000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+        });
+
+        snackBarRef.onAction().subscribe(() => {
+          snackBarRef.dismiss();
+        });
+      },
+      (error) => {
+        console.error('Erreur lors de l\'exportation vers Excel : ', error);
+      }
+    );
+  }
+
+  getFileNameFromResponse(response: any): string {
+    const contentDispositionHeader = response.headers.get('Content-Disposition');
+    const fileNameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    const matches = fileNameRegex.exec(contentDispositionHeader);
+    if (matches != null && matches[1]) {
+      return matches[1].replace(/['"]/g, '');
+    }
+    return `plannings_de_maintenance_${this.getCurrentDate()}.xlsx`; // Fallback filename if the filename cannot be extracted
+  }
+
+  downloadFile(data: any, fileName: string) {
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style.display = 'none';
+    a.href = url;
+    a.download = fileName; // Utilisez le nom de fichier extrait du backend
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  getCurrentDate(): string {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = currentDate.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  openImportDialog(): void {
+    const dialogRef = this.dialog.open(ImportDialogComponent, {
+      width: '400px',
+    });
+    this.referechDate();
 
   }
 

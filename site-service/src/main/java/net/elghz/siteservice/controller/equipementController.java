@@ -6,13 +6,16 @@ import net.elghz.siteservice.entities.Photo;
 import net.elghz.siteservice.entities.PhotoEquipement;
 import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.entities.equipement;
+import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
+import net.elghz.siteservice.importFile.ImporterSite;
 import net.elghz.siteservice.mapper.equipementMapper;
 import net.elghz.siteservice.repository.PhotoEquiRepo;
 import net.elghz.siteservice.repository.equipementRepo;
 import net.elghz.siteservice.service.equipementService;
 import net.elghz.siteservice.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -22,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,26 +39,33 @@ public class equipementController {
     @Autowired
     PhotoEquiRepo photoRepo;
     @Autowired private equipementMapper mapper;
+    @Autowired
+    ImporterSite importerSite;
     public equipementController (equipementService serv){
         this.serv = serv;
     }
 
     @GetMapping("/equipement/{id}")
-    public ResponseEntity<?> getEquiById(@PathVariable Long id) {
+    public equipementDTO getEquiById(@PathVariable Long id) {
         try {
-            Optional<equipementDTO> dtoOptional = serv.getEquipId(id);
-            return new ResponseEntity<>(dtoOptional.orElseThrow(() ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun équipement avec cet ID : " + id)),
-                    HttpStatus.OK);
+            return serv.getEquipId(id).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun équipement avec cet ID : " + id));
         } catch (EquipementNotFoundException ex) {
-            return new ResponseEntity<>("Aucun équipement avec cet ID : " + id, HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun équipement avec cet ID : " + id);
         }
     }
 
+
+    @GetMapping("equi/by/{id}")
+    public  equipementDTO getEquipementById(@PathVariable Long id){
+         equipement e= repo.findById(id).get();
+         equipementDTO dto= mapper.fromEquipement(e);
+         return  dto;
+    }
     @GetMapping("/equipement/all")
-    public ResponseEntity<List<equipementDTO>> getAllEquipements() {
+    public List<equipementDTO> getAllEquipements() {
         List<equipementDTO> equipements = serv.allEquipements();
-        return new ResponseEntity<>(equipements, HttpStatus.OK);
+        return equipements;
     }
 
     @PostMapping("/equipement/add")
@@ -142,5 +153,31 @@ public class equipementController {
     }
 
 
+    @PostMapping("/import-equip")
+    public List<equipementDTO> importSitesParTypeActivite(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+           return  null;
+        }
+
+        try {
+             return importerSite.importEquipements(file.getInputStream());
+
+        } catch (ActiviteNotFoundException ex) {
+            return new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return  new ArrayList<>();
+        }
+    }
+
+    @GetMapping("getLocalOfSite/{id}")
+    public String getLocalisationOfSite(@PathVariable Long id){
+         return serv.localisationOfEquip(id);
+    }
+
+    @GetMapping("nbre/equi")
+    public int getNbreEquits(){
+         return  repo.findAll().size();
+    }
 
 }

@@ -16,6 +16,8 @@ public class salle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
+    private String codeSalle;
     private int numeroSalle;
    private int capacity;
 

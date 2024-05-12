@@ -26,8 +26,8 @@ public class DRController {
     }
 
     @GetMapping("/all/DR")
-    public ResponseEntity<List<DRDTO>> getAllDCs() {
-        return ResponseEntity.ok(dRService.allCategories());
+    public List<DRDTO> getAllDCs() {
+        return dRService.allCategories();
     }
 
     @PostMapping("/DR/add")

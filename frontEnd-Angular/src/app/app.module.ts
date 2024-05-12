@@ -19,17 +19,32 @@ import {HttpClientModule} from "@angular/common/http";
 import {MatTableModule} from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from '@angular/material/sort';
-
 import {MatInput, MatInputModule} from "@angular/material/input";
 import { NewPlanningComponent } from './new-planning/new-planning.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import { MatDialogModule} from "@angular/material/dialog";
+import {MatDialogModule, MatDialogRef} from "@angular/material/dialog";
 import {MatSelectModule} from "@angular/material/select";
 import {MatDatepickerModule} from "@angular/material/datepicker";
 import {MatNativeDateModule} from "@angular/material/core";
 import { MatConfirmDialogComponent } from './mat-confirm-dialog/mat-confirm-dialog.component';
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import { UpdatePlanningComponent } from './update-planning/update-planning.component';
+import { SiteComponent } from './site/site.component';
+import { ImportDialogComponent } from './import-dialog/import-dialog.component';
+import { ParametrageComponent } from './parametrage/parametrage.component';
+import {MatTab, MatTabGroup, MatTabsModule} from "@angular/material/tabs";
+import {MatTreeModule} from '@angular/material/tree';
+import { MatStepperModule} from "@angular/material/stepper";
+import { ImportDataComponent } from './import-data/import-data.component';
+import { NewSiteComponent } from './new/new-site/new-site.component';
+import {MatSliderModule} from "@angular/material/slider";
+import { SlickCarouselModule } from 'ngx-slick-carousel';
+import { OpenPicSiteComponent } from './openPic/open-pic-site/open-pic-site.component';
+import {MatCheckbox, MatCheckboxModule} from "@angular/material/checkbox";
+import {MatRadioButton, MatRadioModule} from "@angular/material/radio";
+import { AddPictoSiteComponent } from './add-picto-site/add-picto-site.component';
+import { UpdateSiteComponent } from './update-site/update-site.component';
+import { EquiipementsComponent } from './equipements/equiipements/equiipements.component';
 
 
 @NgModule({
@@ -40,6 +55,16 @@ import { UpdatePlanningComponent } from './update-planning/update-planning.compo
     NewPlanningComponent,
     MatConfirmDialogComponent,
     UpdatePlanningComponent,
+    SiteComponent,
+    ImportDialogComponent,
+    ParametrageComponent,
+    ImportDataComponent,
+    NewSiteComponent,
+    OpenPicSiteComponent,
+    AddPictoSiteComponent,
+    UpdateSiteComponent,
+    EquiipementsComponent,
+
 
 
   ],
@@ -69,8 +94,17 @@ import { UpdatePlanningComponent } from './update-planning/update-planning.compo
     MatNativeDateModule,
     ReactiveFormsModule,
     MatSnackBarModule,
-
-
+    FormsModule,
+    MatTableModule,
+    MatTabGroup,
+    MatTab,
+    MatTreeModule,
+    MatStepperModule,
+    MatTreeModule,
+    MatSliderModule,
+    SlickCarouselModule,
+    MatCheckboxModule,
+    MatRadioModule
 
   ],
   providers: [

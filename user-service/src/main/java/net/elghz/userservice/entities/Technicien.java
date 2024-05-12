@@ -29,13 +29,13 @@ public class Technicien extends utilisateur{
     @Enumerated(EnumType.STRING)
     private TypeTechnicien type;
 
-    @ManyToMany
+   /* @ManyToMany
     @JoinTable(
             name = "technicien_equipe",
             joinColumns = @JoinColumn(name = "technicien_id"),
             inverseJoinColumns = @JoinColumn(name = "equipe_id")
     )
-    private Set<EquipeIntervenant> equipes = new HashSet<>();
+    private Set<EquipeIntervenant> equipes = new HashSet<>();*/
     @Transient
     List<Intervention> interventionList=new ArrayList<>();
 

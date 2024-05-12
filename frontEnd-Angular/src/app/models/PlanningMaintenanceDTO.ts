@@ -1,5 +1,6 @@
 import {responsableDTO} from "./responsableDTO";
 import {Site} from "./Site";
+import {Intervention} from "./intervention";
 
 export interface PlanningMaintenanceDTO{
 
@@ -15,5 +16,6 @@ export interface PlanningMaintenanceDTO{
   id_Site:number;
   responsableMaint:responsableDTO;
   site:Site;
+  interventions:Intervention[];
 
 }

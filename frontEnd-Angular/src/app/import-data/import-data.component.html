@@ -1,0 +1,72 @@
+<div>
+
+  <mat-stepper>
+    <mat-step>
+    <ng-template matStepLabel > Importer Sites </ng-template>
+      <div>
+        <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
+        <br>
+        <div mat-dialog-content>
+          <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
+          <br>
+          <div style="text-align: right; margin-top: 20px;">
+            <button mat-raised-button (click)="uploadFileSites(fileInput)"  style="color: black; margin-right: 8px; background-color: #6495ED">Charger</button>
+            <button mat-raised-button  matStepperNext style="background-color: #999999;">Suivant</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="siteSucc">
+        <p> Pour consulter les sites importés veuillez <a routerLink="/Sites"> cliquer ici</a></p>
+      </div>
+
+    </mat-step>
+    <mat-step>
+    <ng-template matStepLabel > Importer Equipements </ng-template>
+      <div *ngIf="siteSucc">
+        <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
+        <br>
+        <div mat-dialog-content>
+          <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
+          <br>
+          <div style="text-align: right; margin-top: 20px;">
+            <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button> &nbsp;
+            <button mat-raised-button style="color: black; margin-right: 8px; background-color: #6495ED" (click)="uploadFileEqui(fileInput)">Charger</button>
+            <button mat-raised-button matStepperNext  style="background-color: #999999;">Suivant</button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="!siteSucc">
+        <p>Veuillez d'abord importer les sites!!!</p>
+        <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button>
+      </div>
+
+
+
+      <div *ngIf="eqSucc">
+        <p> Pour consulter les équipements importés veuillez <a routerLink="/equipements"> cliquer ici</a></p>
+      </div>
+    </mat-step>
+    <mat-step>
+    <ng-template matStepLabel > Importer Checklists </ng-template>
+      <div>
+        <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
+        <br>
+        <div mat-dialog-content>
+          <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
+          <br>
+          <div style="text-align: right; margin-top: 20px;">
+            <button mat-raised-button   style="color: black; margin-right: 8px; background-color: #6495ED">Charger</button>
+            <button mat-raised-button  style="background-color: #999999;">Annuler</button>
+          </div>
+        </div>
+
+      </div>
+      <button mat-button matStepperPrevious> Previous</button>
+    </mat-step>
+  </mat-stepper>
+</div>

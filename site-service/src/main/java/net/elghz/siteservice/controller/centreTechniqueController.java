@@ -22,12 +22,12 @@ public class centreTechniqueController {
     private CTService centreTechniqueService;
 
     @GetMapping("/CT/{id}")
-    public ResponseEntity<CentreTechniqueDTO> getCentreTechniqueById(@PathVariable Long id) {
+    public CentreTechniqueDTO getCentreTechniqueById(@PathVariable Long id) {
         try {
-            Optional<CentreTechniqueDTO> centreTechniqueDTO = centreTechniqueService.getCatId(id);
-            return ResponseEntity.ok(centreTechniqueDTO.get());
+            CentreTechniqueDTO centreTechniqueDTO = centreTechniqueService.getCatId(id);
+            return centreTechniqueDTO;
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return null;
         }
     }
 
@@ -43,9 +43,9 @@ public class centreTechniqueController {
         return ResponseEntity.ok().body(addedCentreTechniques);
     }
     @GetMapping("/CT/all")
-    public ResponseEntity<List<CentreTechniqueDTO>> getAllCentreTechniques() {
+    public List<CentreTechniqueDTO> getAllCentreTechniques() {
         List<CentreTechniqueDTO> centreTechniqueDTOs = centreTechniqueService.allCategories();
-        return ResponseEntity.ok(centreTechniqueDTOs);
+        return centreTechniqueDTOs;
     }
 
     @DeleteMapping("/CT/{id}")

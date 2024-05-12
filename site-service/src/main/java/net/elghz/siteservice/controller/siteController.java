@@ -17,17 +17,20 @@ import net.elghz.siteservice.repository.SiteRepository;
 import net.elghz.siteservice.repository.attributeRepo;
 import net.elghz.siteservice.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import net.elghz.siteservice.service.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 
@@ -62,6 +65,15 @@ public class siteController {
 
     }
 
+    @PostMapping("/ajouter/site/mobile/{idC}")
+    public SiteMobileDTO addStMobile(@RequestBody SiteMobile s, @PathVariable Long idC){
+         return  serv.ajouterSiteMobile(s, idC);
+    }
+
+    @PostMapping("/ajouter/site/fixe/{idC}")
+    public SiteFixeDTO addStFixe(@RequestBody SiteFixe s, @PathVariable Long idC){
+        return  serv.ajouterSiteFixe(s, idC);
+    }
     @GetMapping("get/sites/type/{type}")
     public List<siteDTO> getSitesByType(@PathVariable String type){
         return serv.sitesByType(type);
@@ -95,18 +107,8 @@ public class siteController {
     }
 
     @DeleteMapping("site/delete/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        boolean deleted = serv.deleteById(id);
-        if (deleted) {
-          //  removeExtraImagesName(repo.findById(id).get());
-
-            String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-            String uploadDir = "site-service/site-images/" +currentDate;
-            FileUploadUtil.cleanDir(uploadDir);
-            return new ResponseEntity<>("Le site est supprimé", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Aucune site n'est trouvé avec ce id" + id, HttpStatus.NOT_FOUND);
-        }
+    public void delete(@PathVariable Long id) {
+        serv.deleteById(id);
     }
 
     @PostMapping("/siteMobile/add")
@@ -141,20 +143,22 @@ public class siteController {
     }
 
     @PostMapping("/import-sites")
-    public ResponseEntity<?> importSites(@RequestParam("file") MultipartFile file) {
+    public List<siteDTO> importSites(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return new ResponseEntity<>("Veuillez sélectionner un fichier.", HttpStatus.BAD_REQUEST);
+            return null;
         }
 
+
         try {
-            importerSite.importSites(file.getInputStream() );
-            return new ResponseEntity<>("Les sites ont été importés avec succès.", HttpStatus.OK);
+          return   importerSite.importSites(file.getInputStream() );
+
         } catch (IOException e) {
             e.printStackTrace();
-            return new ResponseEntity<>("Une erreur s'est produite lors de l'importation des sites.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ArrayList<>();
+
         } catch (DataIntegrityViolationException ex) {
-            String errorMessage = "Un site avec le même nom existe déjà dans la base de données.";
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+            return new ArrayList<>();
+
         }
     }
 
@@ -208,11 +212,16 @@ public class siteController {
         saveUplodedImages(images, site);
          return "Les photos sont bien ajoutés au site: "+site.getName();
     }
+    @GetMapping("/getPath/{idSite}")
+    public List<String> getImagePath(@PathVariable Long idSite){
+        Site s = repo.findById(idSite).get();
+        return s.getPhotosImagePaths();
+    }
 
     private void saveUplodedImages(MultipartFile[] images, Site site) throws IOException {
       if(images.length>0){
           String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-          String uploadDir = "site-service/site-images/" +currentDate;
+          String uploadDir = "site-service/site-images/" +site.getId();
           for(MultipartFile multipartFile: images){
               if(multipartFile.isEmpty())continue;
               String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -253,9 +262,208 @@ public class siteController {
 
 
 
+        @GetMapping("/find/site/name/{name}")
+        public siteDTO getSiteByNamr(@PathVariable String name){
+         return serv.findByNamr(name);
+        }
+
+
+
+        @GetMapping("/equipements/ofSITE/{id}")
+    public  List<equipementDTO> getEquiOfSite(@PathVariable Long id){
+        return serv.getEquipementsOfSite(id);
+        }
+
+        @GetMapping("/get/immubles/site/{id}")
+    public List<immubleDTO> getImmubleOfSite(@PathVariable Long id){
+        return serv.getImmublesOfSite(id);
+        }
+
+        @GetMapping("/get/size/sites")
+    public int getNombreSites(){
+         return  serv.allSites().size();
+        }
+
+        @GetMapping("/get/photos/{id}")
+        public List<PhotoDTO> getPhotosSite(@PathVariable Long id){
+         return  serv.getPhotosOfSite(id);
+        }
+
+         @GetMapping("/get/imagePath/{id}")
+    public List<String> imagesPathSite(@PathVariable Long id){
+         return serv.getCheminImagesSite(id);
+         }
+
+
+
+    @PostMapping("/upload/pic/{idSite}")
+    public List<PhotoDTO> uploadFiles(@RequestParam("files") MultipartFile[] files, @PathVariable Long idSite) {
+        try {
+            Site s = repo.findById(idSite).orElse(null);
+            if (s == null) {
+                return null;
+            }
+            List<Photo> uploadedPhotos = new ArrayList<>();
+            for (MultipartFile file : files) {
+                Photo fileEntity = new Photo();
+                fileEntity.setSite(s);
+                s.getPhotos().add(fileEntity);
+                fileEntity.setName(file.getOriginalFilename());
+                fileEntity.setType(file.getContentType());
+                fileEntity.setPicByte(file.getBytes());
+                fileEntity.setDateAjout(new Date());
+                photoRepo.save(fileEntity);
+                uploadedPhotos.add(fileEntity);
+            }
+
+            String message = "Files uploaded successfully!";
+            HttpStatus httpStatus = HttpStatus.CREATED;
+            // Vous pouvez retourner les photos téléchargées ou un message de succès ici
+            return uploadedPhotos.stream().map(mapper::from).collect(Collectors.toList());
+        } catch (IOException e) {
+            // Gérer les exceptions d'entrée/sortie ici
+            return null;
+        }
+    }
+
+
+    @PutMapping("/update/pic/{idSite}")
+    public List<PhotoDTO> updateFiles(@RequestParam("files") MultipartFile[] files, @PathVariable Long idSite) {
+        try {
+            Site site = repo.findById(idSite).orElse(null);
+            if (site == null) {
+                return null;
+            }
+
+            List<Photo> existingPhotos = photoRepo.findBySite(site);
+            List<Photo> updatedPhotos = new ArrayList<>();
+
+            // Parcourir les nouveaux fichiers
+            for (MultipartFile file : files) {
+                // Vérifier si le fichier existe déjà
+                Optional<Photo> existingPhotoOptional = existingPhotos.stream()
+                        .filter(photo -> photo.getName().equals(file.getOriginalFilename()))
+                        .findFirst();
+
+                if (existingPhotoOptional.isPresent()) {
+                    // Si le fichier existe déjà, mettre à jour son contenu
+                    Photo existingPhoto = existingPhotoOptional.get();
+                    existingPhoto.setType(file.getContentType());
+                    existingPhoto.setPicByte(file.getBytes());
+                    existingPhoto.setDateAjout(new Date());
+                    photoRepo.save(existingPhoto);
+                    updatedPhotos.add(existingPhoto);
+                } else {
+                    // Si le fichier n'existe pas, ajouter une nouvelle photo
+                    Photo newPhoto = new Photo();
+                    newPhoto.setSite(site);
+                    site.getPhotos().add(newPhoto);
+                    newPhoto.setName(file.getOriginalFilename());
+                    newPhoto.setType(file.getContentType());
+                    newPhoto.setPicByte(file.getBytes());
+                    newPhoto.setDateAjout(new Date());
+                    photoRepo.save(newPhoto);
+                    updatedPhotos.add(newPhoto);
+                }
+            }
+
+            String message = "Files updated successfully!";
+            HttpStatus httpStatus = HttpStatus.OK;
+            // Vous pouvez retourner les photos mises à jour ou un message de succès ici
+            return updatedPhotos.stream().map(mapper::from).collect(Collectors.toList());
+        } catch (IOException e) {
+            // Gérer les exceptions d'entrée/sortie ici
+            return null;
+        }
+    }
+
+
+    @GetMapping("/download/{id}")
+    public ResponseEntity<?> downloadFile(@PathVariable Long id) {
+        Photo fileEntity = photoRepo.findById(id).orElse(null);
+        if (fileEntity != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(fileEntity.getType()));
+            headers.setContentDisposition(ContentDisposition.attachment().filename(fileEntity.getName()).build());
+            ByteArrayResource resource = new ByteArrayResource(fileEntity.getPicByte());
+            return ResponseEntity.ok().headers(headers).body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/files/{id}")
+    public List<PhotoDTO> getFile(@PathVariable Long id) {
+        Site s = repo.findById(id).get();
+        List<Photo> files = s.getPhotos();
+        List<PhotoDTO> dtos= new ArrayList<>();
+        for(Photo p :files){
+            dtos.add(mapper.from(p));
+        }
+        return dtos;
+    }
 
 
 
 
+    @DeleteMapping("/deletePic/{id}")
+    public String deleteFile(@PathVariable Long id) {
+        Photo fileEntity = photoRepo.findById(id).orElse(null);
+        if (fileEntity != null) {
+           photoRepo.deleteById(id);
+            return "La photo est supprime";
+        } else {
+            return "Aucune photo avec ce id";
+        }
+    }
 
+
+    @GetMapping("/exists/{name}")
+    public Boolean checkSiteExists(@PathVariable String name) {
+        boolean exists = repo.existsByName(name);
+        return exists;
+    }
+
+
+    @PutMapping("updatte/siteFixe/{id}")
+    public SiteFixeDTO updateSiteFixe(@PathVariable Long id, @RequestBody SiteFixe updatedSite) {
+        try {
+            SiteFixeDTO site = serv.updateSiteFixe(id, updatedSite);
+            return site;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+    @PutMapping("update/siteMobile/{id}")
+    public SiteMobileDTO updateSiteMobile(@PathVariable Long id, @RequestBody SiteMobile updatedSite) {
+        try {
+            SiteMobileDTO site = serv.updateSiteMobile(id, updatedSite);
+            return site;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+
+    @GetMapping("/getImageOfSite/{id}")
+    public  List<PhotoDTO> getPhotos(@PathVariable Long id){
+         Site s = repo.findById(id).get();
+         return  s.getPhotos().stream().map(mapper::from).collect(Collectors.toList());
+    }
+
+    @DeleteMapping("delete/pic/{id}")
+    public void deletePicSite(@PathVariable Long id){
+         Photo p = photoRepo.findById(id).get();
+         photoRepo.deleteById(id);
+
+    }
+    @GetMapping("/getTotal")
+    public  int getTot(){
+         return  repo.findAll().size();
+    }
+
+    @GetMapping ("/findSite/byKeyword/{keyword}")
+    public List<siteDTO> getSitesByKeyword(@PathVariable String  keyword){
+         return repo.findSitesByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
+    }
 }

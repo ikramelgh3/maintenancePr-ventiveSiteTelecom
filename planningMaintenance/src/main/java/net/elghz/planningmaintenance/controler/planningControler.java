@@ -1,18 +1,25 @@
 package net.elghz.planningmaintenance.controler;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.NotFoundException;
 import net.elghz.planningmaintenance.dto.PlanningMaintenanceDTO;
 import net.elghz.planningmaintenance.entities.PlanningMaintenance;
 import net.elghz.planningmaintenance.enumeration.PlanningStatus;
 import net.elghz.planningmaintenance.exception.PlanningNameExistsException;
+import net.elghz.planningmaintenance.export.PlanningsExcelExporter;
+import net.elghz.planningmaintenance.importFile.ImporterPlanning;
 import net.elghz.planningmaintenance.model.Intervention;
 import net.elghz.planningmaintenance.service.planningService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,6 +27,7 @@ import java.util.List;
 public class planningControler {
 
      @Autowired private planningService service;
+     @Autowired private ImporterPlanning importerPlanning;
 
 
      @PostMapping("/add/planning")
@@ -27,10 +35,7 @@ public class planningControler {
           return  service.addPlanning(dt);
      }
 
-     @GetMapping("size/plannings")
-     public int size(){
-          return service.getSize();
-     }
+
     @PostMapping("/add/planningComplet/{idRes}/{idSite}")
     public  PlanningMaintenanceDTO addPlanningComplet(@RequestBody PlanningMaintenanceDTO dt , @PathVariable Long idRes, @PathVariable Long idSite){
         return  service.addPlanningComplet(dt , idRes , idSite);
@@ -88,10 +93,10 @@ public class planningControler {
          return service.getPlanningsOfSite(idSite);
     }
 
-    @PatchMapping("/updatePlanning/{id}")
-    public ResponseEntity<?> updatePlanning(@PathVariable Long id, @RequestBody PlanningMaintenanceDTO planningDTO) {
+    @PatchMapping("/updatePlanning/{id}/{idSite}/{idResp}")
+    public ResponseEntity<?> updatePlanning(@PathVariable Long id, @RequestBody PlanningMaintenanceDTO planningDTO , @PathVariable Long idSite , @PathVariable Long idResp) {
         try {
-            PlanningMaintenance updatedPlanning = service.updatePlanning(id, planningDTO);
+            PlanningMaintenance updatedPlanning = service.updatePlanning(id, planningDTO , idSite , idResp);
             return new ResponseEntity<>(updatedPlanning, HttpStatus.OK);
         } catch (PlanningNameExistsException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -100,6 +105,11 @@ public class planningControler {
         } catch (Exception e) {
             return new ResponseEntity<>("Une erreur s'est produite lors de la mise à jour du planning", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/find/by/semsetre/{semestre}")
+    public List<PlanningMaintenanceDTO> findBySemestre(@PathVariable String  semestre){
+          return service.findBySemestre(semestre);
     }
     @GetMapping("/check-existence/{name}")
     public boolean checkPlanningExistence(@PathVariable String name) {
@@ -123,6 +133,52 @@ public class planningControler {
          return service.getInterventionOfPlanning(id);
     }
 
+    @GetMapping("/find/Plannings/byKeyword/{keyword}")
+    public List<PlanningMaintenanceDTO> getPlanningByKeyword(@PathVariable String keyword){
+         return service.findByKeyword(keyword);
+    }
+
+    @GetMapping("/plannings/export/excel")
+    public void exportToExcel( HttpServletResponse servletResponse) throws IOException {
+        List<PlanningMaintenanceDTO> siteDTOS = service.getAll();
+        PlanningsExcelExporter exporter = new PlanningsExcelExporter();
+        exporter.export(siteDTOS, servletResponse);
+    }
+
+    @PostMapping("/import-planningd")
+    public List<PlanningMaintenanceDTO> importSites(@RequestParam("file") MultipartFile file) {
+        List<PlanningMaintenanceDTO> importedPlannings = new ArrayList<>();
+
+        if (file.isEmpty()) {
+
+            return null;
+        }
+
+        try {
+            importedPlannings = importerPlanning.importPlanningd(file.getInputStream() );
+            return importedPlannings;
+        } catch (IOException e) {
+            // Gérer l'erreur d'entrée/sortie
+            e.printStackTrace();
+            // Peut-être lever une exception ou retourner une liste vide selon votre logique métier
+            return new ArrayList<>();
+        } catch (DataIntegrityViolationException ex) {
+            // Gérer l'erreur d'intégrité des données
+            ex.printStackTrace();
+            // Peut-être lever une exception ou retourner une liste vide selon votre logique métier
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/intervention/site/{IdSite}")
+    public List<Intervention> getnterventionsOfSite(@PathVariable Long IdSite){
+         return service.interventionOfSite(IdSite);
+    }
+
+    @GetMapping("/size/plannings")
+    public int getnbrePlannings(){
+          return service.getNbrePlanning();
+    }
 
 
 }

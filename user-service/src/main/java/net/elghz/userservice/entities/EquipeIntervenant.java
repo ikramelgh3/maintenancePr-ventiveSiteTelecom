@@ -22,7 +22,7 @@ public class EquipeIntervenant {
     private Long id;
 
     private int nbreTechnicien;
-
+/*
 
     @ManyToMany(mappedBy = "equipes")
     private Set<Technicien> techniciens = new HashSet<>();
@@ -33,5 +33,5 @@ public class EquipeIntervenant {
 
         techniciens.add(technicien);
 
-    }
+    }*/
 }

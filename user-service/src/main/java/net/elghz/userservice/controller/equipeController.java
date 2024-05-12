@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 public class equipeController {
-
+/*
      private equipeService service;
 
 
@@ -56,5 +56,5 @@ public class equipeController {
     @GetMapping("/equipe/{equipeId}/competences")
     public ResponseEntity<?> getCompetenceOfEquipe(@PathVariable Long equipeId) {
         return service.getCompetenceOfEquipe(equipeId);
-    }
+    }*/
 }

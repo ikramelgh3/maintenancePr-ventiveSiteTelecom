@@ -1,0 +1,9 @@
+<h1 mat-dialog-title>Importer Plannings</h1>
+<div mat-dialog-content>
+  <input placeholder="Sélectionnez un fichier" type="file" #fileInput>
+  <br>
+  <div style="text-align: right; margin-top: 20px;">
+    <button mat-raised-button (click)="uploadFile(fileInput)" style="color: black; margin-right: 8px; background-color: #6495ED">Importer</button>
+    <button mat-raised-button (click)="cancel()" style="background-color: #999999;">Annuler</button>
+  </div>
+</div>

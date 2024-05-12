@@ -21,19 +21,19 @@ public class equipement {
     private String numeroSerie;
     @Column(unique = true)
     private String nom;
-
     private String descreption;
-
     private String type;
     private String marque;
     private String statut;
     private Date dateMiseService;
     private Date dateMiseHorsService;
+    @ManyToOne
+    @JoinColumn(name = "type_id")
+    private typeEquipement typeEquipementt;
     @Transient
     private List<ChecklistDTO> checklistDTOS = new ArrayList<>();
     @OneToMany(mappedBy = "equipement" , cascade = CascadeType.ALL)
     private List<PhotoEquipement> photoEquipements = new ArrayList<>();
-
     @ManyToOne
     @JoinColumn(name = "salle_id")
     private salle salle;

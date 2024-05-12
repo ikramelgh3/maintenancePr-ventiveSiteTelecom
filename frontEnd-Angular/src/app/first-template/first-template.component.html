@@ -3,7 +3,7 @@
     <mat-icon>menu</mat-icon>
   </button>
 
-   <img src="assets/img/logo.png" style="width: 90px ;height: 90px;" >
+  <img src="assets/img/logo.png" style="width: 90px ;height: 90px;" >
 
   <span style="flex: auto"></span>
 
@@ -21,50 +21,58 @@
 </mat-toolbar>
 
 <mat-drawer-container>
-    <mat-drawer #drawer opened="true" mode="side" position="start">
-      <mat-list>
+  <mat-drawer #drawer opened="true" mode="side" position="start">
+    <mat-list>
 
-        <mat-list-item >
-          <button mat-button >
-            <mat-icon  >dashboard</mat-icon>Tableau de bord</button>
-        </mat-list-item>
-        <mat-list-item>
+      <mat-list-item >
+        <button mat-button >
+          <mat-icon  >dashboard</mat-icon>Tableau de bord</button>
+      </mat-list-item>
+      <mat-list-item>
         <button mat-button routerLink="/PlanningsMaintenance" >
           <mat-icon>event</mat-icon>Maintenances</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button mat-button >
-            <mat-icon>assignment</mat-icon>Interventions</button>
-        </mat-list-item>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button >
+          <mat-icon>assignment</mat-icon>Interventions</button>
+      </mat-list-item>
 
-        <mat-list-item>
-          <button mat-button >
-            <mat-icon>report_problem</mat-icon>Anomalies</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button mat-button  >
-            <mat-icon>location_city</mat-icon>Sites</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button mat-button>
-            <mat-icon>build</mat-icon>Equipements</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button mat-button >
-            <mat-icon>engineering</mat-icon>Intervenants</button>
-        </mat-list-item>
-        <mat-list-item>
-          <button mat-button >
-            <mat-icon>description</mat-icon>Rapports</button>
-        </mat-list-item>
+      <mat-list-item>
+        <button mat-button >
+          <mat-icon>report_problem</mat-icon>Anomalies</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button routerLink="/Sites"  >
+          <mat-icon>location_city</mat-icon>Sites</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button routerLink="/Equipements">
+          <mat-icon>build</mat-icon>Equipements</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button >
+          <mat-icon>engineering</mat-icon>Intervenants</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button >
+          <mat-icon>description</mat-icon>Rapports</button>
+      </mat-list-item>
 
-        <mat-list-item>
-          <button mat-button >
-            <mat-icon>people</mat-icon>Utilisateurs</button>
-        </mat-list-item>
-      </mat-list>
+      <mat-list-item>
+        <button mat-button >
+          <mat-icon>people</mat-icon>Utilisateurs</button>
+      </mat-list-item>
 
-    </mat-drawer>
+      <mat-list-item>
+        <button mat-button routerLink="Parametrages" >
+          <mat-icon>settings</mat-icon> Paramétrage</button>
+      </mat-list-item>
+
+
+
+
+    </mat-list>
+  </mat-drawer>
 
   <mat-drawer-content>
     <div style="min-height: 590px ;">

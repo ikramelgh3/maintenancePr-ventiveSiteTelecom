@@ -14,6 +14,8 @@ public class immuble {
     private Long id;
     private String name;
     private String addr;
+    @Column(unique = true)
+    private String codeImmuble;
     @OneToMany (cascade = CascadeType.ALL , mappedBy = "immuble")
     private List<etage> etageList = new ArrayList<>();
     @ManyToOne

@@ -1,7 +1,6 @@
 
 <div mat-dialog-title class="titleM" style="bottom: 30px">
-  <button mat-icon-button (click)="closePopup()" style="bottom: -38px;left: 580px ;"  >
-    <mat-icon color="white">cancel</mat-icon></button>
+
   <h1>Ajouter {{inputdata.title }}</h1>
 </div>
 <div></div>
@@ -14,7 +13,7 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-      <mat-label> Semestre</mat-label>
+      <mat-label> Fréquence de planification </mat-label>
       <mat-select formControlName="semestre" required>
         <mat-option *ngFor="let val of Semestre" [value] ="val" > {{val}}</mat-option>
 
@@ -81,7 +80,7 @@
 
 <br>
 <div mat-dialog-actions class="action">
-  <button  mat-raised-button (click)="clear()" > Effacer</button>
+  <button  mat-raised-button (click)="closePopup()" > Annuler</button>
   <button  mat-raised-button (click)="add()"  class="custom-blue" [disabled]="addForm.invalid">Enregistrer</button>
 
 </div>

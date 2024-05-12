@@ -141,4 +141,17 @@ public  class Site {
 
     }
 
+    @Transient
+    public List<String> getPhotosImagePaths() {
+        List<String> imagePaths = new ArrayList<>();
+        String basePath = "site-service/site-images/" + this.id;
+
+        for (Photo photo : this.photos) {
+            String imagePath = basePath + "/" + photo.getName();
+            imagePaths.add(imagePath);
+        }
+
+        return imagePaths;
+    }
+
 }

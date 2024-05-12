@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.elghz.siteservice.entities.PhotoEquipement;
+import net.elghz.siteservice.entities.typeEquipement;
 import net.elghz.siteservice.model.ChecklistDTO;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class equipementDTO {
     private String statut;
     private Date dateMiseService;
     private Date dateMiseHorsService;
-    //private List<ChecklistDTO> checklistDTOS = new ArrayList<>();
-
     private List<PhotoEquipementDTO> photoEquipements = new ArrayList<>();
+    private salleDTO salle;
+    private typeEquipementDTO typeEquipementt;
 }

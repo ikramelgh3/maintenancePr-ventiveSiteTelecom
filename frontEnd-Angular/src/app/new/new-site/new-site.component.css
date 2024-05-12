@@ -1,0 +1,28 @@
+.content{
+  margin-top: -30px;
+
+}
+.row{
+  display: flex;
+  gap: 10px;
+  mat-form-field{
+    width: 100%;
+  }
+}
+
+.action{
+  padding: 0px 25px 20px;
+  button{
+    flex: 1;
+  }
+
+}
+/* Dans votre fichier styles.css ou styles.scss */
+
+.foot .action .custom-blue {
+
+
+
+}
+
+

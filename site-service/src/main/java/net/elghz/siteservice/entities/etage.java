@@ -17,6 +17,8 @@ public class etage {
     private  Long id;
     private int numeroEtage;
     private int nbreSalle;
+    @Column(unique = true)
+    private String codeEtagge;
 
     @OneToMany (mappedBy = "etage" , cascade = CascadeType.ALL)
     private List<salle> salles = new ArrayList<>();

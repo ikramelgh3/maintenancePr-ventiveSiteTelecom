@@ -3,6 +3,7 @@ package net.elghz.siteservice.repository;
 import net.elghz.siteservice.enumeration.SiteType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import  net.elghz.siteservice.entities.*;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +17,6 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
 
     boolean existsByName(String siteName);
 
-
+    @Query("SELECT c FROM Site  c where  c.name like %?1% OR c.centreTechnique.name like %?1% OR c.centreTechnique.dc.name like %?1% OR c.centreTechnique.dc.dr.name like %?1%")
+    public List<Site> findSitesByKeyword(String keyword );
 }

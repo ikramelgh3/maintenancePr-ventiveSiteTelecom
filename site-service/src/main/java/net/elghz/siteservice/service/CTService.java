@@ -28,15 +28,15 @@ public class CTService {
 
 
 
-    public Optional<CentreTechniqueDTO> getCatId(Long id) throws NotFoundException {
+    public CentreTechniqueDTO getCatId(Long id) throws NotFoundException {
 
         Optional<CentreTechnique>  eq = repo.findById(id);
         if(eq.isPresent()) {
             CentreTechniqueDTO equipementDTO = ctMapper.from(eq.get());
-            return Optional.of(equipementDTO) ;
+            return equipementDTO ;
         }
         else{
-            throw  new NotFoundException("Aucune Centre technique avec ce id :" +id);
+            return null;
         }
 
     }

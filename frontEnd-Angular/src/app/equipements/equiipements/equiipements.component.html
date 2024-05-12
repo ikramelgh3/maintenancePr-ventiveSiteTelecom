@@ -1,0 +1,122 @@
+<div class="container">
+  <div style="background-color: white;width: 500px; position: relative; margin-top: -10px">
+
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <input matInput [(ngModel)]="searchInput" (input)="search()"  placeholder="Rechercher parmi {{nbreTot}} resultats...">
+
+    </div>
+
+    <mat-menu #importMenu1>
+      <button mat-menu-item sty class="buttonChoix" >
+        <mat-icon>add</mat-icon> Ajouer Site
+      </button>
+      <button mat-menu-item class="buttonChoix" >
+        <mat-icon>cloud_download</mat-icon> Exporter
+      </button>
+    </mat-menu>
+
+    <mat-divider></mat-divider>
+
+    <div  style="width: 500px;">
+      <mat-list>
+
+        <ng-container *ngFor="let eq of equipements | paginate: {itemsPerPage:4 , currentPage:p}" >
+          <div >
+            <a mat-list-item style="height: 100px; width: 500px; background-color: white; cursor: pointer; display: block; text-decoration: none;"
+               onmouseover="this.style.backgroundColor='#f0f0f0';"
+               onmouseout="this.style.backgroundColor='white';"  (click)="getEquipementById(eq.id)">
+              <div>
+                <div mat-line style="font-size: 14px; color: #999;">#{{ eq.id }}</div>
+                <div mat-line style="font-size: 18px; color: #333;">{{ eq.nom }}</div></div>
+              <div  style="display: flex; align-items: center;">
+                <div mat-line style="font-size: 16px; color: #333;">{{ eq.typeEquipementt.name }}</div>
+                <div mat-line style="font-size: 16px; color: #072f5f; margin-left: auto; margin-right: 20px">{{ eq.statut }}</div>
+
+              </div>
+              <div mat-line style="font-size: 16px; color: #072f5f;">Salle: {{eq.salle.numeroSalle }}, Etage: {{eq.salle.etage.numeroEtage}}, Immeuble: {{eq.salle.etage.immuble.name}}, Site: {{eq.salle.etage.immuble.site.name}}</div>
+
+            </a>
+
+          </div>
+
+          <mat-divider></mat-divider>
+        </ng-container>
+
+      </mat-list>
+    </div>
+
+    <pagination-controls (pageChange)="p = $event " class="float-right">
+
+    </pagination-controls>
+
+
+  </div>
+  <div #siteDetails class="details" *ngIf="selectedEquipDetails" style="position: absolute; top: 10px; left: 530px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
+    <div style="color: black; margin-left: 500px; height: 20px">
+      <button mat-icon-button [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #importMenu1>
+        <button mat-menu-item class="buttonChoix" >
+          <mat-icon>update</mat-icon> Modifier
+        </button>
+        <button mat-menu-item class="buttonChoix" >
+          <mat-icon>delete</mat-icon> Supprimer
+        </button>
+      </mat-menu>
+    </div>
+
+    <div class="divDetail"  *ngIf="equipement"  style="margin-left: 18px ; margin-top: 2px">
+
+      <span style=" color: #072f5f;font-size: 12px"><b># {{equipement.id}}</b></span>&nbsp;&nbsp;&nbsp;&nbsp;
+      <span style=" color: gray;font-size: 12px" [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(equipement.statut) }">{{ equipement.statut }}
+        </span> &nbsp;&nbsp;<br>
+
+          <div>
+            <span style="margin-left: 8px; ">{{equipement.nom}} &nbsp; <span style="margin-left: 8px;"> Type Equipement : {{ equipement.typeEquipementt.name }}</span></span>
+          </div>
+
+        <div style="display: flex; align-items: center;">
+          <div style="max-height: 200px; overflow-y: auto;">
+            <span style="margin-left: 30px;"> Description</span>
+            <p style="line-height: 1; white-space: pre-wrap; margin-left: 30px;">{{ equipement.descreption }}</p>
+          </div>
+
+        </div>
+
+        <div style="display: flex; align-items: center;">
+
+          <div>
+            <span style="margin-left: 30px;"> Marque</span><br>
+            <span style="margin-left: 30px; ">{{equipement.marque}}</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+
+          <div>
+            <span style="margin-left: 30px;"> Numero de série</span><br>
+            <span style="margin-left: 30px; ">{{equipement.numeroSerie}}</span>
+          </div>
+        </div>
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">location_on</mat-icon></span>
+        <div>
+          <span style="margin-left: 8px; ">{{ equipement?.salle?.etage?.immuble?.site?.name }}</span>
+        </div>
+      </div>
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">event</mat-icon></span>
+          <div>
+            <span style="margin-left: 8px;"> Date de mise en service</span><br>
+            <span style="margin-left: 8px; "> {{equipement.dateMiseService | date: 'dd-MM-yyyy à HH:mm:ss' }}</span>
+          </div>
+        </div>
+
+    </div>
+    </div>
+  </div>
+
+

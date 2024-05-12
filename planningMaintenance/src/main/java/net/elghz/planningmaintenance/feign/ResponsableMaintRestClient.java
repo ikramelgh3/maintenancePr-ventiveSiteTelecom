@@ -12,4 +12,7 @@ public interface ResponsableMaintRestClient {
     @GetMapping("/respo/id/{id}")
     public ResponsableMaint findById(@PathVariable Long id);
 
+    @GetMapping("/respo/name/{name}")
+    public ResponsableMaint findByName(@PathVariable String  name);
+
 }

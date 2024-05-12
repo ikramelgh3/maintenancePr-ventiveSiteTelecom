@@ -17,5 +17,8 @@ public interface SiteRestClient {
     @GetMapping("get/sites/type/{type}")
     public List<Site> getSitesByType(@PathVariable String type);
 
+    @GetMapping("/find/site/name/{name}")
+    public Site getSiteByNamr(@PathVariable String name);
+
 
 }

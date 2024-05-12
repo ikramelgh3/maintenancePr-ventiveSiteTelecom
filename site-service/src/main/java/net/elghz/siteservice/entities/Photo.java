@@ -3,6 +3,8 @@ package net.elghz.siteservice.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Entity
 @Getter
 @Setter
@@ -14,6 +16,9 @@ public class Photo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String type;
+    private byte[] picByte;
+    private Date dateAjout;
     @ManyToOne @JoinColumn(name = "site_id")
     private Site site;
 
@@ -23,4 +28,6 @@ public class Photo {
     }
 
 
+    public Photo(String originalFilename, String contentType, byte[] bytes) {
+    }
 }

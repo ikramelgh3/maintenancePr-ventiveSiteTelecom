@@ -1,0 +1,125 @@
+<mat-tab-group animationDuration="0ms" disableRipple>
+
+
+    <mat-tab label="Données" style="background-color: #072f5f">
+
+      <span style="margin-top: 5px;margin-left: 25px"> </span>
+      <br>
+      <div  class="content" style=" padding: 20px;" [formGroup]="addSite" >
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label> Code</mat-label>
+            <input matInput type="text"  formControlName="code" required>
+            <mat-error>Veuillez remplir le  champs</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label> Nom</mat-label>
+            <input matInput type="text"  formControlName="name" required >
+            <mat-error>Veuillez remplir le  champs</mat-error>
+          </mat-form-field>
+
+        </div>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="typeSite" required >
+              <mat-option *ngFor="let val of type" [value]="val">{{val}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez sélectionner une valeur</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label> Centre technique</mat-label>
+            <mat-select formControlName="centreTechnique" required>
+              <mat-option *ngFor="let val of ct" [value] ="val" > {{val.name}}</mat-option>
+            </mat-select>
+
+            <mat-error>Veuillez selectionner une valeur  </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label> Adresse</mat-label>
+            <input matInput type="text"  formControlName="addresse" required>
+            <mat-error>Veuillez remplir le  champs</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label> Type d’installation   </mat-label>
+            <mat-select formControlName="typeInstallation" required >
+              <mat-option *ngFor="let val of inst" [value] ="val" > {{val}}</mat-option>
+            </mat-select>
+
+            <mat-error>Veuillez selectionner une valeur  </mat-error>
+          </mat-form-field>
+        </div>
+        <div class="row">
+          <mat-form-field appearance="outline" >
+            <mat-label>Support Antennes</mat-label>
+            <mat-select formControlName="supportAntennes" [disabled]="addSite.get('typeSite')?.value  === 'Fixe'">
+              <mat-option *ngFor="let val of supportAntenne" [value]="val"> {{val}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez sélectionner une valeur</mat-error>
+          </mat-form-field>
+
+
+          <mat-form-field appearance="outline"  *ngIf="isMobileSite()">
+            <mat-label>Hauteur du support d’antenne</mat-label>
+            <input matInput type="text" formControlName="hauteurSupportAntenne"[disabled]="addSite.get('typeSite')?.value  === 'Fixe'" >
+            <mat-error *ngIf="addSite.get('hauteurSupportAntenne')?.hasError('pattern')">Veuillez saisir un nombre valide</mat-error>
+            <mat-error>Veuillez remplir le champ</mat-error>
+          </mat-form-field>
+
+
+
+
+        </div>
+
+        <div class="row">
+          <mat-form-field appearance="outline" >
+            <mat-label>Lieu d'installation BTS</mat-label>
+            <mat-select formControlName="lieuInsatallationBTS" [disabled]="addSite.get('typeSite')?.value  === 'Fixe'">
+              <mat-option *ngFor="let val of lieuInsatallationBTS" [value]="val"> {{val}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez sélectionner une valeur</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>  Type d'alimentation  </mat-label>
+            <mat-select formControlName="typeAlimentation" required>
+              <mat-option *ngFor="let val of typeAlimentation" [value] ="val" > {{val}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez selectionner une valeur  </mat-error>
+          </mat-form-field></div>
+        <div class="row">
+          <mat-form-field appearance="outline">
+            <mat-label>  Présence GE de secours</mat-label>
+            <mat-select formControlName="presenceGESecours" required>
+              <mat-option *ngFor="let option of presenceGESecoursOptions" [value]="presenceGESecoursTranslations[option]" > {{option}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez selectionner une valeur  </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label> Type de transmission  </mat-label>
+            <mat-select formControlName="typeTransmission" required>
+              <mat-option *ngFor="let val of typeTransmission" [value] ="val" > {{val}}</mat-option>
+            </mat-select>
+            <mat-error>Veuillez selectionner une valeur </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+      <div mat-dialog-actions style="background-color: #6495ED; display: flex; justify-content: flex-end;">
+        <button mat-raised-button style="margin-left: auto;" (click)="close()">Annuler</button>
+        <button mat-raised-button class="custom-blue" (click)="add()">Enregistrer</button>
+      </div>
+
+    </mat-tab>
+
+</mat-tab-group>
+
+
+
+
+

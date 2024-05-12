@@ -6,10 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.elghz.interventionservice.enumeration.statusIntervention;
-import net.elghz.interventionservice.model.Anomalie;
-import net.elghz.interventionservice.model.Equipe;
-import net.elghz.interventionservice.model.Planning;
-import net.elghz.interventionservice.model.technicien;
+import net.elghz.interventionservice.model.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,9 +34,14 @@ public class Intervention {
     @Transient
     private Planning planning;
 
-    private Long id_Equipe;
+    private Long id_Techn;
     @Transient
-    private Equipe equipe;
+    private TechnicienDTO technicien;
+
+    private Long id_Equipement;
+    @Transient
+    private Equipement equipement;
+
     @Transient
     List<Anomalie> anomaliesDetected = new ArrayList<>();
 }

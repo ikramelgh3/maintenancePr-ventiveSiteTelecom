@@ -45,10 +45,12 @@ public class equipementService {
 
     }
 
-    public List<equipementDTO> allEquipements(){
-        //List<equipement> e = repo.findAll();
-        return repo.findAll().stream().map(mapperEqui::from).collect(Collectors.toList());
+    public List<equipementDTO> allEquipements() {
+        List<equipement> equipements = repo.findAll(); // Récupérer tous les équipements
+        equipements.forEach(e -> e.getTypeEquipementt().getName()); // Assurez-vous que les types d'équipement sont chargés
+        return equipements.stream().map(mapperEqui::from).collect(Collectors.toList());
     }
+
 
     public boolean deleteById(Long id) {
         Optional<equipement> eqOptional = repo.findById(id);
@@ -115,6 +117,18 @@ public class equipementService {
 
 
 
+    }
+
+    public  String localisationOfEquip(Long id){
+         equipement e = repo.findById(id).get();
+          e.getSalle().getEtage().getImmuble().getSite();
+
+          int salleName = e.getSalle().getNumeroSalle();
+          int etape = e.getSalle().getEtage().getNumeroEtage();
+          String imm = e.getSalle().getEtage().getImmuble().getName();
+          String site = e.getSalle().getEtage().getImmuble().getSite().getName();
+
+          return "Salle : "+salleName + ", Etage : "+ etape+ ", Immuble : "+imm + ", Site : " + site;
     }
 
 

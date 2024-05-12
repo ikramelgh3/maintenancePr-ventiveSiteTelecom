@@ -44,12 +44,12 @@ public class siteMobileMapper {
             site.setTypeactivites(typeActivites);
         }
 
-        if (dto.getPhotos() != null) {
-            List<Photo> photos = new ArrayList<>();
-            for (PhotoDTO photoDTO : dto.getPhotos()) {
-                photos.add(modelMapper.map(photoDTO, Photo.class));
-            }
-            site.setPhotos(photos);
-        }
+//        if (dto.getPhotos() != null) {
+//            List<Photo> photos = new ArrayList<>();
+//            for (PhotoDTO photoDTO : dto.getPhotos()) {
+//                photos.add(modelMapper.map(photoDTO, Photo.class));
+//            }
+//            site.setPhotos(photos);
+//        }
     }
 }

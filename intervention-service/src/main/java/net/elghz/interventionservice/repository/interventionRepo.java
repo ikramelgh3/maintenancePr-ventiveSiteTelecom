@@ -19,6 +19,9 @@ public interface interventionRepo extends JpaRepository<Intervention , Long> {
     @Query("SELECT c FROM Intervention c WHERE c.id_Planning = :idEq")
     List<Intervention> findById_Planning(Long idEq);
 
-    @Query("SELECT c FROM Intervention c WHERE c.id_Equipe = :idEqui")
+    @Query("SELECT c FROM Intervention c WHERE c.id_Techn = :idEqui")
     List<Intervention> findById_Equipe(Long idEqui);
+
+    @Query("SELECT c FROM Intervention c WHERE c.id_Equipement = :idEqui")
+    List<Intervention> findById_Equipement(Long idEqui);
 }
