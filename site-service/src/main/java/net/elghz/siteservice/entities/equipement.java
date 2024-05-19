@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.elghz.siteservice.enumeration.Statut;
 import net.elghz.siteservice.model.ChecklistDTO;
 
 import java.util.ArrayList;
@@ -19,12 +20,15 @@ public class equipement {
     private Long id;
     @Column(unique = true)
     private String numeroSerie;
-    @Column(unique = true)
     private String nom;
+    @Column(unique = true)
+    private String code;
     private String descreption;
     private String type;
-    private String marque;
     private String statut;
+    private String marque;
+   // @Enumerated(EnumType.STRING)
+    //private Statut statut1;
     private Date dateMiseService;
     private Date dateMiseHorsService;
     @ManyToOne

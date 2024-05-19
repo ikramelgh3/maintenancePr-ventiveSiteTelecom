@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  margin-left: 5px;
+}
+
+.site-list-container {
+  max-height: 300px; /* Ajustez la hauteur maximale selon vos besoins */
+  overflow-y: auto; /* Active le défilement vertical si nécessaire */
+}

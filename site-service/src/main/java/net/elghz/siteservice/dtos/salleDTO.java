@@ -15,9 +15,10 @@ import java.util.List;
 public class salleDTO {
 
     private Long id;
+    private String codeSalle;
     private int numeroSalle;
+    private  String localisation;
     private int capacity;
-
     private etageDTO etage; // Référence à l'étage associé
 
 }

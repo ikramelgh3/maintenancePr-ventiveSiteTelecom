@@ -1,17 +1,18 @@
 package net.elghz.siteservice.controller;
 
-import net.elghz.siteservice.dtos.equipementDTO;
-import net.elghz.siteservice.dtos.siteDTO;
-import net.elghz.siteservice.entities.Photo;
-import net.elghz.siteservice.entities.PhotoEquipement;
-import net.elghz.siteservice.entities.Site;
-import net.elghz.siteservice.entities.equipement;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
+import net.elghz.siteservice.dtos.*;
+import net.elghz.siteservice.entities.*;
 import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
+import net.elghz.siteservice.export.SiteExcelExporter;
+import net.elghz.siteservice.export.exportEquipement;
 import net.elghz.siteservice.importFile.ImporterSite;
 import net.elghz.siteservice.mapper.equipementMapper;
 import net.elghz.siteservice.repository.PhotoEquiRepo;
 import net.elghz.siteservice.repository.equipementRepo;
+import net.elghz.siteservice.repository.typeEquipementRepo;
 import net.elghz.siteservice.service.equipementService;
 import net.elghz.siteservice.util.FileUploadUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
+
 public class equipementController {
     private equipementService serv;
 
@@ -41,6 +44,8 @@ public class equipementController {
     @Autowired private equipementMapper mapper;
     @Autowired
     ImporterSite importerSite;
+    @Autowired
+    typeEquipementRepo equirepo;
     public equipementController (equipementService serv){
         this.serv = serv;
     }
@@ -56,6 +61,11 @@ public class equipementController {
     }
 
 
+
+    @GetMapping("/getByName/{name}")
+    public Long getIdByName(@PathVariable String name){
+         return equirepo.findByName(name).get().getId();
+    }
     @GetMapping("equi/by/{id}")
     public  equipementDTO getEquipementById(@PathVariable Long id){
          equipement e= repo.findById(id).get();
@@ -68,14 +78,10 @@ public class equipementController {
         return equipements;
     }
 
-    @PostMapping("/equipement/add")
-    public ResponseEntity<String> addEquipement(@RequestBody equipementDTO equipementDTO) {
-        boolean added = serv.addEquip(equipementDTO);
-        if (added) {
-            return new ResponseEntity<>("L'équipement a été ajouté avec succès.", HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>("L'équipement existe déjà.", HttpStatus.BAD_REQUEST);
-        }
+    @PostMapping("/equipement/add/{idType}/{idS}")
+    public equipementDTO addEquipement(@RequestBody equipementDTO equipementDTO , @PathVariable Long idType , @PathVariable Long idS) {
+
+        return this.serv.addEquip(equipementDTO, idType , idS);
     }
 
     @PutMapping("/equipement/update")
@@ -89,15 +95,15 @@ public class equipementController {
     }
 
     @DeleteMapping("/equipement/delete/{id}")
-    public ResponseEntity<String> deleteEquipement(@PathVariable Long id) {
+    public void deleteEquipement(@PathVariable Long id) {
         boolean deleted = serv.deleteById(id);
         if (deleted) {
             String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
             String uploadDir = "site-service/equipement-images/" +currentDate;
             FileUploadUtil.cleanDir(uploadDir);
-            return new ResponseEntity<>("L'équipement a été supprimé avec succès.", HttpStatus.OK);
+
         } else {
-            return new ResponseEntity<>("L'équipement n'a pas été trouvé.", HttpStatus.NOT_FOUND);
+
         }
     }
 
@@ -107,6 +113,16 @@ public class equipementController {
         }
 
 
+    @GetMapping("/exist/{numeroSérie}/{code}")
+    public Boolean checkEquipExists( @PathVariable String numeroSérie, @PathVariable String code) {
+         Optional<equipement> eq = repo.findByNumeroSerieOrCode( numeroSérie,code);
+         if(eq.isPresent()){
+              return true;
+         }
+         else {
+              return  false;
+         }
+    }
 
     @PostMapping("/add/picts/equip/{id}")
     public String savePicEquip(@RequestParam("imagesEqui") MultipartFile[] images, @PathVariable Long id) throws IOException {
@@ -180,4 +196,97 @@ public class equipementController {
          return  repo.findAll().size();
     }
 
+
+    @GetMapping("/All/type/equipements")
+    public List<typeEquipementDTO> typeEquipents(){
+         return  equirepo.findAll().stream().map(mapper::from).collect(Collectors.toList());
+    }
+
+
+    @PutMapping("/updatte/equipement/{id}/{idType}/{idSalle}")
+    public equipementDTO updateEquipement(@PathVariable Long id, @RequestBody equipement updatedSite,@PathVariable Long idType, @PathVariable Long idSalle) {
+        try {
+            equipementDTO site = serv.updateEquipement(id, updatedSite,idType,idSalle);
+            return site;
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/existeEquipemnt/{code}/{id}")
+    public Boolean checkifZquipementexiste(@PathVariable String code, @PathVariable Long id ){
+        return repo.existsByCodeAndIdIsNot(code, id);
+    }
+
+
+    @GetMapping("/findTypeEqui/{id}")
+    public typeEquipementDTO findTypeEquipemntById(@PathVariable Long id){
+
+        typeEquipement t= equirepo.findById(id).get();
+        return mapper.from(t);
+    }
+
+    @PostMapping("/upload/picE/{idEq}")
+    public List<PhotoEquipementDTO> uploadFilesEqui(@RequestParam("files") MultipartFile[] files, @PathVariable Long idEq) {
+        try {
+            equipement s = repo.findById(idEq).orElse(null);
+            if (s == null) {
+                return null;
+            }
+            List<PhotoEquipement> uploadedPhotos = new ArrayList<>();
+            for (MultipartFile file : files) {
+                PhotoEquipement fileEntity = new PhotoEquipement();
+                fileEntity.setEquipement(s);
+                s.getPhotoEquipements().add(fileEntity);
+                fileEntity.setName(file.getOriginalFilename());
+                fileEntity.setType(file.getContentType());
+                fileEntity.setPicByte(file.getBytes());
+                fileEntity.setDateAjout(new Date());
+                photoRepo.save(fileEntity);
+                uploadedPhotos.add(fileEntity);
+            }
+            String message = "Files uploaded successfully!";
+            HttpStatus httpStatus = HttpStatus.CREATED;
+            return uploadedPhotos.stream().map(mapper::from).collect(Collectors.toList());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/filesEq/{id}")
+    public List<PhotoEquipementDTO> getFileEqui(@PathVariable Long id) {
+        equipement s = repo.findById(id).get();
+        List<PhotoEquipement> files = s.getPhotoEquipements();
+        List<PhotoEquipementDTO> dtos= new ArrayList<>();
+        for(PhotoEquipement p :files){
+            dtos.add(mapper.from(p));
+        }
+        return dtos;
+    }
+    @DeleteMapping("/deletePicEquipement/{id}")
+    public void deleteFile(@PathVariable Long id) {
+        PhotoEquipement fileEntity = photoRepo.findById(id).orElse(null);
+        if (fileEntity != null) {
+            photoRepo.deleteById(id);
+
+        }
+    }
+
+
+    @GetMapping("/equipements/export/excel")
+    public void exportToExcel(HttpServletResponse servletResponse) throws IOException {
+        List<equipement> siteDTOS = repo.findAll();
+        exportEquipement exporter = new exportEquipement();
+        exporter.exportEquipement(siteDTOS, servletResponse);
+    }
+
+    @GetMapping("/check/equipement/horsService/{id}")
+    public  Boolean checkIfEquipementHorsService(@PathVariable Long id){
+        return serv.checkIfEquipementIsHorsService(id);
+    }
+
+    @GetMapping ("/findEquipement/byKeyword/{keyword}")
+    public List<equipementDTO> getEquipementsByKeyword(@PathVariable String  keyword){
+        return repo.findequipentsByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
+    }
 }

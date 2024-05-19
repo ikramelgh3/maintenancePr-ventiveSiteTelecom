@@ -21,6 +21,7 @@ public class salle {
     private int numeroSalle;
    private int capacity;
 
+   private  String localisation;
     @ManyToOne
     @JoinColumn(name = "etage_id")
     private etage etage;

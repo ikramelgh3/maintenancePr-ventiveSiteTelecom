@@ -2,9 +2,13 @@ package net.elghz.siteservice.controller;
 
 import net.elghz.siteservice.dtos.DCDTO;
 import net.elghz.siteservice.dtos.etageDTO;
+import net.elghz.siteservice.dtos.salleDTO;
 import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.entities.etage;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.mapper.siteMapper;
+import net.elghz.siteservice.repository.EtageRepo;
+import net.elghz.siteservice.repository.ImmubleRepo;
 import net.elghz.siteservice.service.DCService;
 import net.elghz.siteservice.service.EtageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +17,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class EtageController {
     @Autowired private EtageService dcService;
-
+    @Autowired
+    EtageRepo repo;
+    @Autowired
+    private siteMapper mapper;
     @GetMapping("/etage/{id}")
     public ResponseEntity<?> getDCById(@PathVariable Long id) {
         try {
@@ -86,16 +94,16 @@ public class EtageController {
     }
 
     @GetMapping("/etageg/byImmuble/{drId}")
-    public ResponseEntity<?> getDCsByDR(@PathVariable Long drId) {
-        try {
-            List<etageDTO> dcList = dcService.getEtageByImmuble(drId);
-            return ResponseEntity.ok(dcList);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public List<etageDTO> getDCsByDR(@PathVariable Long drId) throws NotFoundException {
+        return  dcService.getEtageByImmuble(drId);
+
     }
 
 
 
+    @GetMapping("/getSalle/ofEtage/{id}")
+    public List<salleDTO> getSallesOfEtage(@PathVariable Long id){
+        return repo.findById(id).get().getSalles().stream().map(mapper::from).collect(Collectors.toList());
+    }
 }
 

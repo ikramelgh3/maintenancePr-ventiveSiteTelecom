@@ -9,16 +9,18 @@
 
     </div>
 
+
+
     <mat-menu #importMenu1>
-      <button mat-menu-item sty class="buttonChoix" >
-        <mat-icon>add</mat-icon> Ajouer Site
+      <button mat-menu-item sty class="buttonChoix"  (click)="addEquipet()">
+        <mat-icon>add</mat-icon> Ajouer Equipement
       </button>
-      <button mat-menu-item class="buttonChoix" >
+      <button mat-menu-item class="buttonChoix"  (click)="exporeterEquipements()">
         <mat-icon>cloud_download</mat-icon> Exporter
       </button>
     </mat-menu>
-
     <mat-divider></mat-divider>
+    <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucun équipement trouvé. </div>
 
     <div  style="width: 500px;">
       <mat-list>
@@ -33,10 +35,10 @@
                 <div mat-line style="font-size: 18px; color: #333;">{{ eq.nom }}</div></div>
               <div  style="display: flex; align-items: center;">
                 <div mat-line style="font-size: 16px; color: #333;">{{ eq.typeEquipementt.name }}</div>
-                <div mat-line style="font-size: 16px; color: #072f5f; margin-left: auto; margin-right: 20px">{{ eq.statut }}</div>
+                <div mat-line style="font-size: 16px; color: #072f5f; margin-left: auto; margin-right: 20px"> <span [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(eq.statut) }" > {{ eq.statut }}</span></div>
 
               </div>
-              <div mat-line style="font-size: 16px; color: #072f5f;">Salle: {{eq.salle.numeroSalle }}, Etage: {{eq.salle.etage.numeroEtage}}, Immeuble: {{eq.salle.etage.immuble.name}}, Site: {{eq.salle.etage.immuble.site.name}}</div>
+              <div mat-line style="font-size: 16px; color: #072f5f;">Salle: {{eq.salle.codeSalle }}, Etage: {{eq.salle.etage.numeroEtage}}, Immeuble: {{eq.salle.etage.immuble.name}}, Site: {{eq.salle.etage.immuble.site.name}}</div>
 
             </a>
 
@@ -60,21 +62,22 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #importMenu1>
-        <button mat-menu-item class="buttonChoix" >
+        <button mat-menu-item class="buttonChoix" (click)="UpdateEquipement()">
           <mat-icon>update</mat-icon> Modifier
         </button>
-        <button mat-menu-item class="buttonChoix" >
-          <mat-icon>delete</mat-icon> Supprimer
+        <button mat-menu-item class="buttonChoix" (click)="deleteEquipemt(equipement.id)" >
+          <mat-icon>delete</mat-icon > Supprimer
         </button>
       </mat-menu>
+
     </div>
-
     <div class="divDetail"  *ngIf="equipement"  style="margin-left: 18px ; margin-top: 2px">
-
       <span style=" color: #072f5f;font-size: 12px"><b># {{equipement.id}}</b></span>&nbsp;&nbsp;&nbsp;&nbsp;
       <span style=" color: gray;font-size: 12px" [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(equipement.statut) }">{{ equipement.statut }}
-        </span> &nbsp;&nbsp;<br>
+        </span> &nbsp;
 
+      <span *ngIf="horsService" style="color: darkred" ><b>Planifier une intervention!!!!</b> </span>
+<br>
           <div>
             <span style="margin-left: 8px; ">{{equipement.nom}} &nbsp; <span style="margin-left: 8px;"> Type Equipement : {{ equipement.typeEquipementt.name }}</span></span>
           </div>
@@ -86,7 +89,6 @@
           </div>
 
         </div>
-
         <div style="display: flex; align-items: center;">
 
           <div>
@@ -115,8 +117,68 @@
           </div>
         </div>
 
+
     </div>
     </div>
+
+  <div *ngIf="selectedEquipDetails" style="position: absolute; top: 275px; left: 530px; width: 560px; border-radius: 10px; background-color: white; max-height: 300px; overflow-y: auto;">
+    <mat-tab-group animationDuration="0ms" disableRipple >
+
+        <mat-tab label="Images" style="background-color: #072f5f">
+        <mat-list>
+          <ng-container *ngFor="let file of files">
+            <div style="position: relative;">
+              <div style="display: flex; justify-content: center; margin-top: 5px;" (click)="openPict(file.processedImage)">
+                <img [src]="file.processedImage" alt="file image" style="width: 150px; height: 150px;">
+              </div>
+              <div style="position: absolute; top: 0; right: 0;">
+                <mat-icon (click)="deletePic(file.id)" style="cursor: pointer;">delete</mat-icon>
+              </div>
+              <br>
+              <span style="font-size: 16px; color: #333333;"> Ajoutée le:  {{file.dateAjout | date :'dd-MM-yyyy à HH:mm:ss' }}</span>
+              <br>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+
+          <div *ngIf="not_foundImg">
+            <p style="margin-left: 50px">Aucune image n'est trouvée dans ce site.</p>
+          </div>
+        </mat-list>
+          <button mat-fab color="primary" class="add-equipment-btn" (click)="addPict(equipement.id)">
+            <mat-icon>add</mat-icon>
+          </button>
+      </mat-tab>
+
+      <mat-tab label="Interventions" style="color: white">
+        <ng-template mat-tab-label>
+          <span style="color: white;">Interventions</span>
+        </ng-template>
+        <mat-list>
+          <ng-container *ngFor="let int of intervention ">
+            <div >
+              <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">{{ int.name }}</div>
+              <div mat-line style="font-size: 16px; color: #999; margin-left: 15px;"> <span [ngStyle]="{ 'font-size': '14px', 'color': getStatusColorIntervention(int.status) }">{{ int.status }}</span></div>
+            </div>
+              <div mat-line style="font-size: 14px; color: #333; margin-left: 15px;">Réaliser par {{int.technicien.nom}} le {{ int.dateDebut | date: 'dd-MM-yyyy à HH:mm:ss' }}</div>
+            <mat-divider></mat-divider>
+          </ng-container>
+
+        </mat-list>
+        <button mat-fab color="primary" class="add-equipment-btn" >
+          <mat-icon>add</mat-icon>
+        </button>
+
+        <div *ngIf="not_foundInterv" >
+          <p style="margin-left: 50px"> Aucune intervention n'est trouvé dans ce site.</p>
+        </div>
+
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+
+
   </div>
 
 

@@ -26,7 +26,7 @@ export class NewPlanningComponent implements OnInit{
   constructor( @Inject(MAT_DIALOG_DATA) public data:any,private ref:MatDialogRef<NewPlanningComponent>,
                private fb:FormBuilder , private ser:PlanningServiceService ,private snackBar: MatSnackBar,
                private dataser:PlanningdataserviceService ) {
-
+    ref.disableClose = true;
   }
 
   inputdata:any;

@@ -19,4 +19,10 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
 
     @Query("SELECT c FROM Site  c where  c.name like %?1% OR c.centreTechnique.name like %?1% OR c.centreTechnique.dc.name like %?1% OR c.centreTechnique.dc.dr.name like %?1%")
     public List<Site> findSitesByKeyword(String keyword );
+
+    Boolean existsByCodeAndIdIsNot(String code, Long id);
+
+    boolean existsByCode(String name);
+
+    Boolean existsByNameAndIdIsNot(String name, Long id);
 }

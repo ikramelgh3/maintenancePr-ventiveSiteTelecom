@@ -14,3 +14,11 @@ input{
   color: darkgrey;
 
 }
+.add-equipment-btn {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  bottom: 5px;
+  right: 20px;
+  z-index: 1000;
+}

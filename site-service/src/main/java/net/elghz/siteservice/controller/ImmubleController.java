@@ -6,6 +6,8 @@ import net.elghz.siteservice.dtos.immubleDTO;
 import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.entities.immuble;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.mapper.siteMapper;
+import net.elghz.siteservice.repository.ImmubleRepo;
 import net.elghz.siteservice.service.ImmubleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,11 +15,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class ImmubleController {
     @Autowired private ImmubleService dcService;
 
+    @Autowired
+    ImmubleRepo repo;
+    @Autowired
+    private siteMapper mapper;
     @GetMapping("/Immuble/{id}")
     public ResponseEntity<?> getDCById(@PathVariable Long id) {
         try {
@@ -102,5 +109,10 @@ public class ImmubleController {
         return dcService. getDCFromCT(name).getId();
     }
 
+
+    @GetMapping("/getEtgae/ofImmuble/{id}")
+     public List<etageDTO> getEtagesOfImmuble(@PathVariable Long id){
+         return repo.findById(id).get().getEtageList().stream().map(mapper::from).collect(Collectors.toList());
+    }
 }
 

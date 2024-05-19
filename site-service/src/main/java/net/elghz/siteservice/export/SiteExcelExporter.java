@@ -8,6 +8,7 @@ import net.elghz.siteservice.dtos.*;
 import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.entities.SiteFixe;
 import net.elghz.siteservice.entities.SiteMobile;
+import net.elghz.siteservice.entities.equipement;
 import net.elghz.siteservice.service.CTService;
 import net.elghz.siteservice.service.DCService;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -178,5 +179,10 @@ public class SiteExcelExporter extends AbstractExporter {
         workbook.close();
         outputStream.close();
     }
+
+
+
+
+
 
 }

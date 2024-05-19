@@ -16,6 +16,7 @@ public class etage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private int numeroEtage;
+    private String codeEtage;
     private int nbreSalle;
     @Column(unique = true)
     private String codeEtagge;

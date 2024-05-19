@@ -36,6 +36,7 @@ export class UpdatePlanningComponent implements OnInit{
   ,private fb:FormBuilder , private ser:PlanningServiceService , private router:Router
     , private not:NotificationService ,private snackBar: MatSnackBar,
               private refrechS:RefrechSerService , private r:ActivatedRoute ,  private dataser:PlanningdataserviceService) {
+    ref.disableClose = true;
   }
 
   ngOnInit() {

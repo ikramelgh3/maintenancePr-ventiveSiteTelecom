@@ -45,6 +45,17 @@ import {MatRadioButton, MatRadioModule} from "@angular/material/radio";
 import { AddPictoSiteComponent } from './add-picto-site/add-picto-site.component';
 import { UpdateSiteComponent } from './update-site/update-site.component';
 import { EquiipementsComponent } from './equipements/equiipements/equiipements.component';
+import { NewEquipementComponent } from './equipements/new-equipement/new-equipement.component';
+import { ArborescenceComponent } from './equipements/arborescence/arborescence.component';
+import {FilterBySitePipe} from "./equipements/arborescence/filter-by-site.pipe";
+import {MatExpansionModule} from "@angular/material/expansion";
+import { UpdateEquipementComponent } from './equipements/update-equipement/update-equipement.component';
+import { OpenImgaeComponent } from './equipements/open-imgae/open-imgae.component';
+import { AddPicComponent } from './equipements/add-pic/add-pic.component';
+import { AddEquipemntToSiteComponent } from './site/add-equipemnt-to-site/add-equipemnt-to-site.component';
+import { AddPlanningtoSiteComponent } from './site/add-planningto-site/add-planningto-site.component';
+import { DetailOfSousLiieuxComponent } from './site/detail-of-sous-liieux/detail-of-sous-liieux.component';
+import { GestionApplComponent } from './parametres/gestion-appl/gestion-appl.component';
 
 
 @NgModule({
@@ -64,6 +75,17 @@ import { EquiipementsComponent } from './equipements/equiipements/equiipements.c
     AddPictoSiteComponent,
     UpdateSiteComponent,
     EquiipementsComponent,
+    NewEquipementComponent,
+    ArborescenceComponent,
+    FilterBySitePipe,
+    UpdateEquipementComponent,
+    OpenImgaeComponent,
+    AddPicComponent,
+    AddEquipemntToSiteComponent,
+    AddPlanningtoSiteComponent,
+    DetailOfSousLiieuxComponent,
+    GestionApplComponent,
+
 
 
 
@@ -104,8 +126,8 @@ import { EquiipementsComponent } from './equipements/equiipements/equiipements.c
     MatSliderModule,
     SlickCarouselModule,
     MatCheckboxModule,
-    MatRadioModule
-
+    MatRadioModule,
+    MatExpansionModule
   ],
   providers: [
     provideAnimationsAsync()

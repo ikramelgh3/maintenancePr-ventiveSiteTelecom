@@ -227,6 +227,7 @@ public class interventionService {
     }
 
     public List<InterventionDTO> getInterventionOfEqui(Long idEqui){
+
          List<Intervention> interventions = repo.findById_Equipement(idEqui);
          for(Intervention i :interventions){
               Equipement eq = eqRepo.getEquiById(i.getId_Equipement());
@@ -234,6 +235,13 @@ public class interventionService {
               TechnicienDTO tech = erepo.findTechnicienById(i.getId_Techn());
               i.setTechnicien(tech);
          }
+         if(interventions.size()==0){
+             System.out.println("intervention size"+interventions.size());
+         }
+        if(interventions.size()!=0){
+            System.out.println("voila les interventions"+interventions);
+        }
+
          return  interventions.stream().map(mp::from).collect(Collectors.toList());
     }
 }

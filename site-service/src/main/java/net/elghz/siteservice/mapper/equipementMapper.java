@@ -1,10 +1,10 @@
 package net.elghz.siteservice.mapper;
 
+import net.elghz.siteservice.dtos.PhotoDTO;
 import net.elghz.siteservice.dtos.PhotoEquipementDTO;
 import net.elghz.siteservice.dtos.equipementDTO;
-import net.elghz.siteservice.entities.PhotoEquipement;
-import net.elghz.siteservice.entities.Site;
-import net.elghz.siteservice.entities.equipement;
+import net.elghz.siteservice.dtos.typeEquipementDTO;
+import net.elghz.siteservice.entities.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,22 @@ public class equipementMapper {
 
     public equipement from (equipementDTO   equipementDTO){
         return modelMapper.map(equipementDTO,equipement.class);
+    }
+
+    public typeEquipementDTO from (typeEquipement e){
+        return modelMapper.map(e, typeEquipementDTO.class);
+    }
+
+    public typeEquipement from (typeEquipementDTO   siteDTO){
+        return modelMapper.map(siteDTO,typeEquipement.class);
+    }
+
+    public PhotoEquipementDTO from (PhotoEquipement e){
+        return modelMapper.map(e, PhotoEquipementDTO.class);
+    }
+
+    public PhotoEquipement from (PhotoEquipementDTO   siteDTO){
+        return modelMapper.map(siteDTO,PhotoEquipement.class);
     }
     public equipementDTO fromEquipement(equipement e){
 
@@ -58,7 +74,7 @@ public class equipementMapper {
             equipement.setDateMiseHorsService(dto.getDateMiseHorsService());
         }
 
-
+/*
         if (dto.getPhotoEquipements() != null) {
             equipement.getPhotoEquipements().clear();
             for (PhotoEquipementDTO photoDTO : dto.getPhotoEquipements()) {
@@ -67,6 +83,6 @@ public class equipementMapper {
                 photo.setEquipement(equipement);
                 equipement.addPhoto(photo);
             }
-        }
+        }*/
     }
 }

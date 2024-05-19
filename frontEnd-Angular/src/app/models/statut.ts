@@ -1,0 +1,5 @@
+export enum Statut {
+  HORS_SERVICE = 'HORS_SERVICE',
+  EN_MAINTENANCE = 'EN_MAINTENANCE',
+  EN_SERVICE = 'EN_SERVICE'
+}

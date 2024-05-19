@@ -1,3 +1,5 @@
+import {Technicein} from "./technicein";
+
 export interface Intervention{
     id:number;
     name:String;
@@ -8,5 +10,6 @@ export interface Intervention{
     description:String;
 
     status:String;
+    technicien:Technicein
 
 }

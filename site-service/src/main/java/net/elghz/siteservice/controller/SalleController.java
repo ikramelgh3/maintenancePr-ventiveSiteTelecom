@@ -6,6 +6,8 @@ import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.entities.etage;
 import net.elghz.siteservice.entities.salle;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.mapper.siteMapper;
+import net.elghz.siteservice.repository.SalleRepo;
 import net.elghz.siteservice.service.DCService;
 import net.elghz.siteservice.service.SalleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,17 +16,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class SalleController {
     @Autowired private SalleService dcService;
 
+    @Autowired
+    siteMapper smapper;
+    @Autowired
+    SalleRepo repo;
     @GetMapping("/salle/{id}")
-    public ResponseEntity<?> getDCById(@PathVariable Long id) {
+    public salleDTO getDCById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(dcService.getCatId(id));
+            return dcService.getCatId(id).get();
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return null;
         }
     }
 
@@ -87,13 +94,18 @@ public class SalleController {
     }
 
     @GetMapping("/salle/etage/{drId}")
-    public ResponseEntity<?> getDCsByDR(@PathVariable Long drId) {
-        try {
-            List<salleDTO> dcList = dcService.getCTsByDC(drId);
-            return ResponseEntity.ok(dcList);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    public List<salleDTO> getDCsByDR(@PathVariable Long drId) throws NotFoundException {
+        return dcService.getCTsByDC(drId);
+
+    }
+
+
+
+    @GetMapping("/getId/{name}")
+    public salleDTO getSalleByName(@PathVariable String name){
+         salle s = repo.findByCodeSalle(name).get();
+         Long id = s.getId();
+         return smapper.from(s);
     }
 
 

@@ -1,7 +1,6 @@
 <div>
   <h1 style="padding: 10px">Ajouter image(s) pour le site ID : {{data.id}}</h1>
 
-  <!-- Section pour ajouter la première photo -->
   <div style="border: 1px solid lightgrey; margin: 0 10px;">
     <img id="previewImage1" [src]="previewImageUrl1" style="width: 200px; height: 200px;" alt="Image"> &nbsp;
     <mat-icon *ngIf="previewImageUrl1!== defaultImageUrl" (click)="removePhotoP(1)" style="cursor: pointer;">delete</mat-icon>
@@ -22,12 +21,6 @@
     </div>
   </ng-container>
 
-
-
-
-
-
-  <!-- Bouton pour ajouter une autre image -->
   <div style="margin: 20px 10px;">
     <button mat-raised-button style="background-color: #999999" (click)="addAnotherPhoto()">Ajouter une autre image</button>
   </div>

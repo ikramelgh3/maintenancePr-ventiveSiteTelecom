@@ -44,7 +44,7 @@ typ!: String;
     private planningService: PlanningServiceService,
     private dataser:PlanningdataserviceService,
     private route:Router
-  ) {}
+  ) {  dialogRef.disableClose = true;}
   ct!:CentreTechnique;
 id!:number
   site!:Site
@@ -83,10 +83,6 @@ id!:number
   getCentreTechniqueById(id: number): CentreTechnique | null {
     return this.centreTechnique.find(ct => ct.id === id) || null;
   }
-
-
-
-
 
 
   initForm(){
@@ -141,32 +137,58 @@ idSite!:number
   }
 
   updateSiteFixe(): void {
-  console.log(this.idSite)
-console.log("update site fixe")
+    console.log(this.idSite);
+    console.log("update site fixe");
     const updatedSiteFixeData = this.updateForm.value;
-  console.log("nouveau donnee", updatedSiteFixeData);
-    // Appeler le service pour mettre à jour le site fixe
-    this.planningService.updateSiteFixe(this.idSite, updatedSiteFixeData).subscribe(
-      (site) => {
-        this.close();
-        // Afficher une notification de succès
-        this.snackBar.open('Le site est mis à jour avec succès', 'Fermer', {
-          duration: 8000,
+    console.log("nouveau donnee", updatedSiteFixeData);
+
+    this.planningService.checkifSiteExisteByCode(updatedSiteFixeData.code, this.idSite).subscribe((data) => {
+      if (!data) {
+        console.log("bien code");
+
+        this.planningService.checkifSiteExisteByName(updatedSiteFixeData.name, this.idSite).subscribe((data) => {
+          if (!data) {
+            console.log("name bien");
+
+            this.planningService.updateSiteFixe(this.idSite, updatedSiteFixeData).subscribe(
+              (site) => {
+                this.close();
+                // Afficher une notification de succès
+                this.snackBar.open('Le site est mis à jour avec succès', 'Fermer', {
+                  duration: 8000,
+                  horizontalPosition: 'end',
+                  verticalPosition: 'top',
+                  panelClass: ['error-snackbar']
+                });
+              },
+              (error) => {
+                this.snackBar.open('Erreur lors de la mise à jour du site fixe', 'Fermer', {
+                  duration: 8000,
+                  horizontalPosition: 'end',
+                  verticalPosition: 'top',
+                  panelClass: ['error-snackbar']
+                });
+                console.error(error);
+              }
+            );
+          } else {
+            this.snackBar.open('Un site existe deja avec ce nom', 'Fermer', {
+              duration: 6000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
+      } else {
+        this.snackBar.open('Un site existe deja avec ce code', 'Fermer', {
+          duration: 6000,
           horizontalPosition: 'end',
           verticalPosition: 'top',
           panelClass: ['error-snackbar']
         });
-      },
-      (error) => {
-        this.snackBar.open('Erreur lors de la mise à jour du site fixe', 'Fermer', {
-          duration: 8000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
-        });
-        console.error(error);
       }
-    );
+    });
   }
 
   updateSiteMobile(): void {
@@ -174,7 +196,6 @@ console.log("update site fixe")
     // Récupérer les données du formulaire pour le site mobile
     const updatedSiteMobileData = this.updateForm.value; // Modifier en fonction de vos champs
 
-    // Appeler le service pour mettre à jour le site mobile
     this.planningService.updateSiteMobile(this.idSite, updatedSiteMobileData).subscribe(
       (site) => {
         this.close();

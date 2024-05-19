@@ -5,6 +5,7 @@ export interface Immuble{
   id: number;
   name: string;
   addr: string;
+  codeImmuble:string
   site:Site
-
+  etages:Etage[]
 }

@@ -1,11 +1,12 @@
 import {CentreTechnique} from "./centreTechnique";
 import {Equipement} from "./equipement";
 import {Photo} from "./photo";
+import {Immuble} from "./immuble";
 
 export interface Site{
    id:number
     code:String;
-   name:String;
+   name:string;
    typeSite :String;
   latitude:number;
    longitude:number;
@@ -21,4 +22,5 @@ export interface Site{
   equipements:Equipement[];
   photos: Photo[];
   getPhotosImagePaths(): string[];
+
 }

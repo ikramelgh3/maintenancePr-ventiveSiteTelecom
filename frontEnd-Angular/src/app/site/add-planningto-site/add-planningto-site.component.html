@@ -1,0 +1,86 @@
+
+<div mat-dialog-title class="titleM" style="bottom: 30px">
+
+  <h1>Ajouter un planning pour le site ID: {{siteE.id}}</h1>
+  <div style="height: 3px; background-color: #072f5f; margin-top: -20px"></div>
+</div>
+<div></div>
+<div mat-dialog-content class="content" [formGroup]="addForm"  >
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label> Nom</mat-label>
+      <input matInput type="text"  formControlName="name" required>
+      <mat-error>Veuillez remplir le  champs</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label> Fréquence de planification </mat-label>
+      <mat-select formControlName="semestre" required>
+        <mat-option *ngFor="let val of Semestre" [value] ="val" > {{val}}</mat-option>
+
+      </mat-select>
+      <mat-error>Veuillez selectionner le semestre</mat-error>
+
+    </mat-form-field>
+  </div>
+
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label> Responsable de maintenance</mat-label>
+
+      <mat-select formControlName="responsableMaint" required>
+        <mat-option *ngFor="let val of responsableDTO" [value] ="val" > {{val.nom}}</mat-option>
+
+      </mat-select>
+
+      <mat-error>Veuillez selectionner le responsable</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label> Site</mat-label>
+     <input  matInput type="text"   required readonly value="{{siteE.name}}">
+      <mat-error>Veuillez remplir le champs</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label> Date debut </mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dateDebutRealisation" required>
+      <mat-hint> MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error>Veuillez selectionner une date</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label> Date de fin </mat-label>
+      <input matInput [matDatepicker]="picker1" formControlName="dateFinRealisation" required>
+      <mat-hint> MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+      <mat-datepicker #picker1></mat-datepicker>
+      <mat-error>Veuillez selectionner une date</mat-error>
+    </mat-form-field>
+
+
+  </div>
+  <br>
+  <div class="row">
+    <mat-form-field  appearance="outline">
+      <mat-label> Description </mat-label>
+      <textarea matInput formControlName="description"
+                cdkTextareaAutosize [cdkAutosizeMinRows]="2" [cdkAutosizeMaxRows]="5" required></textarea>
+      <mat-error>Veuillez saisir la decription</mat-error>
+    </mat-form-field>
+  </div>
+</div>
+
+<div class="foot"  style="background-color: #E6E6FA; ">
+
+  <br>
+  <div mat-dialog-actions class="action">
+    <button  mat-raised-button (click)="closePopup()" > Annuler</button>
+    <button  mat-raised-button (click)="add()"  class="custom-blue" [disabled]="addForm.invalid">Enregistrer</button>
+
+  </div>
+
+</div>

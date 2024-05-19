@@ -39,11 +39,6 @@
               <div mat-line style="font-size: 16px; color: #333;">{{ site.typeSite }}</div>
               <div mat-line style="font-size: 16px; color: #072f5f;">{{ site.addresse }}</div>
             </a>
-            <div style="margin-left: auto; margin-right: 20px;">
-
-                <mat-icon (click)="addPict(site.id)" style="cursor: pointer">image</mat-icon>
-
-            </div>
           </div>
 
           <mat-divider></mat-divider>
@@ -201,6 +196,25 @@
     <mat-tab-group animationDuration="0ms" disableRipple >
 
 
+      <mat-tab label="Sous lieux">
+        <ng-template mat-tab-label>
+          <span style="color: white;">Sous lieux</span>
+        </ng-template>
+        <mat-list>
+          <ng-container *ngFor="let im of immubles">
+            <span (click)="openSousLieuxDetails()" style=" cursor: pointer">
+            <div mat-line style="font-size: 14px; color: #999999; margin-left: 15px;">#{{ im.codeImmuble }}</div>
+            <div mat-line style="font-size: 16px; color: #333; margin-left: 16px;">{{ im.name }}</div></span>
+            <mat-divider></mat-divider>
+          </ng-container>
+        </mat-list>
+        <button mat-fab color="primary" class="add-equipment-btn">
+          <mat-icon>add</mat-icon>
+        </button>
+        <div *ngIf="NotFoundImmubke">
+          <p style="margin-left: 50px">Aucun immeuble n'est trouvé dans ce site.</p>
+        </div>
+      </mat-tab>
 
       <mat-tab label="Photos" style="background-color: #072f5f">
         <mat-list>
@@ -223,7 +237,9 @@
             <p style="margin-left: 50px">Aucune image n'est trouvée dans ce site.</p>
           </div>
         </mat-list>
-
+        <button mat-fab color="primary" class="add-equipment-btn" (click)="addPict(SiteDetails.id)">
+          <mat-icon>add</mat-icon>
+        </button>
       </mat-tab>
 
 
@@ -247,7 +263,9 @@
           </ng-container>
 
         </mat-list>
-
+        <button mat-fab color="primary" class="add-equipment-btn"  (click)="addEquipet()">
+          <mat-icon>add</mat-icon>
+        </button>
         <div *ngIf="not_found" >
           <p style="margin-left: 50px"> Aucune equipement n'est trouvé dans ce site.</p>
         </div>
@@ -267,7 +285,9 @@
           </ng-container>
 
         </mat-list>
-
+        <button mat-fab color="primary" class="add-equipment-btn" >
+          <mat-icon>add</mat-icon>
+        </button>
         <div *ngIf="not_foundInterv" >
           <p style="margin-left: 50px"> Aucune intervention n'est trouvé dans ce site.</p>
         </div>
@@ -288,6 +308,9 @@
           </ng-container>
 
         </mat-list>
+        <button mat-fab color="primary" class="add-equipment-btn" (click)="OpenNewPlanning()">
+          <mat-icon>add</mat-icon>
+        </button>
         <div *ngIf="not_foundPl" >
           <p style="margin-left: 50px"> Aucune planning n'est trouvé dans ce site.</p>
         </div>

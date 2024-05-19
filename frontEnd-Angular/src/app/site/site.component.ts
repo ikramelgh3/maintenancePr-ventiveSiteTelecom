@@ -17,6 +17,13 @@ import {AddPictoSiteComponent} from "../add-picto-site/add-picto-site.component"
 import {UpdatePlanningComponent} from "../update-planning/update-planning.component";
 import {UpdateSiteComponent} from "../update-site/update-site.component";
 import {Observable} from "rxjs";
+import {Immuble} from "../models/immuble";
+import {Etage} from "../models/etage";
+import {Salle} from "../models/salle";
+import {NewEquipementComponent} from "../equipements/new-equipement/new-equipement.component";
+import {AddEquipemntToSiteComponent} from "./add-equipemnt-to-site/add-equipemnt-to-site.component";
+import {AddPlanningtoSiteComponent} from "./add-planningto-site/add-planningto-site.component";
+import {DetailOfSousLiieuxComponent} from "./detail-of-sous-liieux/detail-of-sous-liieux.component";
 
 @Component({
   selector: 'app-site',
@@ -41,7 +48,8 @@ export class SiteComponent implements  OnInit {
   nbrePlanning: number = 0;
    totalItems!:number ;
   images: any;
-  @ViewChild('siteDetails') siteDetails!: ElementRef;
+  immubles!:Immuble[];
+  //@ViewChild('siteDetails') siteDetails!: ElementRef;
 
   constructor(private rout:Router,private ser: PlanningServiceService, private dialog: MatDialog, private dataser: PlanningdataserviceService, private dialogService: DialogService, private snackBar: MatSnackBar) {
 
@@ -52,13 +60,15 @@ export class SiteComponent implements  OnInit {
     // Récupérer la liste initiale des sites
     this.getSites();
     this.getTotalElment();
+    //this.getAllFiles();
   this.ser._refreshNeeded$.subscribe(()=>{
     this.getSites();
     this.getTotalElment();
+    this.getEquipementsOfSite(this.SiteDetails.id)
+    this.getPlanningsOfSite(this.SiteDetails.id)
+
   })
   }
-
-
 
   getTotalElment(){
     this.ser.getTotal().subscribe((data)=>
@@ -89,7 +99,10 @@ export class SiteComponent implements  OnInit {
   getSiteById(id: number) {
     this.ser.getSiteById(id).subscribe((data) => {
         this.SiteDetails = data;
+        this.getImmublesOfSite(id);
         this.getAllFiles();
+       // this.getEtageOfImmuble(id);
+        //this.getSalleOfETAGE(id);
         this.getEquipementsOfSite(id);
         this.getPlanningsOfSite(id);
         this.getInterventionOfSite(id);
@@ -227,6 +240,8 @@ export class SiteComponent implements  OnInit {
   }
 
   getEquipementsOfSite(id: number) {
+
+
     this.ser.getEquipementsOfSite(this.SiteDetails.id).subscribe(
       (data) => {
         this.equipements = data;
@@ -243,6 +258,7 @@ export class SiteComponent implements  OnInit {
   }
 
   getPlanningsOfSite(id: number) {
+
     this.ser.getPlanningOfSite(id).subscribe((data) => {
         this.plannings = data;
         console.log(this.plannings);
@@ -301,9 +317,12 @@ export class SiteComponent implements  OnInit {
   sourceImg !: any;
 
   getAllFiles(): void {
-    const id = this.SiteDetails.id; // Récupérer l'ID du site directement
+    this.ser._refreshNeeded$.subscribe(()=>{
+      this.getAllFiles();
+    })
+      const id = this.SiteDetails.id; // Récupérer l'ID du site directement
     this.ser.getAllFiles(id).subscribe((response: any[]) => {
-      console.log(response);
+      //console.log(response);
       // Réinitialiser la variable not_foundImg à false
       this.not_foundImg = false;
 
@@ -311,7 +330,7 @@ export class SiteComponent implements  OnInit {
         ...file,
         processedImage: "data:image/jpg;base64," + file.picByte // Utiliser picByte pour créer l'URL base64
       }));
-
+      console.log("files",this.files);
       // Vérifier si la liste des fichiers est vide
       if (this.files.length === 0) {
         // Définir la variable not_foundImg à true si aucune photo n'est trouvée
@@ -376,5 +395,68 @@ export class SiteComponent implements  OnInit {
           );
         }
       });
+  }
+  NotFoundImmubke:Boolean= false;
+  etage!:Etage[]
+  getImmublesOfSite(id: number) {
+    this.ser.getImmublesOfSite(id).subscribe(
+      (data) => {
+        this.immubles = data;
+        this.NotFoundImmubke = this.immubles.length === 0;
+
+        if (!this.NotFoundImmubke) {
+          this.immubles.forEach(im => im.etages = this.etage);
+        }
+
+        console.log(this.etage);
+        console.log(this.immubles, id);
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération des immeubles', error);
+        this.NotFoundImmubke = true;
+      }
+    );
+  }
+
+
+  getEtageOfImmuble(id:number){
+     this.ser.getEtageOfImmuble(id).subscribe((data)=>{
+       this.etage= data
+     })
+  }
+  salle!:Salle[]
+  getSalleOfETAGE(id:number){
+    this.ser.getSalleOfEtage(id).subscribe((data)=>{
+      this.salle= data
+    })
+  }
+
+  addEquipet(){
+      var popup = this.dialog.open(AddEquipemntToSiteComponent, {
+      width: '50%', height: '540px',
+      exitAnimationDuration: '500ms',
+      data: { id: this.SiteDetails.id }
+    })
+  }
+
+
+
+
+  OpenNewPlanning() {
+    var popup = this.dialog.open(AddPlanningtoSiteComponent, {
+      width: '50%', height: '550px',
+      exitAnimationDuration: '500ms',
+      data: { site: this.SiteDetails }
+    })
+
+  }
+
+
+  openSousLieuxDetails(){
+    var popup = this.dialog.open(DetailOfSousLiieuxComponent, {
+      width: '50%', height: '550px',
+      exitAnimationDuration: '500ms',
+      data: { site: this.SiteDetails }
+    })
   }
 }

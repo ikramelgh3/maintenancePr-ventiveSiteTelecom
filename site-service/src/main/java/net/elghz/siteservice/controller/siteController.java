@@ -78,27 +78,7 @@ public class siteController {
     public List<siteDTO> getSitesByType(@PathVariable String type){
         return serv.sitesByType(type);
     }
-/*
-    @GetMapping("site/type/{type}")
-    public ResponseEntity<?> getSitesByType(@PathVariable String type) {
-        try {
-            SiteType siteType = SiteType.valueOfIgnoreCase(type.toUpperCase());
-            Optional<List<siteDTO>> sites = serv.findByType(siteType);
-            if (!sites.isEmpty()) {
-                return new ResponseEntity<>(sites, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Aucun site trouvé pour le type: " + type, HttpStatus.NOT_FOUND);
-            }
-        } catch (IllegalArgumentException ex) {
-            return new ResponseEntity<>("Aucun site trouvé pour le type: " + type, HttpStatus.NOT_FOUND);
-        }
-    }*/
-/*
-    @GetMapping("/site/id/{id}")
-    public ResponseEntity<?> findSiteById(@PathVariable Long id) throws SiteNotFoundException {
-       return serv.findSiteById(id);
 
-    }*/
 
     @GetMapping("/site/id/{id}")
     public siteDTO findType(@PathVariable Long id) throws SiteNotFoundException {
@@ -423,9 +403,14 @@ public class siteController {
         boolean exists = repo.existsByName(name);
         return exists;
     }
+    @GetMapping("/existsbyCode/{code}")
+    public Boolean checkSiteExistsCode(@PathVariable String code) {
+        boolean exists = repo.existsByCode(code);
+        return exists;
+    }
 
 
-    @PutMapping("updatte/siteFixe/{id}")
+    @PutMapping("/updatte/siteFixe/{id}")
     public SiteFixeDTO updateSiteFixe(@PathVariable Long id, @RequestBody SiteFixe updatedSite) {
         try {
             SiteFixeDTO site = serv.updateSiteFixe(id, updatedSite);
@@ -434,7 +419,7 @@ public class siteController {
             return null;
         }
     }
-    @PutMapping("update/siteMobile/{id}")
+    @PutMapping("/update/siteMobile/{id}")
     public SiteMobileDTO updateSiteMobile(@PathVariable Long id, @RequestBody SiteMobile updatedSite) {
         try {
             SiteMobileDTO site = serv.updateSiteMobile(id, updatedSite);
@@ -466,4 +451,34 @@ public class siteController {
     public List<siteDTO> getSitesByKeyword(@PathVariable String  keyword){
          return repo.findSitesByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
     }
+
+    @GetMapping("/existeSite/{code}/{id}")
+    public Boolean checkifSiteexiste(@PathVariable String code, @PathVariable Long id ){
+        return repo.existsByCodeAndIdIsNot(code, id);
+    }
+
+    @GetMapping("/existeSiteName/{name}/{id}")
+    public Boolean checkifSiteexisteByName(@PathVariable String name, @PathVariable Long id ){
+        return repo.existsByNameAndIdIsNot(name, id);
+    }
+
+    @GetMapping("/getImmubles/ofSite/{id}")
+    public List<immubleDTO> getImmublesOfSite(@PathVariable Long id){
+         return  repo.findById(id).get().getImmubles().stream().map(mapper::from).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getSalle/ofSite/{id}")
+    public List<salleDTO> getSalleOfSite(@PathVariable Long id){
+         Site s = repo.findById(id).get();
+         List<salle> sl= new ArrayList<>();
+         List<immuble> immubleDTOS = s.getImmubles();
+         for(immuble im:immubleDTOS){
+             List<etage> et=  im.getEtageList();
+             for(etage e :et){
+                  sl= e.getSalles();
+             }
+         }
+         return  sl.stream().map(mapper::from).collect(Collectors.toList());
+    }
+
 }

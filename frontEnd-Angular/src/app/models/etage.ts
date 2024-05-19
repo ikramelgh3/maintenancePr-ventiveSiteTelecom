@@ -5,4 +5,6 @@ export interface Etage{
   id: number;
   numeroEtage: number;
   immuble:Immuble;
+
+  codeEtage:String
 }

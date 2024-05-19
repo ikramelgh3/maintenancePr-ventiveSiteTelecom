@@ -97,9 +97,8 @@ public class interventionController {
         return service.dissosierEquipeToIntervention(idI, idE);
     }
 
-
-    @GetMapping("get/interventions/ofEqui/{id}")
-    public  List<InterventionDTO> getInterventionsOfEquipement(@PathVariable Long id){
+    @GetMapping("/get/interventions/ofEqui/{id}")
+    public   List<InterventionDTO> getInterventionsOfEquipement(@PathVariable Long id){
          return service.getInterventionOfEqui(id);
     }
 

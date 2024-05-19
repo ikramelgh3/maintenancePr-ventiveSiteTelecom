@@ -10,6 +10,9 @@ import {Intervention} from "../src/app/models/intervention";
 import {Photo} from "../src/app/models/photo";
 import {Dr} from "../src/app/models/dr";
 import {CentreTechnique} from "../src/app/models/centreTechnique";
+import {TypeEquipement} from "../src/app/models/typeEquipement";
+import {Etage} from "../src/app/models/etage";
+import {Salle} from "../src/app/models/salle";
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +37,11 @@ export class PlanningServiceService {
   }
 
   addPlanning(formData: PlanningMaintenanceDTO): Observable<any> {
-    return this.http.post<any>(this.baseUrl + "/add/planning", formData);
+    return this.http.post<any>(this.baseUrl + "/add/planning", formData).pipe(
+      catchError(error => {
+        return throwError(error);
+      })
+    );
   }
 
   public deletePlanning(id: number): Observable<any> {
@@ -50,6 +57,11 @@ export class PlanningServiceService {
   checkPlanningExists(name: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/check-existence/${name}`);
   }
+
+
+checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
+  return this.http.get<boolean>(`${this.baseUrlSite}/exist/${numeroSérie}/${code}`);
+}
 
   updatePlanning(id: number, planning: PlanningMaintenanceDTO , idSite:number, idResp:number): Observable<any> {
     const url = `${this.baseUrl}/updatePlanning/${id}/${idSite}/${idResp}`;
@@ -77,7 +89,11 @@ export class PlanningServiceService {
 
   addPlanningComplet(planning: PlanningMaintenanceDTO, idRes: number, idSite: number): Observable<any> {
     const url = `${this.baseUrl}/add/planningComplet/${idRes}/${idSite}`;
-    return this.http.post<any>(url, planning);
+    return this.http.post<any>(url, planning).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
   }
 
   getSize() {
@@ -154,6 +170,8 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     return this.http.get<Immuble[]>(url);
   }
 
+
+
   getPlanningOfSite(id:number):Observable<PlanningMaintenanceDTO[]>{
     const url =`${this.baseUrl}/get/planningOfSite/${id}`;
     return this.http.get<PlanningMaintenanceDTO[]>(url);
@@ -192,7 +210,25 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
       formData.append('files', file, file.name);
     });
 
-    return this.http.post<string>(url, formData);
+    return this.http.post<string>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+
+
+  uploadFilesEq( idEq: number,files: File[]): Observable<string> {
+    const formData: FormData = new FormData();
+    const  url = `${this.baseUrlSite}/upload/picE/${idEq}`;
+    files.forEach(file => {
+      formData.append('files', file, file.name);
+    });
+    return this.http.post<string>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
   }
   uploadFiles(siteId: number, files: File[]): Observable<string> {
     const formData: FormData = new FormData();
@@ -201,7 +237,11 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     });
 
     const url = `${this.baseUrlSite}/upload/pic/${siteId}`;
-    return this.http.post<string>(url, formData);
+    return this.http.post<string>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
   }
 
   private  getUploadProgress(event:any):number {
@@ -215,7 +255,10 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     const url = `${this.baseUrlSite}/files/${id}`;
     return this.http.get<any>(url);
   }
-
+  getAllFilesEquipemts(id:number):Observable<any>{
+    const url = `${this.baseUrlSite}/filesEq/${id}`;
+    return this.http.get<any>(url);
+  }
   getImageById(id:number):Observable<any>{
     const  url = `${this.baseUrlSite}/image/imageById/${id}`;
     return this.http.get<any>(url);
@@ -244,6 +287,10 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
   }
   checkSiteNameUnique(name:String):Observable<Boolean>{
     const  url = `${this.baseUrlSite}/exists/${name}`;
+    return  this.http.get<Boolean>(url);
+  }
+  checkSiteCodeUnique(name:String):Observable<Boolean>{
+    const  url = `${this.baseUrlSite}/existsbyCode/${name}`;
     return  this.http.get<Boolean>(url);
   }
 
@@ -320,4 +367,118 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
      const  url = `${this.baseUrlIntervention}/get/interventions/ofEqui/${id}`
     return  this.http.get<Intervention[]>(url);
   }
+  getAllTypeEquip():Observable<TypeEquipement[]>{
+    const  url = `${this.baseUrlSite}/All/type/equipements`
+    return this.http.get<TypeEquipement[]>(url);
+
+  }
+
+  addNewEquipemnt(formData: Equipement,idTy:number, idSalle:number ):Observable<any >{
+    const  url = `${this.baseUrlSite}/equipement/add/${idTy}/${idSalle}`
+    return this.http.post<any>(url , formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+  getIdSalleByCodeSalle(code:string):Observable<Salle>{
+     const  url= `${this.baseUrlSite}/getId/${code}`;
+      return  this.http.get<Salle>(url)
+  }
+  getIdByCode(code:string):Observable<number>{
+    const  url= `${this.baseUrlSite}/getIdSalle/${code}`;
+    return  this.http.get<number>(url)
+  }
+  getIdTypeByName(name:String):Observable<number>{
+     const url = `${this.baseUrlSite}/getByName/${name}`
+    return this.http.get<number>(url)
+  }
+  deleteEquipemnt(id:number):Observable<any>{
+    const  url =`${this.baseUrlSite}/equipement/delete/${id}`;
+    return this.http.delete<any>(url).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+  updateEquiepement(id: number, equipement: Equipement , idtype:number, idSalle:number): Observable<any> {
+    const url = `${this.baseUrlSite}/updatte/equipement/${id}/${idtype}/${idSalle}`;
+    return this.http.put<any>(url, equipement).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+
+      })
+    );
+  }
+
+getTypeEQUIById(id: number): Observable<TypeEquipement> {
+  const url = `${this.baseUrlSite}/findTypeEqui/${id}`;
+  return this.http.get<TypeEquipement>(url);
+}
+getSalleById(id:number):Observable<Salle>{
+  const url = `${this.baseUrlSite}/salle/${id}`;
+  return this.http.get<Salle>(url);
+}
+checkifEquipeExisteByCode(code:string ,id:number):Observable<Boolean>{
+    const  url= `${this.baseUrlSite}/existeEquipemnt/${code}/${id}`;
+     return this.http.get<Boolean>(url)
+}
+  deletePicOfEquipement(id:number):Observable<any>{
+    const  url =`${this.baseUrlSite}/deletePicEquipement/${id}`;
+    return this.http.delete<any>(url).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+
+      })
+    );
+  }
+  exporterEquipements():Observable<any>{
+    const  url = `${this.baseUrlSite}/equipements/export/excel`;
+    return  this.http.get(url ,{ responseType: 'blob', observe: 'response' });
+  }
+  checkIfEquipementHorsService(id:number): Observable<Boolean>
+  {const url =`${this.baseUrlSite}/check/equipement/horsService/${id}`
+    return  this.http.get<Boolean>(url);
+  }
+
+  getEquipementByKeyword(keyword:String):Observable<Equipement[]>{
+    const  url = `${this.baseUrlSite}/findEquipement/byKeyword/${keyword}`;
+    return this.http.get<Equipement[]>(url);
+  }
+  checkifSiteExisteByCode(code:string ,id:number):Observable<Boolean>{
+    const  url= `${this.baseUrlSite}/existeSite/${code}/${id}`;
+    return this.http.get<Boolean>(url)
+  }
+
+  checkifSiteExisteByName(name:string ,id:number):Observable<Boolean>{
+    const  url= `${this.baseUrlSite}/existeSiteName/${name}/${id}`;
+    return this.http.get<Boolean>(url)
+  }
+
+  getImmublesOfSite(id:number):Observable<Immuble[]>{
+    const  url= `${this.baseUrlSite}/getImmubles/ofSite/${id}`;
+    return this.http.get<Immuble[]>(url)
+  }
+
+  getSalleOfEtage(id:number):Observable<Salle[]>{
+    const  url= `${this.baseUrlSite}/getSalle/ofEtage/${id}`;
+    return this.http.get<Salle[]>(url)
+  }
+
+
+  getEtageOfImmuble(id:number):Observable<Etage[]>{
+    const url =`${this.baseUrlSite}/etageg/byImmuble/${id}`;
+    return this.http.get<Etage[]>(url);
+  }
+
+  getSalleOfSite(id:number):Observable<Salle[]>{
+    const  url= `${this.baseUrlSite}/getSalle/ofSite/${id}`;
+    return this.http.get<Salle[]>(url).pipe(
+      catchError(error => {
+        return throwError(error);
+      })
+    );
+  }
+
+
 }

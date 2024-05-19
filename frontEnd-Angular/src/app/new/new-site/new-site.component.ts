@@ -40,7 +40,10 @@ export class NewSiteComponent implements OnInit {
     private planningService: PlanningServiceService,
     private dataser:PlanningdataserviceService,
     private route:Router
-  ) {}
+  ) {
+
+    dialogRef.disableClose = true;
+  }
 
   ngOnInit() {
     this.inputdata = this.data;
@@ -88,28 +91,36 @@ export class NewSiteComponent implements OnInit {
     const idCt = site.centreTechnique.id;
     this.id = site.id;
 
-
     // Vérifier si un site avec le même nom existe déjà
-    this.planningService.checkSiteNameUnique(site.name).subscribe(exists => {
-      if (exists) {
+    this.planningService.checkSiteNameUnique(site.name).subscribe(existsName => {
+      if (existsName) {
         // Gérer le cas où un site avec le même nom existe déjà
         this.showSnackBar('Ce site existe déjà. Veuillez choisir un autre nom.');
       } else {
-        // Ajouter le site
-        if (this.isMobileSite()) {
-          // Ajouter le site mobile
-          this.addMobileSite(site, idCt);
-          this.dataser.refreshSite();
-          this.close();
-        } else {
-          // Ajouter le site fixe
-          this.addFixeSite(site, idCt);
-          this.dataser.refreshSite();
-          this.close();
-        }
+        // Vérifier si un site avec le même code existe déjà
+        this.planningService.checkSiteCodeUnique(site.code).subscribe(existsCode => {
+          if (existsCode) {
+            // Gérer le cas où un site avec le même code existe déjà
+            this.showSnackBar('Ce code de site existe déjà. Veuillez choisir un autre code.');
+          } else {
+            // Ajouter le site
+            if (this.isMobileSite()) {
+              // Ajouter le site mobile
+              this.addMobileSite(site, idCt);
+              this.dataser.refreshSite();
+              this.close();
+            } else {
+              // Ajouter le site fixe
+              this.addFixeSite(site, idCt);
+              this.dataser.refreshSite();
+              this.close();
+            }
+          }
+        });
       }
     });
   }
+
 
 // Méthode pour afficher une snackbar
   showSnackBar(message: string) {

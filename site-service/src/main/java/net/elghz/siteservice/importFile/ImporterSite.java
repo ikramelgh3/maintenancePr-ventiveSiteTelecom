@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import net.elghz.siteservice.dtos.*;
 import net.elghz.siteservice.entities.*;
 import net.elghz.siteservice.enumeration.SiteType;
+import net.elghz.siteservice.enumeration.Statut;
 import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.mapper.equipementMapper;
 import net.elghz.siteservice.mapper.siteMapper;
