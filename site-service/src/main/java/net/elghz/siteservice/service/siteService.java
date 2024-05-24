@@ -132,7 +132,7 @@ public class siteService {
 //            Site s = smapper.from(site);
             site.setTypeSite("Mobile");
             //siteDTO dto =smapper.mapToSiteDTO(site);
-           // Site s = smapper.from(dto);
+            // Site s = smapper.from(dto);
             repo.save(site);
             return new ResponseEntity<>(site, HttpStatus.CREATED);
         }
@@ -146,13 +146,13 @@ public class siteService {
         CentreTechnique ct = ctRepo.findById(idCt).get();
 
 //            Site s = smapper.from(site);
-            site.setTypeSite("Mobile");
-            site.setCentreTechnique(ct);
-            //siteDTO dto =smapper.mapToSiteDTO(site);
-            // Site s = smapper.from(dto);
-            repo.save(site);
-            return smapper.fromMobile(site);
-        }
+        site.setTypeSite("Mobile");
+        site.setCentreTechnique(ct);
+        //siteDTO dto =smapper.mapToSiteDTO(site);
+        // Site s = smapper.from(dto);
+        repo.save(site);
+        return smapper.fromMobile(site);
+    }
 
     public SiteFixeDTO ajouterSiteFixe(SiteFixe site , Long idCt) {
         String siteName = site.getName();
@@ -196,8 +196,6 @@ public class siteService {
             throw new IllegalArgumentException("Type de site non pris en charge");
         }
     }
-
-
 
     public  boolean updateSiteFixe(SiteFixeDTO updatedSiteDTO){
 
@@ -388,14 +386,14 @@ public class siteService {
 
 
 
-public siteDTO findByNamr(String name){
+    public siteDTO findByNamr(String name){
         Optional<Site> s = repo.findByName(name);
         if(s.isPresent()){
             return smapper.from(s.get());
         }
         else
             return null;
-}
+    }
     public List<equipementDTO> getEquipementsOfSite(Long siteId) {
         Site site = repo.findById(siteId).orElseThrow(() -> new EntityNotFoundException("Site not found with id: " + siteId));
         List<equipement> equipements = new ArrayList<>();
@@ -428,15 +426,17 @@ public siteDTO findByNamr(String name){
     }
 
     public List<String> getCheminImagesSite(Long id ){
-         Site s= repo.findById(id).get();
-         return s.getPhotosImagePaths();
+        Site s= repo.findById(id).get();
+        return s.getPhotosImagePaths();
     }
 
 
-    public SiteFixeDTO updateSiteFixe(Long id, SiteFixe updatedSite) {
+    public SiteFixeDTO updateSiteFixe(Long id, SiteFixe updatedSite , Long idC) {
         SiteFixe existingSite = (SiteFixe) repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
         existingSite.setCode(updatedSite.getCode());
+        CentreTechnique tech =ctRepo.findById(idC).get();
+        existingSite.setCentreTechnique(tech);
         existingSite.setName(updatedSite.getName());
         existingSite.setTypeSite(updatedSite.getTypeSite());
         existingSite.setLatitude(updatedSite.getLatitude());
@@ -449,12 +449,13 @@ public siteDTO findByNamr(String name){
         repo.save(existingSite);
         return smapper.fromFixe(existingSite);
     }
-
-    public SiteMobileDTO updateSiteMobile(Long id, SiteMobile updatedSite) {
+    public SiteMobileDTO updateSiteMobile(Long id, SiteMobile updatedSite , Long idC) {
         SiteMobile existingSite = (SiteMobile) repo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Site not found with id: " + id));
         existingSite.setCode(updatedSite.getCode());
         existingSite.setName(updatedSite.getName());
+        CentreTechnique tech =ctRepo.findById(idC).get();
+        existingSite.setCentreTechnique(tech);
         existingSite.setTypeSite(updatedSite.getTypeSite());
         existingSite.setLatitude(updatedSite.getLatitude());
         existingSite.setLongitude(updatedSite.getLongitude());
@@ -470,8 +471,6 @@ public siteDTO findByNamr(String name){
         repo.save(existingSite);
         return smapper.fromMobile(existingSite);
     }
-
-
 
 
 }

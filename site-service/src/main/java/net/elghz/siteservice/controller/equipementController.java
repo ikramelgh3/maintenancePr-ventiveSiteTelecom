@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import net.elghz.siteservice.dtos.*;
 import net.elghz.siteservice.entities.*;
+import net.elghz.siteservice.enumeration.Statut;
 import net.elghz.siteservice.exception.ActiviteNotFoundException;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.export.SiteExcelExporter;
@@ -78,6 +79,13 @@ public class equipementController {
         return equipements;
     }
 
+    @GetMapping("/typeEqui/all")
+        public List<typeEquipementDTO> getAllType() {
+
+        return serv.getTypeEqui();
+    }
+
+
     @PostMapping("/equipement/add/{idType}/{idS}")
     public equipementDTO addEquipement(@RequestBody equipementDTO equipementDTO , @PathVariable Long idType , @PathVariable Long idS) {
 
@@ -108,7 +116,7 @@ public class equipementController {
     }
 
     @GetMapping ("equipement/etat/{name}")
-        public String getEtat(@PathVariable String name){
+        public Statut getEtat(@PathVariable String name){
         return  serv.etatEquipement(name);
         }
 
@@ -219,12 +227,12 @@ public class equipementController {
     }
 
 
-    @GetMapping("/findTypeEqui/{id}")
-    public typeEquipementDTO findTypeEquipemntById(@PathVariable Long id){
-
-        typeEquipement t= equirepo.findById(id).get();
-        return mapper.from(t);
-    }
+//    @GetMapping("/findTypeEqui/{id}")
+//    public typeEquipementDTO findTypeEquipemntById(@PathVariable Long id){
+//
+//        typeEquipement t= equirepo.findById(id).get();
+//        return mapper.from(t);
+//    }
 
     @PostMapping("/upload/picE/{idEq}")
     public List<PhotoEquipementDTO> uploadFilesEqui(@RequestParam("files") MultipartFile[] files, @PathVariable Long idEq) {
@@ -289,4 +297,42 @@ public class equipementController {
     public List<equipementDTO> getEquipementsByKeyword(@PathVariable String  keyword){
         return repo.findequipentsByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
     }
+
+
+
+//    @GetMapping("/find/byType/equipement/{name}")
+//    public  Optional<typeEquipement> findByName(@PathVariable  String name){
+//        return equirepo.findByName(name);
+//    }
+//    @PostMapping ("/add/type/equipement")
+//    public typeEquipement addTypeEquipement(@RequestBody typeEquipement type){ return  equirepo.save(type);}
+
+
+    @GetMapping("/findTypeEqui/{id}")
+    public typeEquipementDTO findTypeEquipemntById(@PathVariable Long id){
+
+
+        typeEquipement t = equirepo.findById(id).get();
+        return  mapper.from(t);
+
+    }
+
+    @GetMapping("/find/byType/equipement/{name}")
+    public Optional<typeEquipement> findByName(@PathVariable("name") String name){
+         return equirepo.findByName(name);
+    }
+
+    @PostMapping("/add/type/equipement")
+    public typeEquipement addTypeEquipement(@RequestBody typeEquipement type){
+
+     return equirepo.save(type);
+
+    }
+
+    @GetMapping("/findTypeEquimeent/{id}")
+    public typeEquipementDTO findTypeEquipemntByI(@PathVariable Long id){
+         typeEquipement t = equirepo.findById(id).get();
+         return  mapper.from(t);
+    }
+
 }

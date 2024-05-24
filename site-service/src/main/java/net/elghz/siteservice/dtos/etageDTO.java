@@ -16,7 +16,7 @@ public class etageDTO {
 
     private Long id;
     private int numeroEtage;
-    private String codeEtage;
+    private String codeEtagge;
     private immubleDTO immuble; // Référence à l'immuble associé
 
 }

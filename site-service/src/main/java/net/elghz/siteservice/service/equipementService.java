@@ -1,33 +1,32 @@
 package net.elghz.siteservice.service;
 
-import net.elghz.siteservice.dtos.SiteMobileDTO;
 import net.elghz.siteservice.dtos.equipementDTO;
+import net.elghz.siteservice.dtos.typeEquipementDTO;
 import net.elghz.siteservice.entities.*;
 import net.elghz.siteservice.enumeration.Statut;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.feign.checklistRestClient;
 import net.elghz.siteservice.mapper.equipementMapper;
-import net.elghz.siteservice.model.ChecklistDTO;
 import net.elghz.siteservice.repository.SalleRepo;
 import net.elghz.siteservice.repository.equipementRepo;
 import net.elghz.siteservice.repository.typeEquipementRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 @Service
 public class equipementService {
     private equipementRepo repo;
     private equipementMapper mapperEqui;
+
     private checklistRestClient restClient;
-   @Autowired
-   private typeEquipementRepo typeRepo;
-   @Autowired private SalleRepo srepo;
+    @Autowired
+    private typeEquipementRepo typeRepo;
+    @Autowired private SalleRepo srepo;
 
     public equipementService ( equipementRepo repo,   equipementMapper mapperEqui){
         this.repo= repo;
@@ -35,23 +34,29 @@ public class equipementService {
     }
     public Optional <equipementDTO> getEquipId(Long id) throws EquipementNotFoundException{
 
-       Optional<equipement>  eq = repo.findById(id);
-       if(eq.isPresent()) {
-           equipementDTO equipementDTO = mapperEqui.from(eq.get());
-           return Optional.of(equipementDTO) ;
-       }
-       else{
-           throw  new EquipementNotFoundException("Aucune equipement avec ce id :" +id);
-       }
+        Optional<equipement>  eq = repo.findById(id);
+        if(eq.isPresent()) {
+            equipementDTO equipementDTO = mapperEqui.from(eq.get());
+            return Optional.of(equipementDTO) ;
+        }
+        else{
+            throw  new EquipementNotFoundException("Aucune equipement avec ce id :" +id);
+        }
 
     }
 
     public List<equipementDTO> allEquipements() {
+        List<equipementDTO> dto = new ArrayList<>();
         List<equipement> equipements = repo.findAll(); // Récupérer tous les équipements
-        equipements.forEach(e -> e.getTypeEquipementt().getName()); // Assurez-vous que les types d'équipement sont chargés
-        return equipements.stream().map(mapperEqui::from).collect(Collectors.toList());
+            for(equipement e :equipements){
+                dto.add(mapperEqui.from(e));
+            }
+        return dto;
     }
 
+    public List<typeEquipementDTO> getTypeEqui(){
+        return typeRepo.findAll().stream().map(mapperEqui::from).collect(Collectors.toList());
+    }
 
     public boolean deleteById(Long id) {
         Optional<equipement> eqOptional = repo.findById(id);
@@ -77,7 +82,7 @@ public class equipementService {
             return null;
         }
         else {
-equipement dto = mapperEqui.from(a);
+            equipement dto = mapperEqui.from(a);
 
             dto.setTypeEquipementt(t);
             dto.setSalle(s);
@@ -91,7 +96,7 @@ equipement dto = mapperEqui.from(a);
 
         if (existingEquiOptional.isPresent()) {
             equipement dtoe= existingEquiOptional.get();
-           mapperEqui.update(updatedequi , dtoe );
+            mapperEqui.update(updatedequi , dtoe );
 
             repo.save(dtoe);
 
@@ -102,13 +107,13 @@ equipement dto = mapperEqui.from(a);
     }
     //afficher le statut d'un equipement
 
-    public String etatEquipement(String name){
+    public Statut etatEquipement(String name){
         Optional<equipement> r =repo.findByNom(name);
         if(r.isPresent()){
             return r.get().getStatut();
         }
         else
-            return "Aucune équipement n'existe avec ce nom :" +name;
+            return null;
     }
 
 
@@ -128,15 +133,15 @@ equipement dto = mapperEqui.from(a);
     }
 
     public  String localisationOfEquip(Long id){
-         equipement e = repo.findById(id).get();
-          e.getSalle().getEtage().getImmuble().getSite();
+        equipement e = repo.findById(id).get();
+        e.getSalle().getEtage().getImmuble().getSite();
 
-          int salleName = e.getSalle().getNumeroSalle();
-          int etape = e.getSalle().getEtage().getNumeroEtage();
-          String imm = e.getSalle().getEtage().getImmuble().getName();
-          String site = e.getSalle().getEtage().getImmuble().getSite().getName();
+        int salleName = e.getSalle().getNumeroSalle();
+        int etape = e.getSalle().getEtage().getNumeroEtage();
+        String imm = e.getSalle().getEtage().getImmuble().getName();
+        String site = e.getSalle().getEtage().getImmuble().getSite().getName();
 
-          return "Salle : "+salleName + ", Etage : "+ etape+ ", Immuble : "+imm + ", Site : " + site;
+        return "Salle : "+salleName + ", Etage : "+ etape+ ", Immuble : "+imm + ", Site : " + site;
     }
     public equipementDTO updateEquipement(Long id, equipement updatedSite , Long idType, Long idSalle) {
         // Vérifiez d'abord si le numéro de série ou le code de l'équipement mis à jour est déjà présent dans la base de données
@@ -174,11 +179,16 @@ equipement dto = mapperEqui.from(a);
     public  Boolean checkIfEquipementIsHorsService(Long id){
         equipement e = repo.findById(id).get();
         if(e.getStatut().equals("Hors service")){
-             return  true;
+            return  true;
         }
         else {
-             return false;
+            return false;
         }
+    }
+
+    public typeEquipementDTO findByName(String name){
+         typeEquipement t= typeRepo.findByName(name).get();
+         return  mapperEqui.from(t);
     }
 
 }

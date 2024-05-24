@@ -5,10 +5,12 @@ import lombok.NoArgsConstructor;
 import net.elghz.siteservice.dtos.CentreTechniqueDTO;
 import net.elghz.siteservice.entities.CentreTechnique;
 import net.elghz.siteservice.entities.DC;
+import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.exception.NotFoundException;
 import net.elghz.siteservice.mapper.CTMapper;
 import net.elghz.siteservice.repository.CTRepo;
 import net.elghz.siteservice.repository.DCRepo;
+import net.elghz.siteservice.repository.SiteRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,7 +26,18 @@ public class CTService {
     private CTRepo repo;
     private CTMapper ctMapper;
     private DCRepo dcRepo;
+     private SiteRepository srepo;
 
+
+    public void delete(CentreTechnique ct) {
+        List<Site> sites = ct.getSites();
+        for (Site s : sites) {
+            s.setCentreTechnique(null);
+            srepo.save(s);
+        }
+        ct.getSites().clear(); // Dissocier tous les sites du centre technique
+        repo.delete(ct);
+    }
 
 
 
@@ -143,6 +156,19 @@ public class CTService {
 
 
 
+    public CentreTechniqueDTO updateCentreTechnique(Long id, CentreTechnique c){
+        CentreTechnique ct = repo.findById(id).get();
+        ct.setName(c.getName());
+        ct.setDc(c.getDc());
+        repo.save(ct);
+       return ctMapper.from(ct);
+    }
+
+
+    public boolean checkIfCentreTechniqueExists(String name, Long dcId, Long drId) {
+        Optional<CentreTechnique> existingCentreTechnique = repo.findByNameAndDcAndDr(name, dcId, drId);
+        return existingCentreTechnique.isPresent();
+    }
 
 }
 

@@ -170,21 +170,21 @@ public class SalleService {
 
     public ResponseEntity<?> getAllEquipementFromSalle(int numSalle){
 
-       Optional<salle> optS= repo.findByNumeroSalle(numSalle);
+        Optional<salle> optS= repo.findByNumeroSalle(numSalle);
 
-       if(optS.isPresent()){
+        if(optS.isPresent()){
 
-           List<equipement > equipementDTOS = optS.get().getEquipementList();
-           List<equipementDTO> equipementDTOList = new ArrayList<>();
-           for(equipement e : equipementDTOS){
-               equipementDTO dto = eqmapper.fromEquipement(e);
-               equipementDTOList.add(dto);
+            List<equipement > equipementDTOS = optS.get().getEquipementList();
+            List<equipementDTO> equipementDTOList = new ArrayList<>();
+            for(equipement e : equipementDTOS){
+                equipementDTO dto = eqmapper.fromEquipement(e);
+                equipementDTOList.add(dto);
 
 
 
-           }
-           return  new ResponseEntity<>(equipementDTOList , HttpStatus.OK);
-       }
+            }
+            return  new ResponseEntity<>(equipementDTOList , HttpStatus.OK);
+        }
         return  new ResponseEntity<>("Aucune equipement avec ce numero: "+numSalle , HttpStatus.NOT_FOUND);
     }
 
@@ -192,14 +192,14 @@ public class SalleService {
 
     public ResponseEntity<?> getSalleOfEqui( String numSerie){
 
-       Optional<equipement>  opteq= eqrepo.findByNumeroSerie(numSerie);
-       if(opteq.isPresent()){
-           salle s = opteq.get().getSalle();
-           salleDTO sDTO = smapper.from(s);
+        Optional<equipement>  opteq= eqrepo.findByNumeroSerie(numSerie);
+        if(opteq.isPresent()){
+            salle s = opteq.get().getSalle();
+            salleDTO sDTO = smapper.from(s);
 
-           return
-                   new ResponseEntity<>(sDTO , HttpStatus.OK);
-       }
+            return
+                    new ResponseEntity<>(sDTO , HttpStatus.OK);
+        }
 
 
         return  new ResponseEntity<>("Aucube equipement avec ce numero de serie  :"+numSerie , HttpStatus.NOT_FOUND);
@@ -214,11 +214,11 @@ public class SalleService {
             for(immuble im: s.get().getImmubles()){
                 for(etage e: im.getEtageList()){
                     for(salle sal : e.getSalles()){
-                      List<equipement> ee=sal.getEquipementList();
-                      for(equipement equi : ee){
-                          equipementDTO dto = eqmapper.fromEquipement(equi);
-                          equipements.add(dto);
-                      }
+                        List<equipement> ee=sal.getEquipementList();
+                        for(equipement equi : ee){
+                            equipementDTO dto = eqmapper.fromEquipement(equi);
+                            equipements.add(dto);
+                        }
 
                     }
                 }
@@ -233,4 +233,3 @@ public class SalleService {
 
 
 }
-

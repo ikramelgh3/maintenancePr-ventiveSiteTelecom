@@ -20,7 +20,6 @@ public interface equipementRepo  extends JpaRepository<equipement,Long> {
     Optional<equipement> findByCode(String code);
     boolean existsByCodeAndIdIsNot(String code, Long id);
     boolean existsByNumeroSerieAndIdIsNot(String num, Long id);
-    @Query("SELECT c FROM equipement  c where  c.nom like %?1% OR c.code like %?1% OR c.numeroSerie like %?1% OR c.marque like %?1% OR c.salle.codeSalle like  %?1% or c.salle.etage.codeEtage like %?1% or c.salle.etage.immuble.name like  %?1% or c.salle.etage.immuble.site.name like %?1% or c.typeEquipementt.name like  %?1%")
+    @Query("SELECT c FROM equipement  c where  c.nom like %?1% OR c.code like %?1% OR c.numeroSerie like %?1% OR c.marque like %?1% OR c.salle.codeSalle like  %?1% or c.salle.etage.codeEtagge like %?1% or c.salle.etage.immuble.name like  %?1% or c.salle.etage.immuble.site.name like %?1% or c.typeEquipementt.name like  %?1%")
     public List<equipement> findequipentsByKeyword(String keyword );
 }
-

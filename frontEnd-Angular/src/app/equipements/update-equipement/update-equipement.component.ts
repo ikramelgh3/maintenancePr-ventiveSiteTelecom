@@ -168,7 +168,11 @@ codeEqui!:string
       console.log(this.codeEqui);
       this.checkIfExist( this.codeEqui,this.id );
     } else {
-      console.log('Le formulaire n\'est pas valide.');
+      this.snackBar.open('Veuillez remplir tous les champs', 'Fermer', {
+        duration: 8000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
     }
   }
   closePopup(){

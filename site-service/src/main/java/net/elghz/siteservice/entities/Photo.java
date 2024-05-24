@@ -17,6 +17,8 @@ public class Photo {
     private Long id;
     private String name;
     private String type;
+    @Lob
+    @Column(columnDefinition = "longblob")
     private byte[] picByte;
     private Date dateAjout;
     @ManyToOne @JoinColumn(name = "site_id")

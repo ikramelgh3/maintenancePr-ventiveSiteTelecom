@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class activiteController {
 
-   private ActiviteService ser;
+    private ActiviteService ser;
 
     @Autowired
     private ImporterSite importerSite;

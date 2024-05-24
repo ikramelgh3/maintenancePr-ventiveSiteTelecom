@@ -15,6 +15,6 @@ public class typeEquipement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-@OneToMany(mappedBy = "typeEquipementt")
+    @OneToMany(mappedBy = "typeEquipementt")
     private List<equipement> equipements;
 }

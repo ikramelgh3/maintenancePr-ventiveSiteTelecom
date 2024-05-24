@@ -41,20 +41,20 @@ public class siteController {
     private ImporterSite importerSite;
     @Autowired
     SiteRepository repo;
-@Autowired
+    @Autowired
     private attributeRepo arepo;
-@Autowired
+    @Autowired
     private CategorieRepo catRepo;
-@Autowired
+    @Autowired
     private siteMapper mapper;
-@Autowired
+    @Autowired
     private attributeMapper amapper;
- @Autowired
- categorieMapper catmapper;
+    @Autowired
+    categorieMapper catmapper;
 
- @Autowired private CTService ctService;
- @Autowired private DCService dcService;
- @Autowired private PhotoRepo photoRepo;
+    @Autowired private CTService ctService;
+    @Autowired private DCService dcService;
+    @Autowired private PhotoRepo photoRepo;
     public siteController(siteService serv) {
         this.serv = serv;
     }
@@ -67,7 +67,7 @@ public class siteController {
 
     @PostMapping("/ajouter/site/mobile/{idC}")
     public SiteMobileDTO addStMobile(@RequestBody SiteMobile s, @PathVariable Long idC){
-         return  serv.ajouterSiteMobile(s, idC);
+        return  serv.ajouterSiteMobile(s, idC);
     }
 
     @PostMapping("/ajouter/site/fixe/{idC}")
@@ -130,7 +130,7 @@ public class siteController {
 
 
         try {
-          return   importerSite.importSites(file.getInputStream() );
+            return   importerSite.importSites(file.getInputStream() );
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -142,22 +142,22 @@ public class siteController {
         }
     }
 
-/*
-    @PostMapping("/site/{siteId}/add-attribute/{attributeId}")
-    public ResponseEntity<?> addAttributeToSite(@PathVariable Long siteId, @PathVariable Long attributeId) {
-        return serv.addAttributeToSite(siteId, attributeId);
-    }
+    /*
+        @PostMapping("/site/{siteId}/add-attribute/{attributeId}")
+        public ResponseEntity<?> addAttributeToSite(@PathVariable Long siteId, @PathVariable Long attributeId) {
+            return serv.addAttributeToSite(siteId, attributeId);
+        }
 
-    @PostMapping("/site/{siteId}/remove-attribute/{attributeId}")
-    public ResponseEntity<?> removeAttributeFromSite(@PathVariable Long siteId, @PathVariable Long attributeId) {
-        return serv.removeAttributeFromSite(siteId, attributeId);
-    }
+        @PostMapping("/site/{siteId}/remove-attribute/{attributeId}")
+        public ResponseEntity<?> removeAttributeFromSite(@PathVariable Long siteId, @PathVariable Long attributeId) {
+            return serv.removeAttributeFromSite(siteId, attributeId);
+        }
 
-    @GetMapping("/site/{siteId}/attributes")
-    public ResponseEntity<?> getAttributesOfSite(@PathVariable Long siteId) {
-        return serv.getAttributesOfSite(siteId);
-    }
-*/
+        @GetMapping("/site/{siteId}/attributes")
+        public ResponseEntity<?> getAttributesOfSite(@PathVariable Long siteId) {
+            return serv.getAttributesOfSite(siteId);
+        }
+    */
     @PostMapping("/{ctId}/assign-site/{siteId}")
     public ResponseEntity<String> assignCentreToSite(@PathVariable Long ctId, @PathVariable Long siteId) throws NotFoundException {
         String message = serv.assignCentreTechniqueToSite(ctId, siteId);
@@ -190,7 +190,7 @@ public class siteController {
         Site site = mapper.from(s);
         setExtraImagesName(images, site);
         saveUplodedImages(images, site);
-         return "Les photos sont bien ajoutés au site: "+site.getName();
+        return "Les photos sont bien ajoutés au site: "+site.getName();
     }
     @GetMapping("/getPath/{idSite}")
     public List<String> getImagePath(@PathVariable Long idSite){
@@ -199,15 +199,15 @@ public class siteController {
     }
 
     private void saveUplodedImages(MultipartFile[] images, Site site) throws IOException {
-      if(images.length>0){
-          String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-          String uploadDir = "site-service/site-images/" +site.getId();
-          for(MultipartFile multipartFile: images){
-              if(multipartFile.isEmpty())continue;
-              String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-              FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
-          }
-      }
+        if(images.length>0){
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+            String uploadDir = "site-service/site-images/" +site.getId();
+            for(MultipartFile multipartFile: images){
+                if(multipartFile.isEmpty())continue;
+                String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+                FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+            }
+        }
     }
     private void setExtraImagesName(MultipartFile[] images, Site site) {
         if(images.length>0){
@@ -232,47 +232,47 @@ public class siteController {
 
             for (Photo multipartFile: images){
 
-                   site.removePhoto(multipartFile);
-                   multipartFile.setSite(null);
+                site.removePhoto(multipartFile);
+                multipartFile.setSite(null);
 
 
-                }
             }
         }
+    }
 
 
 
-        @GetMapping("/find/site/name/{name}")
-        public siteDTO getSiteByNamr(@PathVariable String name){
-         return serv.findByNamr(name);
-        }
+    @GetMapping("/find/site/name/{name}")
+    public siteDTO getSiteByNamr(@PathVariable String name){
+        return serv.findByNamr(name);
+    }
 
 
 
-        @GetMapping("/equipements/ofSITE/{id}")
+    @GetMapping("/equipements/ofSITE/{id}")
     public  List<equipementDTO> getEquiOfSite(@PathVariable Long id){
         return serv.getEquipementsOfSite(id);
-        }
+    }
 
-        @GetMapping("/get/immubles/site/{id}")
+    @GetMapping("/get/immubles/site/{id}")
     public List<immubleDTO> getImmubleOfSite(@PathVariable Long id){
         return serv.getImmublesOfSite(id);
-        }
+    }
 
-        @GetMapping("/get/size/sites")
+    @GetMapping("/get/size/sites")
     public int getNombreSites(){
-         return  serv.allSites().size();
-        }
+        return  serv.allSites().size();
+    }
 
-        @GetMapping("/get/photos/{id}")
-        public List<PhotoDTO> getPhotosSite(@PathVariable Long id){
-         return  serv.getPhotosOfSite(id);
-        }
+    @GetMapping("/get/photos/{id}")
+    public List<PhotoDTO> getPhotosSite(@PathVariable Long id){
+        return  serv.getPhotosOfSite(id);
+    }
 
-         @GetMapping("/get/imagePath/{id}")
+    @GetMapping("/get/imagePath/{id}")
     public List<String> imagesPathSite(@PathVariable Long id){
-         return serv.getCheminImagesSite(id);
-         }
+        return serv.getCheminImagesSite(id);
+    }
 
 
 
@@ -291,6 +291,7 @@ public class siteController {
                 fileEntity.setName(file.getOriginalFilename());
                 fileEntity.setType(file.getContentType());
                 fileEntity.setPicByte(file.getBytes());
+                System.out.println("size"+file.getBytes());
                 fileEntity.setDateAjout(new Date());
                 photoRepo.save(fileEntity);
                 uploadedPhotos.add(fileEntity);
@@ -390,7 +391,7 @@ public class siteController {
     public String deleteFile(@PathVariable Long id) {
         Photo fileEntity = photoRepo.findById(id).orElse(null);
         if (fileEntity != null) {
-           photoRepo.deleteById(id);
+            photoRepo.deleteById(id);
             return "La photo est supprime";
         } else {
             return "Aucune photo avec ce id";
@@ -409,20 +410,26 @@ public class siteController {
         return exists;
     }
 
+    @GetMapping("/existsbyCode/{code}/{name}")
+    public Boolean checkSiteExistsCode(@PathVariable String code, @PathVariable String name) {
+        boolean exists = repo.existsByCodeAndName(code , name);
+        return exists;
+    }
 
-    @PutMapping("/updatte/siteFixe/{id}")
-    public SiteFixeDTO updateSiteFixe(@PathVariable Long id, @RequestBody SiteFixe updatedSite) {
+
+    @PutMapping("/updatte/siteFixe/{id}/{idC}")
+    public SiteFixeDTO updateSiteFixe(@PathVariable Long id, @RequestBody SiteFixe updatedSite , @PathVariable Long idC) {
         try {
-            SiteFixeDTO site = serv.updateSiteFixe(id, updatedSite);
+            SiteFixeDTO site = serv.updateSiteFixe(id, updatedSite, idC);
             return site;
         } catch (RuntimeException e) {
             return null;
         }
     }
-    @PutMapping("/update/siteMobile/{id}")
-    public SiteMobileDTO updateSiteMobile(@PathVariable Long id, @RequestBody SiteMobile updatedSite) {
+    @PutMapping("/update/siteMobile/{id}/{idC}")
+    public SiteMobileDTO updateSiteMobile(@PathVariable Long id, @RequestBody SiteMobile updatedSite , @PathVariable Long idC) {
         try {
-            SiteMobileDTO site = serv.updateSiteMobile(id, updatedSite);
+            SiteMobileDTO site = serv.updateSiteMobile(id, updatedSite , idC);
             return site;
         } catch (RuntimeException e) {
             return null;
@@ -432,24 +439,24 @@ public class siteController {
 
     @GetMapping("/getImageOfSite/{id}")
     public  List<PhotoDTO> getPhotos(@PathVariable Long id){
-         Site s = repo.findById(id).get();
-         return  s.getPhotos().stream().map(mapper::from).collect(Collectors.toList());
+        Site s = repo.findById(id).get();
+        return  s.getPhotos().stream().map(mapper::from).collect(Collectors.toList());
     }
 
     @DeleteMapping("delete/pic/{id}")
     public void deletePicSite(@PathVariable Long id){
-         Photo p = photoRepo.findById(id).get();
-         photoRepo.deleteById(id);
+        Photo p = photoRepo.findById(id).get();
+        photoRepo.deleteById(id);
 
     }
     @GetMapping("/getTotal")
     public  int getTot(){
-         return  repo.findAll().size();
+        return  repo.findAll().size();
     }
 
     @GetMapping ("/findSite/byKeyword/{keyword}")
     public List<siteDTO> getSitesByKeyword(@PathVariable String  keyword){
-         return repo.findSitesByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
+        return repo.findSitesByKeyword(keyword).stream().map(mapper::from).collect(Collectors.toList());
     }
 
     @GetMapping("/existeSite/{code}/{id}")
@@ -464,21 +471,21 @@ public class siteController {
 
     @GetMapping("/getImmubles/ofSite/{id}")
     public List<immubleDTO> getImmublesOfSite(@PathVariable Long id){
-         return  repo.findById(id).get().getImmubles().stream().map(mapper::from).collect(Collectors.toList());
+        return  repo.findById(id).get().getImmubles().stream().map(mapper::from).collect(Collectors.toList());
     }
 
     @GetMapping("/getSalle/ofSite/{id}")
     public List<salleDTO> getSalleOfSite(@PathVariable Long id){
-         Site s = repo.findById(id).get();
-         List<salle> sl= new ArrayList<>();
-         List<immuble> immubleDTOS = s.getImmubles();
-         for(immuble im:immubleDTOS){
-             List<etage> et=  im.getEtageList();
-             for(etage e :et){
-                  sl= e.getSalles();
-             }
-         }
-         return  sl.stream().map(mapper::from).collect(Collectors.toList());
+        Site s = repo.findById(id).get();
+        List<salle> sl= new ArrayList<>();
+        List<immuble> immubleDTOS = s.getImmubles();
+        for(immuble im:immubleDTOS){
+            List<etage> et=  im.getEtageList();
+            for(etage e :et){
+                sl= e.getSalles();
+            }
+        }
+        return  sl.stream().map(mapper::from).collect(Collectors.toList());
     }
 
 }

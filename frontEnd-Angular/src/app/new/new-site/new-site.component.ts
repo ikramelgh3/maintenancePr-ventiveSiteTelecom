@@ -90,9 +90,7 @@ export class NewSiteComponent implements OnInit {
     const site: Site = this.addSite.value;
     const idCt = site.centreTechnique.id;
     this.id = site.id;
-
-    // Vérifier si un site avec le même nom existe déjà
-    this.planningService.checkSiteNameUnique(site.name).subscribe(existsName => {
+    this.planningService.checkSiteNameUnique(site.code,site.name).subscribe(existsName => {
       if (existsName) {
         // Gérer le cas où un site avec le même nom existe déjà
         this.showSnackBar('Ce site existe déjà. Veuillez choisir un autre nom.');

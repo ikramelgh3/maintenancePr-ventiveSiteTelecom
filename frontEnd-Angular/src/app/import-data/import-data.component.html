@@ -3,12 +3,92 @@
   <mat-stepper>
 
     <mat-step>
-      <ng-template matStepLabel > Importer les referentiels des sites </ng-template>
-      <div>
-        <h2>Importer les données des centres techniques</h2>
+      <ng-template matStepLabel > Importer les centres techniques </ng-template>
+      <div *ngIf="displayImport">
+        <div style="display: flex; align-items: center;">
+          <p style="color: #072f5f; flex: 1;">Charger ici votre fichier de données sous format Excel</p>
+          <button mat-raised-button color="primary" style="margin-left: 16px;" (click)="addCT()" >Ajouter un centre technique</button>
+        </div>
+
+        <div >
+
+          <br>
+          <div mat-dialog-content>
+            <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
+            <br>
+            <div style="text-align: right; margin-top: 20px;">
+              <button mat-raised-button (click)="uploadFileCT(fileInput)"  style="color: black; margin-right: 8px; background-color: #6495ED">Charger</button>
+              <button mat-raised-button  matStepperNext style="background-color: #999999;">Suivant</button>
+            </div>
+
+            <div *ngIf="cliq">
+              <p> Pour consulter les centres techniques veuillez <a (click)="showTable()"  style="cursor: pointer;color: #6495ED"> cliquer ici</a></p>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
 
+      <div >
+        <div class="mat-elevation-z8" *ngIf="shoWTable">
+          <table mat-table [dataSource]="dataSource">
+
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef> ID </th>
+              <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            </ng-container>
+
+            <!-- DR Column -->
+            <ng-container matColumnDef="dr">
+              <th mat-header-cell *matHeaderCellDef> DR </th>
+              <td mat-cell *matCellDef="let element"> {{element.dc?.dr?.id}} </td>
+
+            </ng-container>
+
+            <!-- DC Column -->
+            <ng-container matColumnDef="dc">
+              <th mat-header-cell *matHeaderCellDef> DC </th>
+              <td mat-cell *matCellDef="let element"> {{element.dc?.name}} </td>
+            </ng-container>
+
+            <!-- Centre technique Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Centre technique </th>
+              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef> Action </th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-raised-button color="primary" (click)="edit(row)">
+                  <mat-icon aria-hidden="false" fontIcon="edit"></mat-icon>
+                </button>
+                &nbsp;
+                <button mat-raised-button color="warn" (click)="deleteCT(row)">
+                  <mat-icon aria-hidden="false" fontIcon="delete"></mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                         showFirstLastButtons
+                         aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+      </div>
+
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel > Importer Sites </ng-template>
       <div>
         <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
         <br>
@@ -28,30 +108,8 @@
       </div>
 
     </mat-step>
-
     <mat-step>
-    <ng-template matStepLabel > Importer Sites </ng-template>
-      <div>
-        <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
-        <br>
-        <div mat-dialog-content>
-          <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
-          <br>
-          <div style="text-align: right; margin-top: 20px;">
-            <button mat-raised-button (click)="uploadFileSites(fileInput)"  style="color: black; margin-right: 8px; background-color: #6495ED">Charger</button>
-            <button mat-raised-button  matStepperNext style="background-color: #999999;">Suivant</button>
-          </div>
-        </div>
-
-      </div>
-
-      <div *ngIf="siteSucc">
-        <p> Pour consulter les sites importés veuillez <a routerLink="/Sites"> cliquer ici</a></p>
-      </div>
-
-    </mat-step>
-    <mat-step>
-    <ng-template matStepLabel > Importer Equipements </ng-template>
+      <ng-template matStepLabel > Importer Equipements </ng-template>
       <div *ngIf="siteSucc">
         <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
         <br>
@@ -68,33 +126,102 @@
 
       </div>
 
-      <div *ngIf="!siteSucc">
+      <div *ngIf="showImprtEquip">
         <p>Veuillez d'abord importer les sites!!!</p>
         <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button>
       </div>
 
 
 
-      <div *ngIf="eqSucc">
-        <p> Pour consulter les équipements importés veuillez <a routerLink="/equipements"> cliquer ici</a></p>
+      <div *ngIf="affiche">
+        <p> Pour consulter les équipements importés veuillez <a routerLink="/Equipements"> cliquer ici</a></p>
       </div>
     </mat-step>
+
     <mat-step>
-    <ng-template matStepLabel > Importer Checklists </ng-template>
-      <div>
-        <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
+
+      <ng-template matStepLabel>Importer Checklists</ng-template>
+      <div >
+        <div style="display: flex; align-items: center;">
+          <p style="color: #072f5f; flex: 1;">Charger ici votre fichier de données sous format Excel</p>
+          <button mat-raised-button color="primary" style="margin-left: 16px;" (click)="addChecklist()" >Ajouter une checklist</button>
+        </div>
         <br>
         <div mat-dialog-content>
           <input placeholder="Sélectionnez un fichier" type="file" #fileInput >
           <br>
           <div style="text-align: right; margin-top: 20px;">
-            <button mat-raised-button   style="color: black; margin-right: 8px; background-color: #6495ED">Charger</button>
-            <button mat-raised-button  style="background-color: #999999;">Annuler</button>
+            <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button> &nbsp;
+            <button mat-raised-button style="color: black; margin-right: 8px; background-color: #6495ED" (click)="uploadChecklist(fileInput)">Charger</button>
+
           </div>
         </div>
 
       </div>
-      <button mat-button matStepperPrevious> Previous</button>
+
+      <div *ngIf="afficheTableChecklist">
+        <p> Pour consulter les checklists importés veuillez <a (click)="showTableChecklist()"  style="cursor: pointer;color: #6495ED"> cliquer ici</a></p>
+      </div>
+
+
+      <div >
+        <div class="mat-elevation-z8" *ngIf="showchek">
+          <table mat-table [dataSource]="dataSource1">
+
+
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef> ID </th>
+              <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Groupe">
+              <th mat-header-cell *matHeaderCellDef> Groupe </th>
+              <td mat-cell *matCellDef="let element"> {{element.typeEquipent.name}} </td>
+
+            </ng-container>
+
+            <!-- DC Column -->
+            <ng-container matColumnDef="Point de mesure">
+              <th mat-header-cell *matHeaderCellDef> Point de mesure </th>
+              <td mat-cell *matCellDef="let element"> {{element.attribut}} </td>
+            </ng-container>
+
+            <!-- Centre technique Column -->
+            <ng-container matColumnDef="Résultat">
+              <th mat-header-cell *matHeaderCellDef>Résultat </th>
+              <td mat-cell *matCellDef="let element"> {{element.resultatsPossibles}} </td>
+            </ng-container>
+
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef> Action </th>
+              <td mat-cell *matCellDef="let row">
+                <button mat-raised-button color="primary" (click)="editPointMesure(row)">
+                  <mat-icon aria-hidden="false" fontIcon="edit"></mat-icon>
+                </button>
+                &nbsp;
+                <button mat-raised-button color="warn" (click)="deleteChecklist(row)">
+                  <mat-icon aria-hidden="false" fontIcon="delete"></mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                         showFirstLastButtons
+                         aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+      </div>
     </mat-step>
   </mat-stepper>
+
+
+ <mat-spinner *ngIf="showSpinner" style="left: 450px; top: -180px"> </mat-spinner>
+
+
 </div>
+

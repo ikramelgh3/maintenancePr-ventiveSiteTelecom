@@ -25,7 +25,7 @@ public class siteFixeMapper {
         site.setName(dto.getName());
         site.setAddresse(dto.getAddresse());
         site.setCode(dto.getCode());
-       // site.setCentreTechnique(dto.getCentreTechnique());
+        // site.setCentreTechnique(dto.getCentreTechnique());
         site.setLatitude(dto.getLatitude());
         site.setLongitude(dto.getLongitude());
         site.setPresenceGESecours(dto.getPresenceGESecours());
@@ -34,12 +34,12 @@ public class siteFixeMapper {
 
 
         if (dto.getTypeactivites() != null) {
-        Set<TypeActivite> typeActivites = new HashSet<>();
-        for (typeActiviteDTO typeActiviteDTO : dto.getTypeactivites()) {
-            typeActivites.add(typeActiviteMapper.from(typeActiviteDTO));
+            Set<TypeActivite> typeActivites = new HashSet<>();
+            for (typeActiviteDTO typeActiviteDTO : dto.getTypeactivites()) {
+                typeActivites.add(typeActiviteMapper.from(typeActiviteDTO));
+            }
+            site.setTypeactivites(typeActivites);
         }
-        site.setTypeactivites(typeActivites);
-    }
 /*
         if (dto.getPhotos() != null) {
         List<Photo> photos = new ArrayList<>();
@@ -49,5 +49,3 @@ public class siteFixeMapper {
         //site.setPhotos(photos);
     }
 }
-
-

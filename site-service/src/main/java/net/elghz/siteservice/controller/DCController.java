@@ -4,6 +4,9 @@ import net.elghz.siteservice.dtos.CentreTechniqueDTO;
 import net.elghz.siteservice.dtos.DCDTO;
 import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.mapper.DCMapper;
+import net.elghz.siteservice.mapper.siteMapper;
+import net.elghz.siteservice.repository.DCRepo;
 import net.elghz.siteservice.service.DCService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,10 +14,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class DCController {
     @Autowired private  DCService dcService;
+
+    @Autowired private DCRepo repo;
+
+    @Autowired
+    DCMapper mp;
+    @GetMapping("/Dc/{id}")
+    public DC getDCByid(@PathVariable Long id) {
+        return repo.findById(id).get();
+    }
 
     @GetMapping("/DC/{id}")
     public ResponseEntity<?> getDCById(@PathVariable Long id) {
@@ -84,14 +97,9 @@ public class DCController {
     }
 
     @GetMapping("/dc/bydr/{drId}")
-    public ResponseEntity<?> getDCsByDR(@PathVariable Long drId) {
-        try {
-            List<DC> dcList = dcService.getDCsByDR(drId);
-            return ResponseEntity.ok(dcList);
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+    public List<DCDTO> getDCByDR(@PathVariable Long drId) throws NotFoundException {
+       return dcService.getDCsByDR(drId).stream().map(mp::from).collect(Collectors.toList());}
+
 
     @GetMapping("/dc/dr/{dcId}")
     public ResponseEntity<?> getDRByDCId(@PathVariable Long dcId) {

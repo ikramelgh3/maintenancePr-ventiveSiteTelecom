@@ -21,13 +21,12 @@ public class equipementMapper {
     public equipement from (equipementDTO   equipementDTO){
         return modelMapper.map(equipementDTO,equipement.class);
     }
-
     public typeEquipementDTO from (typeEquipement e){
         return modelMapper.map(e, typeEquipementDTO.class);
     }
 
-    public typeEquipement from (typeEquipementDTO   siteDTO){
-        return modelMapper.map(siteDTO,typeEquipement.class);
+    public typeEquipement from (typeEquipementDTO   equipementDTO){
+        return modelMapper.map(equipementDTO,typeEquipement.class);
     }
 
     public PhotoEquipementDTO from (PhotoEquipement e){

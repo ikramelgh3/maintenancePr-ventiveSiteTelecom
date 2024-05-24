@@ -1,0 +1,33 @@
+<div style="margin-left: 20px; margin-top: 10px">
+  <h2>Modifier le point de mesure ID: {{ data.pointMesure.id}}</h2>
+  <div style="height: 3px; background-color: #072f5f; margin-top: -20px"></div>
+</div>
+<br><br>
+<div class="content" style="padding: 20px;" [formGroup]="updateForm">
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Point de mesure </mat-label>
+      <input matInput type="text" formControlName="attribut" required>
+      <mat-error *ngIf="updateForm.get('attribut')!.invalid">Veuillez remplir le champs</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Groupe</mat-label>
+      <input matInput type="text" formControlName="typeEquipent"  readonly>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Résultat</mat-label>
+      <input matInput type="text" formControlName="resultatsPossibles" required>
+      <mat-error *ngIf="updateForm.get('attribut')!.invalid">Veuillez remplir le champs</mat-error>
+    </mat-form-field>
+  </div>
+
+
+</div>
+<div mat-dialog-actions style="background-color: #6495ED; display: flex; justify-content: flex-end;">
+  <button mat-raised-button style="margin-left: auto;" (click)="onCancel()">Annuler</button>
+  <button mat-raised-button class="custom-blue"  (click)="updateCT()" [disabled]="updateForm.invalid">Modifier</button>
+</div>

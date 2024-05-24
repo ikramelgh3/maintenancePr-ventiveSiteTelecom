@@ -12,10 +12,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Table(name = "dr", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public class DR {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
+    @Column(unique = true, nullable = false)
     private String name;
     @OneToMany (mappedBy = "dr" , cascade = CascadeType.ALL)
     List<DC> dcList = new ArrayList<>();

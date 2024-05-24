@@ -25,4 +25,6 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     boolean existsByCode(String name);
 
     Boolean existsByNameAndIdIsNot(String name, Long id);
+
+    boolean existsByCodeAndName(String code, String name);
 }

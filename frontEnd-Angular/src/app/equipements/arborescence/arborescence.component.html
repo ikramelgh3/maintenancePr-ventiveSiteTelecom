@@ -23,7 +23,7 @@
 
           <mat-expansion-panel-header>
             <mat-panel-title>
-              {{ immuble.name }}
+              {{ immuble.codeImmuble }}
             </mat-panel-title>
           </mat-expansion-panel-header>
           <div *ngIf="clicEtage">
@@ -31,7 +31,7 @@
               <mat-expansion-panel *ngFor="let etage of etage" (click)="toggleRoom(etage.id);$event.stopPropagation()">
                 <mat-expansion-panel-header>
                   <mat-panel-title>
-                    {{ etage.id }}
+                    {{ etage.codeEtagge }}
                   </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div *ngIf="clicSalle">

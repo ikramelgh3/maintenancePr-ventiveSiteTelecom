@@ -1,3 +1,4 @@
+
 package net.elghz.siteservice.entities;
 
 import jakarta.persistence.*;
@@ -42,7 +43,7 @@ public  class Site {
 
     @ManyToMany (cascade = CascadeType.ALL)
     @JoinTable(name = "site_activite" ,joinColumns = @JoinColumn(name = "site_id"),
-    inverseJoinColumns = @JoinColumn(name = "activite_id"))
+            inverseJoinColumns = @JoinColumn(name = "activite_id"))
     private Set<TypeActivite> typeactivites = new HashSet<>();
    /* @ManyToMany(cascade = CascadeType.ALL)
 
@@ -132,7 +133,7 @@ public  class Site {
         this.setName(dto.getName());
         this.setAddresse(dto.getAddresse());
         this.setCode(dto.getCode());
-       //this.setCentreTechnique(dto.getCentreTechnique());
+        //this.setCentreTechnique(dto.getCentreTechnique());
         this.setLatitude(dto.getLatitude());
         this.setLongitude(dto.getLongitude());
         this.setPresenceGESecours(dto.getPresenceGESecours());

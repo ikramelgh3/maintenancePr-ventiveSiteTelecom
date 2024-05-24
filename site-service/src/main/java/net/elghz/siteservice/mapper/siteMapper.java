@@ -86,45 +86,45 @@ public class siteMapper {
 
 
 
-    public void update(siteDTO dto, Site site) {
-        site.setName(dto.getName());
-        site.setAddresse(dto.getAddresse());
-        site.setCode(dto.getCode());
-       // site.setCentreTechnique(dto.getCentreTechnique());
-        site.setLatitude(dto.getLatitude());
-        site.setLongitude(dto.getLongitude());
-        site.setPresenceGESecours(dto.getPresenceGESecours());
-        site.setTypeInstallation(dto.getTypeInstallation());
-        site.setTypeAlimentation(dto.getTypeAlimentation());
-
-        //site.setType(dto.getType());
-/*
-        if (dto.getAttributs() != null) {
-            Set<Attribute> attributs = new HashSet<>();
-            for (attributeDTO attributDTO : dto.getAttributs()) {
-                attributs.add(modelMapper.map(attributDTO, Attribute.class));
-            }
-            site.setAttributs(attributs);
-        }
-*/
-
-
-        if (dto.getTypeactivites() != null) {
-            Set<TypeActivite> typeActivites = new HashSet<>();
-            for (typeActiviteDTO typeActiviteDTO : dto.getTypeactivites()) {
-                typeActivites.add(typeActiviteMapper.from(typeActiviteDTO));
-            }
-            site.setTypeactivites(typeActivites);
-        }
+//    public void update(siteDTO dto, Site site) {
+//        site.setName(dto.getName());
+//        site.setAddresse(dto.getAddresse());
+//        site.setCode(dto.getCode());
+//       // site.setCentreTechnique(dto.getCentreTechnique());
+//        site.setLatitude(dto.getLatitude());
+//        site.setLongitude(dto.getLongitude());
+//        site.setPresenceGESecours(dto.getPresenceGESecours());
+//        site.setTypeInstallation(dto.getTypeInstallation());
+//        site.setTypeAlimentation(dto.getTypeAlimentation());
 //
-//        if (dto.getPhotos() != null) {
-//            List<Photo> photos = new ArrayList<>();
-//            for (PhotoDTO photoDTO : dto.getPhotos()) {
-//                photos.add(modelMapper.map(photoDTO, Photo.class));
+//        //site.setType(dto.getType());
+///*
+//        if (dto.getAttributs() != null) {
+//            Set<Attribute> attributs = new HashSet<>();
+//            for (attributeDTO attributDTO : dto.getAttributs()) {
+//                attributs.add(modelMapper.map(attributDTO, Attribute.class));
 //            }
-//            site.setPhotos(photos);
+//            site.setAttributs(attributs);
 //        }
-    }
+//*/
+//
+//
+//        if (dto.getTypeactivites() != null) {
+//            Set<TypeActivite> typeActivites = new HashSet<>();
+//            for (typeActiviteDTO typeActiviteDTO : dto.getTypeactivites()) {
+//                typeActivites.add(typeActiviteMapper.from(typeActiviteDTO));
+//            }
+//            site.setTypeactivites(typeActivites);
+//        }
+////
+////        if (dto.getPhotos() != null) {
+////            List<Photo> photos = new ArrayList<>();
+////            for (PhotoDTO photoDTO : dto.getPhotos()) {
+////                photos.add(modelMapper.map(photoDTO, Photo.class));
+////            }
+////            site.setPhotos(photos);
+////        }
+//    }
 
 }
 

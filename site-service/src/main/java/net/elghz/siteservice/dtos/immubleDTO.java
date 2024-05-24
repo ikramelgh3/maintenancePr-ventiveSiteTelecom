@@ -14,6 +14,7 @@ public class immubleDTO {
     private Long id;
     private String name;
     private String addr;
+    private String codeImmuble;
     private siteDTO site; // Référence au site associé
 
 }

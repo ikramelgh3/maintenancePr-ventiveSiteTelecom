@@ -150,7 +150,7 @@ idSite!:number
           if (!data) {
             console.log("name bien");
 
-            this.planningService.updateSiteFixe(this.idSite, updatedSiteFixeData).subscribe(
+            this.planningService.updateSiteFixe(this.idSite, updatedSiteFixeData ,updatedSiteFixeData.centreTechnique.id).subscribe(
               (site) => {
                 this.close();
                 // Afficher une notification de succès
@@ -196,7 +196,7 @@ idSite!:number
     // Récupérer les données du formulaire pour le site mobile
     const updatedSiteMobileData = this.updateForm.value; // Modifier en fonction de vos champs
 
-    this.planningService.updateSiteMobile(this.idSite, updatedSiteMobileData).subscribe(
+    this.planningService.updateSiteMobile(this.idSite, updatedSiteMobileData , updatedSiteMobileData.centreTechnique.id).subscribe(
       (site) => {
         this.close();
 

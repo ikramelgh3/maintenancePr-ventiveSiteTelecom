@@ -27,20 +27,29 @@
 
         <ng-container *ngFor="let eq of equipements | paginate: {itemsPerPage:4 , currentPage:p}" >
           <div >
+
             <a mat-list-item style="height: 100px; width: 500px; background-color: white; cursor: pointer; display: block; text-decoration: none;"
                onmouseover="this.style.backgroundColor='#f0f0f0';"
                onmouseout="this.style.backgroundColor='white';"  (click)="getEquipementById(eq.id)">
+
+
               <div>
                 <div mat-line style="font-size: 14px; color: #999;">#{{ eq.id }}</div>
                 <div mat-line style="font-size: 18px; color: #333;">{{ eq.nom }}</div></div>
               <div  style="display: flex; align-items: center;">
                 <div mat-line style="font-size: 16px; color: #333;">{{ eq.typeEquipementt.name }}</div>
                 <div mat-line style="font-size: 16px; color: #072f5f; margin-left: auto; margin-right: 20px"> <span [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(eq.statut) }" > {{ eq.statut }}</span></div>
-
               </div>
-              <div mat-line style="font-size: 16px; color: #072f5f;">Salle: {{eq.salle.codeSalle }}, Etage: {{eq.salle.etage.numeroEtage}}, Immeuble: {{eq.salle.etage.immuble.name}}, Site: {{eq.salle.etage.immuble.site.name}}</div>
+              <div mat-line style="font-size: 16px; color: #072f5f;">
+                Salle: {{ eq.salle?.codeSalle }},
+                Etage: {{ eq.salle?.etage?.codeEtagge }},
+                Immeuble: {{ eq.salle?.etage?.immuble?.codeImmuble }},
+                Site: {{ eq.salle?.etage?.immuble?.site?.name }}
+              </div>
+
 
             </a>
+
 
           </div>
 

@@ -2,7 +2,10 @@ package net.elghz.siteservice.controller;
 
 import net.elghz.siteservice.dtos.DCDTO;
 import net.elghz.siteservice.dtos.DRDTO;
+import net.elghz.siteservice.entities.DC;
+import net.elghz.siteservice.entities.DR;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.repository.DRRepo;
 import net.elghz.siteservice.service.DCService;
 import net.elghz.siteservice.service.DRService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,12 @@ import java.util.List;
 public class DRController {
     @Autowired private DRService dRService;
 
+@Autowired private DRRepo repo;
+
+    @GetMapping("/Dr/{id}")
+    public DR getDRById(@PathVariable Long id) {
+        return  repo.findById(id).get();
+    }
     @GetMapping("/DR/{id}")
     public ResponseEntity<?> getDCById(@PathVariable Long id) {
         try {

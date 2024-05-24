@@ -2,25 +2,44 @@ package net.elghz.siteservice.controller;
 
 import net.elghz.siteservice.dtos.CentreTechniqueDTO;
 import net.elghz.siteservice.dtos.DCDTO;
+import net.elghz.siteservice.dtos.siteDTO;
 import net.elghz.siteservice.entities.CentreTechnique;
 import net.elghz.siteservice.entities.DC;
+import net.elghz.siteservice.entities.DR;
 import net.elghz.siteservice.exception.NotFoundException;
+import net.elghz.siteservice.importFile.ImporterSite;
+import net.elghz.siteservice.importFile.importerCentre;
+import net.elghz.siteservice.repository.CTRepo;
+import net.elghz.siteservice.repository.DCRepo;
+import net.elghz.siteservice.repository.DRRepo;
+import net.elghz.siteservice.repository.SiteRepository;
 import net.elghz.siteservice.service.CTService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class centreTechniqueController {
 
-
+@Autowired
+CTRepo repo;
     @Autowired
     private CTService centreTechniqueService;
+    @Autowired
+    private importerCentre importeCentre;
 
+    @Autowired
+    DCRepo dcRepo;
+    @Autowired
+    DRRepo drRepo;
     @GetMapping("/CT/{id}")
     public CentreTechniqueDTO getCentreTechniqueById(@PathVariable Long id) {
         try {
@@ -48,14 +67,15 @@ public class centreTechniqueController {
         return centreTechniqueDTOs;
     }
 
+    @DeleteMapping("/CT")
+    public void deleteCentreTechnique(@RequestBody CentreTechnique id) {
+        centreTechniqueService.delete(id);
+
+    }
     @DeleteMapping("/CT/{id}")
-    public ResponseEntity<String> deleteCentreTechniqueById(@PathVariable Long id) {
-        boolean deleted = centreTechniqueService.deleteById(id);
-        if (deleted) {
-            return ResponseEntity.ok("Centre technique supprimé avec succès.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Centre technique non trouvé avec l'ID: " + id);
-        }
+    public void deleteCentreTechniqueById(@PathVariable Long id) {
+        centreTechniqueService.deleteById(id);
+
     }
 
     @PostMapping("/CT/add")
@@ -122,5 +142,56 @@ public class centreTechniqueController {
         }
     }
 
+    @PostMapping("/import-ct")
+    public List<CentreTechniqueDTO> importSites(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return null;
+        }
+
+
+        try {
+            return   importeCentre.importCentreTechniques(file.getInputStream() );
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+
+        } catch (DataIntegrityViolationException ex) {
+            return new ArrayList<>();
+
+        }
+    }
+
+
+
+    @PutMapping("/update/centre/{id}")
+    public CentreTechniqueDTO updateCt(@PathVariable Long id , @RequestBody CentreTechnique c){
+         return  centreTechniqueService.updateCentreTechnique(id, c);
+    }
+
+    @GetMapping("/exists/{name}/{dcId}/{drId}")
+    public boolean checkCentreTechniqueExists(
+            @PathVariable String name,
+            @PathVariable Long dcId,
+            @PathVariable Long drId) {
+        return centreTechniqueService.checkIfCentreTechniqueExists(name, dcId, drId);
+    }
+
+
+
+    @GetMapping("/existCT/{name}")
+    public Boolean checkSiteExistsCode( @PathVariable String name) {
+        boolean exists = repo.existsByName(name);
+        return exists;
+    }
+
+
+    @PostMapping ("/add/ct/{idDC}")
+     public  void addCT( @RequestBody CentreTechnique c, @PathVariable Long idDC ){
+        DC dc = dcRepo.findById(idDC).get();
+        c.setDc( dc);
+        repo.save(c);
+
+    }
 
 }

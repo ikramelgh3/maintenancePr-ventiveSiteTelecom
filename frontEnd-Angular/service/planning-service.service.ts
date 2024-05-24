@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpClientModule, HttpEvent, HttpEventType, HttpResponse} from "@angular/common/http";
+import {HttpClient, HttpClientModule, HttpEvent, HttpEventType, HttpParams, HttpResponse} from "@angular/common/http";
 import {BehaviorSubject, catchError, forkJoin, map, Observable, of, Subject, tap, throwError} from "rxjs";
 import {PlanningMaintenanceDTO} from "../src/app/models/PlanningMaintenanceDTO";
 import { responsableDTO} from "../src/app/models/responsableDTO";
@@ -13,6 +13,8 @@ import {CentreTechnique} from "../src/app/models/centreTechnique";
 import {TypeEquipement} from "../src/app/models/typeEquipement";
 import {Etage} from "../src/app/models/etage";
 import {Salle} from "../src/app/models/salle";
+import {Dc} from "../src/app/models/dc";
+import {Checklist} from "../src/app/models/checklist";
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +25,7 @@ export class PlanningServiceService {
   private baseUrlRespo = "http://localhost:8888/USER-SERVICE";
   private baseUrlSite = "http://localhost:8888/SITE-SERVICE";
   private baseUrlIntervention = "http://localhost:8888/INTERVENTION-SERVICE";
-
+  private baseUrlChecklist = "http://localhost:8888/CHECKLIST-SERVICE";
 
   constructor(private http: HttpClient) {
 
@@ -59,10 +61,42 @@ export class PlanningServiceService {
   }
 
 
+checkCTExist(name: string): Observable<boolean> {
+  return this.http.get<boolean>(`${this.baseUrlSite}/existCT/${name}`);
+}
+
+  checkPointMesureExist(name: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrlChecklist}/existCT/${name}`);
+  }
+
+  checkkIfChecklistExistByName(name:String):Observable<Boolean>{
+    return this.http.get<boolean>(`${this.baseUrlChecklist}/check/ptMesure/${name}`);
+  }
+
 checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
   return this.http.get<boolean>(`${this.baseUrlSite}/exist/${numeroSérie}/${code}`);
 }
 
+  checkSiteNameUnique1(code: string, name: string): Promise<boolean | undefined> {
+    const url = `${this.baseUrlSite}/existsbyCode/${code}/${name}`;
+    return this.http.get<boolean>(url).toPromise();
+  }
+
+
+  checkCTExsit( name: string): Promise<boolean | undefined> {
+    const url = `${this.baseUrlSite}/existCT/${name}`;
+    return this.http.get<boolean>(url).toPromise();
+  }
+
+  checkPointExist( name: string): Promise<boolean | undefined> {
+   const url = `${this.baseUrlChecklist}/checklist/exist/${name}`
+    return this.http.get<boolean>(url).toPromise();
+  }
+
+  checkPointExist1( name: string, id:number):Observable<boolean> {
+    const url = `${this.baseUrlChecklist}/checklist/exist/${name}/${id}`
+    return this.http.get<boolean>(url);
+  }
   updatePlanning(id: number, planning: PlanningMaintenanceDTO , idSite:number, idResp:number): Observable<any> {
     const url = `${this.baseUrl}/updatePlanning/${id}/${idSite}/${idResp}`;
     return this.http.patch<any>(url, planning).pipe(
@@ -268,6 +302,16 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
      return this.http.get<CentreTechnique[]>(url);
   }
 
+  addCT(formData: Site , idDC: number): Observable<any> {
+    const  url = `${this.baseUrlSite}/add/ct/${idDC}`;
+    return this.http.post<any>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+
+
   addSiteMobile(formData: Site , idC: number): Observable<any> {
     const  url = `${this.baseUrlSite}/ajouter/site/mobile/${idC}`;
     return this.http.post<any>(url, formData).pipe(
@@ -285,9 +329,19 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
       })
     );
   }
-  checkSiteNameUnique(name:String):Observable<Boolean>{
-    const  url = `${this.baseUrlSite}/exists/${name}`;
-    return  this.http.get<Boolean>(url);
+
+  addPointMesure(formData: Site , idType: number): Observable<any> {
+    const  url = `${this.baseUrlChecklist}/add/checklist/${idType}`;
+    return this.http.post<any>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+
+  checkSiteNameUnique(code:String, name:String):Observable<boolean>{
+    const  url = `${this.baseUrlSite}/existsbyCode/${code}/${name}`;
+    return  this.http.get<boolean>(url);
   }
   checkSiteCodeUnique(name:String):Observable<Boolean>{
     const  url = `${this.baseUrlSite}/existsbyCode/${name}`;
@@ -300,8 +354,12 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
   }
 
 
-  updateSiteFixe(id: number, updatedSite: Site): Observable<Site> {
-    return this.http.put<Site>(`${this.baseUrlSite}/updatte/siteFixe/${id}`, updatedSite).pipe(
+  getChecklistById(id:number):Observable<Checklist>{
+    const  url = `${this.baseUrlChecklist}/checklist/id/${id}`;
+    return this.http.get<Checklist>( url);
+  }
+  updateSiteFixe(id: number, updatedSite: Site , idC:number): Observable<Site> {
+    return this.http.put<Site>(`${this.baseUrlSite}/updatte/siteFixe/${id}/${idC}`, updatedSite).pipe(
       tap(()=>{
         this._refreshBeeded$.next();
 
@@ -309,8 +367,8 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     );
   }
 
-  updateSiteMobile(id: number, updatedSite: Site): Observable<Site> {
-    return this.http.put<Site>(`${this.baseUrlSite}/update/siteMobile/${id}`, updatedSite).pipe(
+  updateSiteMobile(id: number, updatedSite: Site , idC:number): Observable<Site> {
+    return this.http.put<Site>(`${this.baseUrlSite}/update/siteMobile/${id}/${idC}`, updatedSite).pipe(
       tap(()=>{
         this._refreshBeeded$.next();
 
@@ -412,7 +470,7 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
   }
 
 getTypeEQUIById(id: number): Observable<TypeEquipement> {
-  const url = `${this.baseUrlSite}/findTypeEqui/${id}`;
+  const url = `${this.baseUrlSite}/findTypeEquimeent/${id}`;
   return this.http.get<TypeEquipement>(url);
 }
 getSalleById(id:number):Observable<Salle>{
@@ -479,6 +537,88 @@ checkifEquipeExisteByCode(code:string ,id:number):Observable<Boolean>{
       })
     );
   }
+
+  importCentreTechnique(file:File){
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `${this.baseUrlSite}/import-ct`;
+    return this.http.post(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+
+      })
+    );
+  }
+  deleteCentreTechnique(centreTechnique: CentreTechnique): Observable<any> {
+    const url = `${this.baseUrlSite}/CT`;
+    return this.http.delete(url, { body: centreTechnique });
+  }
+
+  deletePointMeusre(checklist: Checklist): Observable<any> {
+    const url = `${this.baseUrlChecklist}/ptM`;
+    return this.http.delete(url, { body: checklist });
+  }
+  getDR():Observable<Dr[]>{
+    const url =`${this.baseUrlSite}/all/DR`;
+    return this.http.get<Dr[]>(url);
+  }
+
+  getDCsbyDR(id:number):Observable<Dc[]>{
+    const url =`${this.baseUrlSite}/dc/bydr/${id}`;
+    return this.http.get<Dc[]>(url);
+  }
+  getDRById(id:number):Observable<Dr>{
+    const url =`${this.baseUrlSite}/Dr/${id}`;
+    return this.http.get<Dr>(url);
+  }
+
+
+
+updateCentre(id: number, updatedSite: CentreTechnique): Observable<CentreTechnique> {
+  return this.http.put<CentreTechnique>(`${this.baseUrlSite}/update/centre/${id}`, updatedSite).pipe(
+    tap(()=>{
+      this._refreshBeeded$.next();
+
+    })
+  );
+}
+
+
+
+  updateChecklist(id: number, updatedSite: Checklist): Observable<CentreTechnique> {
+    return this.http.put<CentreTechnique>(`${this.baseUrlChecklist}/update/pointMesure/${id}`, updatedSite).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+
+      })
+    );
+  }
+
+
+  checkPointExist2(attribut: string, id: number): Observable<boolean> {
+    const params = new HttpParams()
+      .set('name', encodeURIComponent(attribut))
+      .set('id', id.toString());
+    return this.http.get<boolean>(`${this.baseUrlChecklist}/checklist/exist`, { params });
+  }
+
+  checkIfExisteCT(name:String,idDC:number, idDR:number):Observable<boolean>{
+    const url =`${this.baseUrlSite}/exists/${name}/${idDC}/${idDR}`;
+    return this.http.get<boolean>(url);
+  }
+
+
+  importChecklist(file:File){
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `${this.baseUrlChecklist}/import-checklists`;
+    return this.http.post(url, formData);
+  }
+  getChecklist():Observable<Checklist[]>{
+    const url =`${this.baseUrlChecklist}/checklist/all`;
+    return this.http.get<Checklist[]>(url);
+  }
+
 
 
 }

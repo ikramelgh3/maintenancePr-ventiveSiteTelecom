@@ -16,6 +16,7 @@ public class equipement {
     private String statut;
     private Date dateMiseService;
     private Date dateMiseHorsService;
+    private typeEquipement typeEquipementt;
 
     private List<PhotoEquipementDTO> photoEquipements = new ArrayList<>();
 }

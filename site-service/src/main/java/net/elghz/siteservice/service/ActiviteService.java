@@ -1,3 +1,4 @@
+
 package net.elghz.siteservice.service;
 
 import jakarta.persistence.EntityNotFoundException;

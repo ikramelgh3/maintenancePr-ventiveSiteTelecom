@@ -203,8 +203,8 @@
         <mat-list>
           <ng-container *ngFor="let im of immubles">
             <span (click)="openSousLieuxDetails()" style=" cursor: pointer">
-            <div mat-line style="font-size: 14px; color: #999999; margin-left: 15px;">#{{ im.codeImmuble }}</div>
-            <div mat-line style="font-size: 16px; color: #333; margin-left: 16px;">{{ im.name }}</div></span>
+              <br>
+              <div mat-line style="font-size: 14px; color: black; margin-left: 16px;">{{ im.codeImmuble }}</div></span>
             <mat-divider></mat-divider>
           </ng-container>
         </mat-list>
@@ -257,7 +257,7 @@
             </div>
 
             <div mat-line style="font-size: 18px; color: #333; margin-left: 15px;">
-              <span style="font-size: 14px; color: #999;">Immeuble: {{eq.salle.etage.immuble.name}}, Etage: {{eq.salle.etage.numeroEtage}}, Salle: {{eq.salle.numeroSalle}}</span>
+              <span style="font-size: 14px; color: #999;">Immeuble: {{eq.salle.etage.immuble.codeImmuble}}, Etage: {{eq.salle.etage.codeEtagge}}, Salle: {{eq.salle.codeSalle}}</span>
             </div>
             <mat-divider></mat-divider>
           </ng-container>

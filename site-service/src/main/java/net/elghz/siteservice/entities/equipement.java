@@ -24,16 +24,14 @@ public class equipement {
     @Column(unique = true)
     private String code;
     private String descreption;
-    private String type;
-    private String statut;
+    @Enumerated(EnumType.STRING)
+    private Statut statut;
     private String marque;
-   // @Enumerated(EnumType.STRING)
-    //private Statut statut1;
     private Date dateMiseService;
     private Date dateMiseHorsService;
     @ManyToOne
     @JoinColumn(name = "type_id")
-    private typeEquipement typeEquipementt;
+    private typeEquipement   typeEquipementt;
     @Transient
     private List<ChecklistDTO> checklistDTOS = new ArrayList<>();
     @OneToMany(mappedBy = "equipement" , cascade = CascadeType.ALL)

@@ -402,6 +402,7 @@ export class SiteComponent implements  OnInit {
     this.ser.getImmublesOfSite(id).subscribe(
       (data) => {
         this.immubles = data;
+        console.log("immubles",this.immubles)
         this.NotFoundImmubke = this.immubles.length === 0;
 
         if (!this.NotFoundImmubke) {

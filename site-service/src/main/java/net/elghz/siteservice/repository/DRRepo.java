@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface DRRepo extends JpaRepository<DR, Long> {
     Optional<DR> findByName(String dr);
+    boolean existsByName(String name);
 }

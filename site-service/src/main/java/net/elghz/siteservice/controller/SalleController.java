@@ -103,9 +103,9 @@ public class SalleController {
 
     @GetMapping("/getId/{name}")
     public salleDTO getSalleByName(@PathVariable String name){
-         salle s = repo.findByCodeSalle(name).get();
-         Long id = s.getId();
-         return smapper.from(s);
+        salle s = repo.findByCodeSalle(name).get();
+        Long id = s.getId();
+        return smapper.from(s);
     }
 
 
@@ -146,4 +146,3 @@ public class SalleController {
         return  dcService.getAllEquipementSite(name);
     }
 }
-

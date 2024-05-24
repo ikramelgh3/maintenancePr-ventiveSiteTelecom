@@ -56,8 +56,13 @@ import { AddEquipemntToSiteComponent } from './site/add-equipemnt-to-site/add-eq
 import { AddPlanningtoSiteComponent } from './site/add-planningto-site/add-planningto-site.component';
 import { DetailOfSousLiieuxComponent } from './site/detail-of-sous-liieux/detail-of-sous-liieux.component';
 import { GestionApplComponent } from './parametres/gestion-appl/gestion-appl.component';
+import { UpdateCentreTechniqueComponent } from './parametres/update-centre-technique/update-centre-technique.component';
 
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import { UpdatePointMesureComponent } from './parametres/update-point-mesure/update-point-mesure.component';
+import { AddChecklistComponent } from './parametres/add-checklist/add-checklist.component';
+import { AddCTComponent } from './parametres/add-ct/add-ct.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -85,6 +90,10 @@ import { GestionApplComponent } from './parametres/gestion-appl/gestion-appl.com
     AddPlanningtoSiteComponent,
     DetailOfSousLiieuxComponent,
     GestionApplComponent,
+    UpdateCentreTechniqueComponent,
+    UpdatePointMesureComponent,
+    AddChecklistComponent,
+    AddCTComponent,
 
 
 
@@ -127,7 +136,9 @@ import { GestionApplComponent } from './parametres/gestion-appl/gestion-appl.com
     SlickCarouselModule,
     MatCheckboxModule,
     MatRadioModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatProgressBarModule,
+    MatProgressSpinner
   ],
   providers: [
     provideAnimationsAsync()

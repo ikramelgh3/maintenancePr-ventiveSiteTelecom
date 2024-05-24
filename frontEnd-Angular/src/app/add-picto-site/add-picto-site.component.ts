@@ -81,6 +81,8 @@ export class AddPictoSiteComponent implements OnInit {
 
     // Si au moins un fichier a été sélectionné, procédez à l'envoi des fichiers
     this.ser.uploadFiles(siteId, this.selectedFiles as File[]).subscribe((data) => {
+
+
       this.showSnackbar('Les images ont été ajoutées avec succès.', 'Succès');
       this.cancel();
       console.log("Les images ont été ajoutées avec succès.");

@@ -124,7 +124,7 @@ public class ImmubleService {
 
         List<immubleDTO> centreTechniques = repo.findBySite(dc).stream().map(smapper::from).collect(Collectors.toList());
         if (centreTechniques.isEmpty()) {
-            throw new NotFoundException("Aucun immuble associé à: "+ dc.getName());
+            throw new NotFoundException("Aucun immuble associé à: ");
         }
 
         return centreTechniques;

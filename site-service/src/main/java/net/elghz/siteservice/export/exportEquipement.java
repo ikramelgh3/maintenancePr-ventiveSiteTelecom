@@ -68,15 +68,15 @@ public class exportEquipement extends AbstractExporter {
             if (siteDTO != null) {
                 createCell(row, 0, siteDTO.getCode(), dataCellStyle);
                 createCell(row, 1, siteDTO.getNom(), dataCellStyle);
-                createCell(row, 2, siteDTO.getTypeEquipementt().getName(), dataCellStyle);
-                createCell(row, 3, siteDTO.getNumeroSerie(), dataCellStyle);
+                createCell(row, 3, siteDTO.getTypeEquipementt().getName(), dataCellStyle);
+                createCell(row, 2, siteDTO.getNumeroSerie(), dataCellStyle);
                 createCell(row, 4, siteDTO.getMarque(), dataCellStyle);
                 createCell(row, 5, String.valueOf(siteDTO.getStatut()), dataCellStyle);
                 createCell(row, 6, String.valueOf(siteDTO.getDateMiseService()), dataCellStyle);
                 createCell(row, 7, siteDTO.getDescreption(), dataCellStyle);
                 createCell(row, 8, siteDTO.getSalle().getEtage().getImmuble().getSite().getName(), dataCellStyle);
                 createCell(row, 9, siteDTO.getSalle().getEtage().getImmuble().getName() , dataCellStyle);
-                createCell(row, 10,  siteDTO.getSalle().getEtage().getCodeEtage(), dataCellStyle);
+                createCell(row, 10,  siteDTO.getSalle().getEtage().getCodeEtagge(), dataCellStyle);
                 createCell(row, 11,  siteDTO.getSalle().getCodeSalle(), dataCellStyle);
 
             }

@@ -28,16 +28,16 @@ public class mapper {
         return modelMapper.map(attrDTO,PointMesure.class);
     }
 
-    public void update(ChecklistDTO attributeDTO, Checklist attribute) {
-        attribute.setDescription(attributeDTO.getDescription());
-
-    }
-
+//    public void update(ChecklistDTO attributeDTO, Checklist attribute) {
+//        attribute.setDescription(attributeDTO.getDescription());
+//
+//    }
+/*
 
     public void updatePointMesure(PointMesureDTO attributeDTO, PointMesure attribute) {
         attribute.setAttribut(attributeDTO.getAttribut());
         attribute.setValue(attributeDTO.getValue());
 
     }
-
+*/
 }

@@ -23,3 +23,8 @@ input{
   z-index: 1000;
 }
 
+.container {
+  display: flex; /* Utiliser flexbox pour aligner les éléments */
+  align-items: center; /* Aligner les éléments verticalement */
+}
+
