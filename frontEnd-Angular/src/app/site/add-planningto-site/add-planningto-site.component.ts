@@ -7,6 +7,8 @@ import {PlanningServiceService} from "../../../../service/planning-service.servi
 import {MatSnackBar, MatSnackBarRef} from "@angular/material/snack-bar";
 import {PlanningdataserviceService} from "../../planningdataservice.service";
 import {responsableDTO} from "../../models/responsableDTO";
+import {KeycloakProfile} from "keycloak-js";
+import {KeycloakService} from "keycloak-angular";
 
 @Component({
   selector: 'app-add-planningto-site',
@@ -19,19 +21,27 @@ export class AddPlanningtoSiteComponent implements OnInit{
   public addForm!:FormGroup;
   responsableDTO!:responsableDTO[];
   siteE!:Site;
+  public  profil!:KeycloakProfile
 siteId!:number
   constructor(private ref:MatDialogRef<AddPlanningtoSiteComponent>,
                private fb:FormBuilder , private ser:PlanningServiceService ,private snackBar: MatSnackBar,
-               private dataser:PlanningdataserviceService  , @Inject(MAT_DIALOG_DATA) public data: any
+               private dataser:PlanningdataserviceService  , @Inject(MAT_DIALOG_DATA) public data: any,public  ky :KeycloakService
   ) {
     this.siteE = data.site;
     ref.disableClose = true;
   }
 
   inputdata:any;
+  public userId: string | null = null;
 
-
-  ngOnInit() {this.inputdata=this.data;
+  ngOnInit() {
+    if (this.ky.isLoggedIn()) {
+      this.ky.loadUserProfile().then((profile) => {
+        this.profil = profile;
+        console.log(this.profil);
+        this.userId = this.profil?.id ?? null;
+        console.log("id", this.userId);})}
+    this.inputdata=this.data;
     this.addForm=this.fb.group({
       name:this.fb.control('', [Validators.required]),
       semestre:this.fb.control('', [Validators.required]),
@@ -39,7 +49,7 @@ siteId!:number
       dateFinRealisation:this.fb.control('', [Validators.required]),
       description:this.fb.control('', [Validators.required]),
      // site:this.fb.control('',[Validators.required]),
-      responsableMaint:this.fb.control('',[Validators.required])
+
 
     });this.listRespo();
     //this.listSite();
@@ -58,7 +68,7 @@ siteId!:number
 
   add() {
     this.planning = this.addForm.value;
-    const idRes = this.planning.responsableMaint.id;
+
     const idSite = this.siteE.id;
     console.log(this.planning);
 
@@ -84,8 +94,9 @@ siteId!:number
           } else {
             // Ajouter le planning
 
+
             console.log("le site complet", this.siteE);
-            this.ser.addPlanningComplet(this.planning , idRes,this.siteE.id).subscribe(
+            this.ser.addPlanningComplet(this.planning, this.userId, this.siteE.id).subscribe(
               (data) => {
                 this.dataser.refreshPlannings();
                 console.log(data);

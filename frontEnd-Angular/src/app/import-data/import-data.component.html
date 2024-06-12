@@ -3,7 +3,7 @@
   <mat-stepper>
 
     <mat-step>
-      <ng-template matStepLabel > Importer les centres techniques </ng-template>
+      <ng-template matStepLabel > Centres techniques </ng-template>
       <div *ngIf="displayImport">
         <div style="display: flex; align-items: center;">
           <p style="color: #072f5f; flex: 1;">Charger ici votre fichier de données sous format Excel</p>
@@ -31,8 +31,14 @@
       </div>
 
 
+
+
       <div >
+
         <div class="mat-elevation-z8" *ngIf="shoWTable">
+          <div> <input matInput [(ngModel)]="searchInput" (input)="applyFilter($event)" placeholder="Rechercher parmi {{totalItems}} resultats..."></div>
+          <mat-divider></mat-divider>
+
           <table mat-table [dataSource]="dataSource">
 
             <!-- ID Column -->
@@ -44,7 +50,7 @@
             <!-- DR Column -->
             <ng-container matColumnDef="dr">
               <th mat-header-cell *matHeaderCellDef> DR </th>
-              <td mat-cell *matCellDef="let element"> {{element.dc?.dr?.id}} </td>
+              <td mat-cell *matCellDef="let element"> {{element.dc?.dr?.name}} </td>
 
             </ng-container>
 
@@ -80,16 +86,19 @@
 
           <mat-paginator [pageSizeOptions]="[5, 10, 20]"
                          showFirstLastButtons
-                         aria-label="Select page of periodic elements">
+                         aria-label="Select page of periodic elements" >
           </mat-paginator>
+          <div *ngIf="dataSource && dataSource.filteredData.length === 0" class="no-results-message" style="color: midnightblue; margin-left: 350px">
+            Aucun résultat trouvé
+          </div>
         </div>
       </div>
 
     </mat-step>
 
     <mat-step>
-      <ng-template matStepLabel > Importer Sites </ng-template>
-      <div>
+      <ng-template matStepLabel >  Sites </ng-template>
+      <div *ngIf="cliq">
         <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
         <br>
         <div mat-dialog-content>
@@ -107,9 +116,15 @@
         <p> Pour consulter les sites importés veuillez <a routerLink="/Sites"> cliquer ici</a></p>
       </div>
 
+      <div *ngIf="!cliq">
+        <p>Veuillez d'abord importer les centres techniques!!!</p>
+        <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button>
+      </div>
+
     </mat-step>
+
     <mat-step>
-      <ng-template matStepLabel > Importer Equipements </ng-template>
+      <ng-template matStepLabel > Equipements </ng-template>
       <div *ngIf="siteSucc">
         <p style="color: #072f5f"> Charger ici votre fichier de données sous format Excel</p>
         <br>
@@ -131,16 +146,13 @@
         <button mat-raised-button matStepperPrevious style="background-color: #999999;"> Previous</button>
       </div>
 
-
-
-      <div *ngIf="affiche">
+      <div *ngIf="affichEqui">
         <p> Pour consulter les équipements importés veuillez <a routerLink="/Equipements"> cliquer ici</a></p>
       </div>
     </mat-step>
-
     <mat-step>
 
-      <ng-template matStepLabel>Importer Checklists</ng-template>
+      <ng-template matStepLabel> Points de Mesure</ng-template>
       <div >
         <div style="display: flex; align-items: center;">
           <p style="color: #072f5f; flex: 1;">Charger ici votre fichier de données sous format Excel</p>
@@ -160,12 +172,16 @@
       </div>
 
       <div *ngIf="afficheTableChecklist">
-        <p> Pour consulter les checklists importés veuillez <a (click)="showTableChecklist()"  style="cursor: pointer;color: #6495ED"> cliquer ici</a></p>
+        <p> Pour consulter les points de mesure importés veuillez <a (click)="showTableChecklist()"  style="cursor: pointer;color: #6495ED"> cliquer ici</a></p>
       </div>
 
 
       <div >
         <div class="mat-elevation-z8" *ngIf="showchek">
+          <div>
+            <input matInput [(ngModel)]="searchInput1" (input)="applyFilter1($event)" placeholder="Rechercher parmi {{dataSource1.data.length}} résultats...">
+          </div>
+          <mat-divider></mat-divider>
           <table mat-table [dataSource]="dataSource1">
 
 
@@ -210,6 +226,9 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
           </table>
 
+          <div *ngIf="dataSource1 && dataSource1.filteredData.length === 0" class="no-results-message" style="color: midnightblue; margin-left: 350px">
+            Aucun résultat trouvé
+          </div>
           <mat-paginator [pageSizeOptions]="[5, 10, 20]"
                          showFirstLastButtons
                          aria-label="Select page of periodic elements">
@@ -217,6 +236,7 @@
         </div>
       </div>
     </mat-step>
+
   </mat-stepper>
 
 

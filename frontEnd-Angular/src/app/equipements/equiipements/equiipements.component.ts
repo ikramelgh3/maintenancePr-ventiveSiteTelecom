@@ -15,6 +15,14 @@ import {AddPictoSiteComponent} from "../../add-picto-site/add-picto-site.compone
 import {OpenImgaeComponent} from "../open-imgae/open-imgae.component";
 import {AddPicComponent} from "../add-pic/add-pic.component";
 import {Site} from "../../models/Site";
+import {KeycloakService} from "keycloak-angular";
+import {KeycloakProfile} from "keycloak-js";
+import {
+  AddInterventionToPlanningComponent
+} from "../../planning-maintenance/add-intervention-to-planning/add-intervention-to-planning.component";
+import {
+  AddInterventionToEquipemntComponent
+} from "../add-intervention-to-equipemnt/add-intervention-to-equipemnt.component";
 
 @Component({
   selector: 'app-equiipements',
@@ -22,7 +30,7 @@ import {Site} from "../../models/Site";
   styleUrl: './equiipements.component.css'
 })
 export class EquiipementsComponent implements  OnInit{
-
+  public  profil!:KeycloakProfile
   equipements!:Equipement[];
   equipement!:Equipement;
   nbreTot!:number
@@ -33,18 +41,56 @@ export class EquiipementsComponent implements  OnInit{
   not_foundImg:Boolean=false
   p:any
   id!:number
+  public userId: string | null = null;
   Localisation!: String
-  constructor(private ser:PlanningServiceService  ,private dialogService: DialogService,  private dialog: MatDialog ,private snackBar: MatSnackBar) {
+  constructor(private ser:PlanningServiceService ,public  ky :KeycloakService ,private dialogService: DialogService,  private dialog: MatDialog ,private snackBar: MatSnackBar) {
   }
   ngOnInit() {
-this.getNbreTotal();
-    this.getEquip();
-    this.ser._refreshNeeded$.subscribe(()=>{
-      this.getNbreTotal();
-      this.getEquip();
-      this.getAllFiles();
-    })
+
+    if (this.ky.isLoggedIn()) {
+      this.ky.loadUserProfile().then((profile) => {
+        this.profil = profile;
+        console.log(this.profil);
+        this.userId = this.profil?.id ?? null;
+        console.log("id", this.userId);
+        console.log("profil", this.profil)
+
+        console.log("username", this.profil.username)
+
+           this.getEquip()
+
+
+
+        this.getNbreTotal();
+        this.getByyType();
+
+        this.ser._refreshNeeded$.subscribe(() => {
+          this.getNbreTotal();
+          this.getEquip();
+          this.getAllFiles();
+
+        })
+      })
+    }
   }
+
+
+  getCentreTechniqueOfProf() {
+    // Vérifier si userId est défini
+    if (this.userId !== null) {
+      // Appeler la fonction getCentreTechniqueOfRespo avec userId
+      this.ser.getCentreTechniqueOfRespo(this.userId).subscribe((data) => {
+        this.centre = data;
+        console.log("centre", this.centre);
+
+      });
+    } else {
+      console.error('UserId est null. Impossible d\'appeler getCentreTechniqueOfRespo.');
+    }
+  }
+
+  centre!:String
+
   getEquip(){
      this.ser.getEquipements().subscribe((data)=>{
        this.equipements = data;
@@ -129,7 +175,7 @@ this.getNbreTotal();
   }
 
   deleteEquipemt(id: number) {
-    this.dialogService.openConfirmDialof('Voulez vous supprimer ce site?').afterClosed()
+    this.dialogService.openConfirmDialof('Voulez vous supprimer cet équipement?').afterClosed()
       .subscribe(res => {
         if (res) {
           this.ser.deleteEquipemnt(id).subscribe(
@@ -332,5 +378,49 @@ this.getNbreTotal();
     } else {
       this.getEquip();
     }
+  }
+
+  filterByEtat(status: string) {
+    this.ser.getEquiByEtat(status).subscribe(
+      (data) =>{
+        this.equipements = data;
+        this.noResultsFound = this.equipements.length === 0;
+      },
+      (error)=>
+      {
+        console.log("Error");
+      }
+    )
+  }
+  getByType(selectedType: any) {
+    // Utilisez le type sélectionné ici, par exemple, vous pouvez l'afficher dans la console
+    console.log("Type sélectionné :", selectedType);
+
+    this.ser.getEquipementByType(selectedType.id).subscribe((data)=>{
+      this.equipements = data;
+      if( this.equipements.length===0){
+        this.noResultsFound= true
+      }
+    })
+  }
+
+  Types!:TypeEquipement[]
+  getByyType(){
+
+    this.ser.getAllTypeEquip().subscribe((data)=>{
+      this.Types=data
+
+      console.log("hd,,sj,")
+      console.log("types",this.Types)
+    })
+
+  }
+  addInterventionToEquip(){
+    var popup = this.dialog.open(AddInterventionToEquipemntComponent, {
+      width: '60%', height: '569px',
+      exitAnimationDuration: '500ms',
+      data: { eq: this.equipement }
+    })
+
   }
 }

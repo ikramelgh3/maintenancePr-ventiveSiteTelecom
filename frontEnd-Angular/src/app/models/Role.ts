@@ -1,3 +1,4 @@
 export interface Role{
-  roleName:String;
+  id:number;
+  name:String;
 }

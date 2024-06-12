@@ -592,75 +592,26 @@ public class ImporterSite {
                         }
 
 
-
-                        // Centre technique
-                        cell = row.getCell(3
-                        ); // Centre technique
+                        cell = row.getCell(3); // Centre technique
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String centreTechniqueName = cell.getStringCellValue();
                             Optional<CentreTechnique> optionalCentreTechnique = ctrepo.findByName(centreTechniqueName);
 
-                            CentreTechnique centreTechnique;
                             if (optionalCentreTechnique.isPresent()) {
-                                centreTechnique = optionalCentreTechnique.get();
+                                site.setCentreTechnique(optionalCentreTechnique.get());
                             } else {
-                                // Créer un nouveau centre technique s'il n'existe pas
-                                centreTechnique = new CentreTechnique();
-                                centreTechnique.setName(centreTechniqueName);
-                                // Sauvegarder le nouveau centre technique dans la base de données
-                                centreTechnique = ctrepo.save(centreTechnique);
-                            }
-                            site.setCentreTechnique(centreTechnique);
-                        }
-
-                        // DC
-                        cell = row.getCell(4); // DC
-                        if (cell != null && cell.getCellType() == CellType.STRING) {
-                            String dcName = cell.getStringCellValue();
-                            Optional<DC> optionalDC = dcRepo.findByName(dcName);
-
-                            DC dc;
-                            if (optionalDC.isPresent()) {
-                                dc = optionalDC.get();
-                            } else {
-                                // Créer un nouveau DC s'il n'existe pas
-                                dc = new DC();
-                                dc.setName(dcName);
-                                // Sauvegarder le nouveau DC dans la base de données
-                                dc = dcRepo.save(dc);
-                            }
-                            if (site.getCentreTechnique() != null) {
-                                site.getCentreTechnique().setDc(dc);
+                                // Afficher un message d'erreur ou gérer le cas où le centre technique n'existe pas
+                                throw new DataIntegrityViolationException("Le centre technique '" + centreTechniqueName + "' n'existe pas dans la base de données.");
                             }
                         }
 
-                        // DR
-                        cell = row.getCell(5); // DR
-                        if (cell != null && cell.getCellType() == CellType.STRING) {
-                            String drName = cell.getStringCellValue();
-                            Optional<DR> optionalDR = drRepo.findByName(drName);
 
-                            DR dr;
-                            if (optionalDR.isPresent()) {
-                                dr = optionalDR.get();
-                            } else {
-                                // Créer un nouveau DR s'il n'existe pas
-                                dr = new DR();
-                                dr.setName(drName);
-                                // Sauvegarder le nouveau DR dans la base de données
-                                dr = drRepo.save(dr);
-                            }
-                            if (site.getCentreTechnique() != null && site.getCentreTechnique().getDc() != null) {
-                                site.getCentreTechnique().getDc().setDr(dr);
-                            }
-                        }
-
-                        cell = row.getCell(6);
+                        cell = row.getCell(4);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String addr = cell.getStringCellValue();
                             site.setAddresse(addr);
                         }
-                        cell = row.getCell(7);
+                        cell = row.getCell(5);
                         if (cell != null) {
                             if (cell.getCellType() == CellType.NUMERIC) {
                                 site.setLatitude(cell.getNumericCellValue());
@@ -677,7 +628,7 @@ public class ImporterSite {
                             }
                         }
 
-                        cell = row.getCell(8);
+                        cell = row.getCell(6);
                         if (cell != null) {
                             if (cell.getCellType() == CellType.NUMERIC) {
                                 site.setLongitude(cell.getNumericCellValue());
@@ -693,46 +644,31 @@ public class ImporterSite {
                                 System.out.println("La cellule ne contient pas une valeur numérique.");
                             }
                         }
-                        cell = row.getCell(9);
+                        cell = row.getCell(7);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String typeIns = cell.getStringCellValue();
                             site.setTypeInstallation(typeIns);
-                        } cell = row.getCell(10);
+                        } cell = row.getCell(8);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setTypeAlimentation(type);
-                        } cell = row.getCell(11);
+                        } cell = row.getCell(9);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setPresenceGESecours(Boolean.valueOf(type));
-                        } cell = row.getCell(12);
+                        } cell = row.getCell(10);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setTypeTransmission(type);
-                        } cell = row.getCell(13);
+                        } cell = row.getCell(11);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             SiteMobile mb = (SiteMobile) site;
                             String type = cell.getStringCellValue();
                             mb.setSupportAntennes(type);
                         }
-                        cell = row.getCell(7);
-                        if (cell != null) {
-                            if (cell.getCellType() == CellType.NUMERIC) {
-                                site.setLatitude(cell.getNumericCellValue());
-                            } else if (cell.getCellType() == CellType.STRING) {
-                                try {
-                                    site.setLatitude(Double.parseDouble(cell.getStringCellValue()));
-                                } catch (NumberFormatException e) {
-                                    // Gérer les cas où la chaîne ne peut pas être convertie en double
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                // Gérer les autres types de cellules si nécessaire
-                                System.out.println("La cellule ne contient pas une valeur numérique.");
-                            }
-                        }
 
-                        cell = row.getCell(14);
+
+                        cell = row.getCell(12);
                         if (cell != null) {
                             if (cell.getCellType() == CellType.NUMERIC) {
                                 site.setHauteurSupportAntenne(cell.getNumericCellValue());
@@ -748,7 +684,7 @@ public class ImporterSite {
                                 System.out.println("La cellule ne contient pas une valeur numérique.");
                             }
                         }
-                        cell = row.getCell(15);
+                        cell = row.getCell(13);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             SiteMobile mb = (SiteMobile) site;
                             String type = cell.getStringCellValue();
@@ -805,54 +741,13 @@ public class ImporterSite {
                             site.setCentreTechnique(centreTechnique);
                         }
 
-                        // DC
-                        cell = row.getCell(4); // DC
-                        if (cell != null && cell.getCellType() == CellType.STRING) {
-                            String dcName = cell.getStringCellValue();
-                            Optional<DC> optionalDC = dcRepo.findByName(dcName);
 
-                            DC dc;
-                            if (optionalDC.isPresent()) {
-                                dc = optionalDC.get();
-                            } else {
-                                // Créer un nouveau DC s'il n'existe pas
-                                dc = new DC();
-                                dc.setName(dcName);
-                                // Sauvegarder le nouveau DC dans la base de données
-                                dc = dcRepo.save(dc);
-                            }
-                            if (site.getCentreTechnique() != null) {
-                                site.getCentreTechnique().setDc(dc);
-                            }
-                        }
-
-                        // DR
-                        cell = row.getCell(5); // DR
-                        if (cell != null && cell.getCellType() == CellType.STRING) {
-                            String drName = cell.getStringCellValue();
-                            Optional<DR> optionalDR = drRepo.findByName(drName);
-
-                            DR dr;
-                            if (optionalDR.isPresent()) {
-                                dr = optionalDR.get();
-                            } else {
-                                // Créer un nouveau DR s'il n'existe pas
-                                dr = new DR();
-                                dr.setName(drName);
-                                // Sauvegarder le nouveau DR dans la base de données
-                                dr = drRepo.save(dr);
-                            }
-                            if (site.getCentreTechnique() != null && site.getCentreTechnique().getDc() != null) {
-                                site.getCentreTechnique().getDc().setDr(dr);
-                            }
-                        }
-
-                        cell = row.getCell(6);
+                        cell = row.getCell(4);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String addr = cell.getStringCellValue();
                             site.setAddresse(addr);
                         }
-                        cell = row.getCell(7);
+                        cell = row.getCell(5);
                         if (cell != null) {
                             if (cell.getCellType() == CellType.NUMERIC) {
                                 site.setLatitude(cell.getNumericCellValue());
@@ -869,7 +764,7 @@ public class ImporterSite {
                             }
                         }
 
-                        cell = row.getCell(8);
+                        cell = row.getCell(6);
                         if (cell != null) {
                             if (cell.getCellType() == CellType.NUMERIC) {
                                 site.setLongitude(cell.getNumericCellValue());
@@ -881,23 +776,22 @@ public class ImporterSite {
                                     e.printStackTrace();
                                 }
                             } else {
-                                // Gérer les autres types de cellules si nécessaire
                                 System.out.println("La cellule ne contient pas une valeur numérique.");
                             }
                         }
-                        cell = row.getCell(9);
+                        cell = row.getCell(7);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String typeIns = cell.getStringCellValue();
                             site.setTypeInstallation(typeIns);
-                        } cell = row.getCell(10);
+                        } cell = row.getCell(8);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setTypeAlimentation(type);
-                        } cell = row.getCell(11);
+                        } cell = row.getCell(9);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setPresenceGESecours(Boolean.valueOf(type));
-                        } cell = row.getCell(12);
+                        } cell = row.getCell(10);
                         if (cell != null && cell.getCellType() == CellType.STRING) {
                             String type = cell.getStringCellValue();
                             site.setTypeTransmission(type);

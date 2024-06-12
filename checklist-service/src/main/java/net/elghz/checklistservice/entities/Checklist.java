@@ -7,23 +7,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.elghz.checklistservice.model.ResponsableMaintenance;
 import net.elghz.checklistservice.model.equipement;
+import net.elghz.checklistservice.model.typeEquipement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
-//@Entity
+@Entity
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Checklist {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private  Long id;
-//    private String description;
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "checklist")
-//    private List<PointMesure> pointMesures = new ArrayList<>();
-//
-//    private Long respo_Id;
-//    @Transient
-//    private ResponsableMaintenance respoMaint;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Long typeEquipementId;
+    @Transient
+    private typeEquipement typeEquipent;
+    @ManyToMany
+    @JoinTable(
+            name = "checklist_measurementpoint",
+            joinColumns = @JoinColumn(name = "checklist_id"),
+            inverseJoinColumns = @JoinColumn(name = "measurementpoint_id")
+    )
+    private Set<PointMesure> measurementPoints = new HashSet<>();
+
+
+
 //    private Long equipement_id;
 //    @Transient
 //    private equipement equi;

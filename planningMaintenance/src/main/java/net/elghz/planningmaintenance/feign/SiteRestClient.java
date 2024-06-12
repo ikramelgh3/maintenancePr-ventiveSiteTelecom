@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "SITE-SERVICE" , url = "http://localhost:8082")
+@FeignClient(name = "SITE-SERVICE" , url = "http://localhost:8082/sites")
 public interface SiteRestClient {
 
     @GetMapping("/site/id/{id}")

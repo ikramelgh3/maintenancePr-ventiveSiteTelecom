@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "INTERVENTION-SERVICE" , url = "http://localhost:8086")
+@FeignClient(name = "INTERVENTION-SERVICE" , url = "http://localhost:8086/interventions")
 public interface InterventionRestClient {
     @GetMapping("/interventions/planning/{idPlanning}")
     List<Intervention> getInterventionsOfPlanning(@PathVariable Long idPlanning);

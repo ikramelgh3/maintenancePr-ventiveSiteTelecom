@@ -64,8 +64,7 @@ public class importerPointsMesures {
 
                 List<String> resultatsPossiblesList = new ArrayList<>(Arrays.asList(resultatsPossibles.split("/")));
                 pointMesure.setResultatsPossibles(resultatsPossiblesList);
-                pointMesure.setRespoMaint(null);
-                pointMesure.setRespo_Id(null);
+
 
                 repo.save(pointMesure);
                 ptsMesures.add(mp.from(pointMesure));

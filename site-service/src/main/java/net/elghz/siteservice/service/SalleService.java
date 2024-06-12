@@ -188,6 +188,28 @@ public class SalleService {
         return  new ResponseEntity<>("Aucune equipement avec ce numero: "+numSalle , HttpStatus.NOT_FOUND);
     }
 
+
+
+    public List<equipementDTO> getAllEquipementOfSalle(String codeSalle){
+
+        Optional<salle> optS= repo.findByCodeSalle(codeSalle);
+
+        if(optS.isPresent()){
+
+            List<equipement > equipementDTOS = optS.get().getEquipementList();
+            List<equipementDTO> equipementDTOList = new ArrayList<>();
+            for(equipement e : equipementDTOS){
+                equipementDTO dto = eqmapper.fromEquipement(e);
+                equipementDTOList.add(dto);
+
+
+
+            }
+            return  equipementDTOList ;
+        }
+        return  null;
+    }
+
     //afficher salle ou existe un equipement
 
     public ResponseEntity<?> getSalleOfEqui( String numSerie){

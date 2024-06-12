@@ -7,14 +7,24 @@ import java.util.HashSet;
 import java.util.Set;
 @Data
 public class TechnicienDTO {
-    private String nom;
-    private String username;
+    private String id;
+
+    private String firstName;
+
+    private String lastName;
+
     private String email;
-    private String telephone;
-    private Boolean disponibilite;
-    private int nbreIntervetion;
-    private int niveau;
-    Set<CompetenceDTO> competences = new HashSet<>();
-    private TypeTechnicien type;
+
+    private String userName;
+
+    private String password;
+    // private boolean enabled;
+    private String phone_number;
+    private String jobTitle;
+    private String available;
+    private String city;
+    //private String[] skills;
+    private String type;
+    private String roleName;
 
 }

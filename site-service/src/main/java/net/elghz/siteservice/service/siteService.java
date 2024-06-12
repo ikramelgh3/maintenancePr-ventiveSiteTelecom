@@ -48,6 +48,20 @@ public class siteService {
         return repo.findByTypeSite(type).stream().map(smapper::from).collect(Collectors.toList());
     }
 
+    public List<siteDTO> sitesByTypeOfCentre(String type, String centre){
+        List<siteDTO> allqsITE = repo.findByTypeSite(type).stream().map(smapper::from).collect(Collectors.toList());
+        List<siteDTO> dto = new ArrayList<>();
+        for(siteDTO s : allqsITE){
+             if(s.getCentreTechnique().getName().equals(centre)){
+                 dto.add(s);
+             }
+        }
+        return dto;
+    }
+
+
+
+
     public List<siteDTO> allSites() {
         return repo.findAll().stream().map(smapper::from).collect(Collectors.toList());
     }

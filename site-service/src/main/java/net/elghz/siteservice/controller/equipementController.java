@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +35,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-
+@RequestMapping("/sites")
 public class equipementController {
     private equipementService serv;
 
@@ -73,6 +74,7 @@ public class equipementController {
          equipementDTO dto= mapper.fromEquipement(e);
          return  dto;
     }
+
     @GetMapping("/equipement/all")
     public List<equipementDTO> getAllEquipements() {
         List<equipementDTO> equipements = serv.allEquipements();
@@ -115,10 +117,17 @@ public class equipementController {
         }
     }
 
+
+    @GetMapping("/getEquips/etat/{etat}")
+    public List<equipementDTO> getEquiByEtat(@PathVariable Statut etat){
+       List<equipement> e = repo.findByStatut(etat);
+       return e.stream().map(mapper::from).collect(Collectors.toList());
+    }
     @GetMapping ("equipement/etat/{name}")
         public Statut getEtat(@PathVariable String name){
         return  serv.etatEquipement(name);
         }
+
 
 
     @GetMapping("/exist/{numeroSérie}/{code}")
@@ -130,6 +139,17 @@ public class equipementController {
          else {
               return  false;
          }
+    }
+
+    @GetMapping("/exist/{type}")
+    public Boolean checkTypeEquiExist(  @PathVariable String type) {
+        Optional<typeEquipement> eq = equirepo.findByName( type);
+        if(eq.isPresent()){
+            return true;
+        }
+        else {
+            return  false;
+        }
     }
 
     @PostMapping("/add/picts/equip/{id}")
@@ -329,10 +349,35 @@ public class equipementController {
 
     }
 
+
     @GetMapping("/findTypeEquimeent/{id}")
     public typeEquipementDTO findTypeEquipemntByI(@PathVariable Long id){
          typeEquipement t = equirepo.findById(id).get();
          return  mapper.from(t);
     }
 
-}
+    @GetMapping("/getEquipementsoFtYpe/{id}")
+    public List<equipementDTO> getEquiepemntOfType(@PathVariable Long id) {
+        typeEquipement t= equirepo.findById(id).get();
+        return t.getEquipements().stream().map(mapper::from).collect(Collectors.toList());
+        }
+
+    @GetMapping("/getVille/{id}")
+    public String getVilleEqui(@PathVariable Long id){
+        return  serv.siteEqui(id);
+    }
+
+    @GetMapping("/listEquipemnt/ofCnetre/{centre}")
+    public  List<equipementDTO> getEquipOfCnetre(@PathVariable String centre){
+        return serv.getEquipementsByCentreTechnique(centre);
+    }
+
+        @GetMapping("/getLocalisationOfEqui/{id}")
+    public String getLocalisationOfEquip(@PathVariable Long id){
+         return  serv.getLocalisationOfEquipemen(id);
+        }
+    }
+
+
+
+

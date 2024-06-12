@@ -6,6 +6,7 @@ import net.elghz.siteservice.dtos.siteDTO;
 import net.elghz.siteservice.entities.CentreTechnique;
 import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.entities.DR;
+import net.elghz.siteservice.entities.Site;
 import net.elghz.siteservice.exception.NotFoundException;
 import net.elghz.siteservice.importFile.ImporterSite;
 import net.elghz.siteservice.importFile.importerCentre;
@@ -25,8 +26,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/sites")
 public class centreTechniqueController {
 
 @Autowired
@@ -48,6 +51,17 @@ CTRepo repo;
         } catch (NotFoundException e) {
             return null;
         }
+    }
+
+    @GetMapping("/exists/{id}")
+    public ResponseEntity<Boolean> centreTechniqueExists(@PathVariable Long id) {
+        boolean exists = centreTechniqueService.existsById(id);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/site/centreTehnique/{name}")
+    public List<siteDTO> getSite(@PathVariable String name){
+        return centreTechniqueService.getSite(name);
     }
 
     @PostMapping("/CT/exists")
@@ -87,6 +101,12 @@ CTRepo repo;
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Un centre technique avec ce nom existe déjà.");
         }
     }
+
+    @GetMapping ("/findCT/byKeyword/{keyword}")
+    public List<CentreTechnique> getCTByKeyword(@PathVariable String  keyword){
+        return repo.findCTByKeyword(keyword);
+    }
+
 
     @PutMapping("/CT/update")
     public ResponseEntity<String> updateCentreTechnique(@RequestBody CentreTechniqueDTO updatedCentreTechnique) {

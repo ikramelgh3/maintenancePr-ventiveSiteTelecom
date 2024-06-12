@@ -1,5 +1,6 @@
 package net.elghz.siteservice.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import net.elghz.siteservice.dtos.equipementDTO;
 import net.elghz.siteservice.dtos.typeEquipementDTO;
 import net.elghz.siteservice.entities.*;
@@ -7,6 +8,7 @@ import net.elghz.siteservice.enumeration.Statut;
 import net.elghz.siteservice.exception.EquipementNotFoundException;
 import net.elghz.siteservice.feign.checklistRestClient;
 import net.elghz.siteservice.mapper.equipementMapper;
+import net.elghz.siteservice.repository.CTRepo;
 import net.elghz.siteservice.repository.SalleRepo;
 import net.elghz.siteservice.repository.equipementRepo;
 import net.elghz.siteservice.repository.typeEquipementRepo;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 public class equipementService {
     private equipementRepo repo;
     private equipementMapper mapperEqui;
-
+@Autowired  private CTRepo ctRepo;
     private checklistRestClient restClient;
     @Autowired
     private typeEquipementRepo typeRepo;
@@ -132,6 +134,21 @@ public class equipementService {
 
     }
 
+    @Autowired CTRepo crepo;
+
+
+    public  String siteEqui(Long id){
+        equipement e = repo.findById(id).get();
+        e.getSalle().getEtage().getImmuble().getSite();
+
+        int salleName = e.getSalle().getNumeroSalle();
+        int etape = e.getSalle().getEtage().getNumeroEtage();
+        String imm = e.getSalle().getEtage().getImmuble().getName();
+        Site site = e.getSalle().getEtage().getImmuble().getSite();
+
+
+        return site.getCentreTechnique().getDc().getDr().getName();
+    }
     public  String localisationOfEquip(Long id){
         equipement e = repo.findById(id).get();
         e.getSalle().getEtage().getImmuble().getSite();
@@ -191,4 +208,30 @@ public class equipementService {
          return  mapperEqui.from(t);
     }
 
+    public List<equipementDTO> getEquipementsByCentreTechnique(String centreTechniqueId) {
+        Optional<CentreTechnique> centreTechniqueOpt = ctRepo.findByName(centreTechniqueId);
+        if (centreTechniqueOpt.isPresent()) {
+            CentreTechnique centreTechnique = centreTechniqueOpt.get();
+            List<equipementDTO> equipements = new ArrayList<>();
+            for (Site site : centreTechnique.getSites()) {
+                for (immuble immuble : site.getImmubles()) {
+                    for (etage etage : immuble.getEtageList()) {
+                        for (salle salle : etage.getSalles()) {
+
+
+                            equipements.addAll(salle.getEquipementList().stream().map(mapperEqui::from).collect(Collectors.toList()));
+                        }
+                    }
+                }
+            }
+            return equipements;
+        } else {
+            throw new EntityNotFoundException("CentreTechnique not found with id " + centreTechniqueId);
+        }
+    }
+
+    public String getLocalisationOfEquipemen(Long id){
+         equipement e = repo.findById(id).get();
+         return  "Site: "+ e.getSalle().getEtage().getImmuble().getSite().getName()+" Immuble: "+e.getSalle().getEtage().getImmuble().getCodeImmuble()+" Etage: "+e.getSalle().getEtage().getCodeEtagge()+" Salle: "+e.getSalle().getCodeSalle();
+    }
 }

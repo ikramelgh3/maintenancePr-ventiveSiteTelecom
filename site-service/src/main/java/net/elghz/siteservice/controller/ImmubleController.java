@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/sites")
 public class ImmubleController {
     @Autowired private ImmubleService dcService;
 

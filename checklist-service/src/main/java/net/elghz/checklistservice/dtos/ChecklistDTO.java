@@ -1,22 +1,22 @@
 package net.elghz.checklistservice.dtos;
 
+import jakarta.persistence.Id;
 import jakarta.persistence.Transient;
 import lombok.*;
+import net.elghz.checklistservice.entities.PointMesure;
 import net.elghz.checklistservice.model.ResponsableMaintenance;
 import net.elghz.checklistservice.model.equipement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 @Data
 public class ChecklistDTO {
 
-    private  Long id;
-    private String description;
+    private Set<PointMesureDTO> measurementPoints = new HashSet<>();
 
-    private long respo_ID;
+    private Long id;
 
-    private ResponsableMaintenance respoMaint;
-    private List<PointMesureDTO> pointMesures = new ArrayList<>();
-    private equipement equi ;
-    private Long equipement_id;
 }

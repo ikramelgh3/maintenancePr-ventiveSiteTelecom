@@ -24,6 +24,9 @@ import {NewEquipementComponent} from "../equipements/new-equipement/new-equipeme
 import {AddEquipemntToSiteComponent} from "./add-equipemnt-to-site/add-equipemnt-to-site.component";
 import {AddPlanningtoSiteComponent} from "./add-planningto-site/add-planningto-site.component";
 import {DetailOfSousLiieuxComponent} from "./detail-of-sous-liieux/detail-of-sous-liieux.component";
+import {KeycloakProfile} from "keycloak-js";
+import {KeycloakService} from "keycloak-angular";
+import {CentreTechnique} from "../models/centreTechnique";
 
 @Component({
   selector: 'app-site',
@@ -31,7 +34,7 @@ import {DetailOfSousLiieuxComponent} from "./detail-of-sous-liieux/detail-of-sou
   styleUrl: './site.component.css'
 })
 export class SiteComponent implements  OnInit {
-
+  public  profil!:KeycloakProfile
   p: any;
   sites!: Site[];
   searchInput: string = '';
@@ -51,42 +54,93 @@ export class SiteComponent implements  OnInit {
   immubles!:Immuble[];
   //@ViewChild('siteDetails') siteDetails!: ElementRef;
 
-  constructor(private rout:Router,private ser: PlanningServiceService, private dialog: MatDialog, private dataser: PlanningdataserviceService, private dialogService: DialogService, private snackBar: MatSnackBar) {
+  constructor(private rout:Router ,public  ky :KeycloakService,private ser: PlanningServiceService, private dialog: MatDialog, private dataser: PlanningdataserviceService, private dialogService: DialogService, private snackBar: MatSnackBar) {
 
 
-  }
-
+  } public userId: string | null = null;
   ngOnInit() {
-    // Récupérer la liste initiale des sites
-    this.getSites();
-    this.getTotalElment();
-    //this.getAllFiles();
-  this.ser._refreshNeeded$.subscribe(()=>{
-    this.getSites();
-    this.getTotalElment();
-    this.getEquipementsOfSite(this.SiteDetails.id)
-    this.getPlanningsOfSite(this.SiteDetails.id)
+    if (this.ky.isLoggedIn()) {
+      this.ky.loadUserProfile().then((profile) => {
+        this.profil = profile;
+        console.log(this.profil);
+        this.userId = this.profil?.id ?? null;
+        console.log("id", this.userId);
 
-  })
+
+        this.getSiteAll()
+        // Call methods that depend on userId after it's set
+        this.getTotalElment();
+
+        // Subscribe to the refresh needed observable after userId is set
+        this.ser._refreshNeeded$.subscribe(() => {
+
+          this.getTotalElment();
+          this.getEquipementsOfSite(this.SiteDetails.id);
+          this.getPlanningsOfSite(this.SiteDetails.id);
+        });
+      });
+    } else {
+      // Call methods that don't depend on userId directly
+      this.getSites();
+      this.getTotalElment();
+
+      this.ser._refreshNeeded$.subscribe(() => {
+        this.getSites();
+        this.getTotalElment();
+        this.getEquipementsOfSite(this.SiteDetails.id);
+        this.getPlanningsOfSite(this.SiteDetails.id);
+      });
+    }
   }
 
-  getTotalElment(){
-    this.ser.getTotal().subscribe((data)=>
-      this.totalItems=data,
-    )
+  centre!: String;
+  sitebyCt!: Site[];
 
+  getCentreTechniqueOfProf() {
+    // Vérifier si userId est défini
+    if (this.userId !== null) {
+      // Appeler la fonction getCentreTechniqueOfRespo avec userId
+      this.ser.getCentreTechniqueOfRespo(this.userId).subscribe((data) => {
+        this.centre = data;
+        console.log("centre", this.centre);
+        this.getSiteByCt(this.centre);
+      });
+    } else {
+      console.error('UserId est null. Impossible d\'appeler getCentreTechniqueOfRespo.');
+    }
+  }
+
+  getSiteByCt(ct: String) {
+    this.ser.getSiteByCentre(ct).subscribe((data) => {
+      this.sites = data;
+      console.log("les sites", this.sitebyCt);
+    });
   }
 
   getSites() {
-    this.ser.getAllSites().subscribe((data) => {
-        this.sites = data;
-        console.log(this.sites);
 
-      },
-      (error) => {
-        console.log(error)
-      })
+
+
+    this.ser.getAllSites().subscribe((data) => {
+      console.log("site", data);
+      this.sites = data;
+    });
   }
+
+
+  getSiteAll(){
+    console.log("porfilll", this.profil)
+
+      this.getSites()
+
+  }
+  getTotalElment() {
+    this.ser.getTotal().subscribe((data) => {
+      this.totalItems = data;
+    });
+  }
+
+
 
 
   referechDate() {
@@ -117,17 +171,23 @@ export class SiteComponent implements  OnInit {
   }
   noResultsFound:Boolean = false;
   getSiteByType(type:String){
-    this.ser.getSiteByType(type).subscribe(
-      (data) => {
-        this.sites = data;
-        this.noResultsFound = this.sites.length === 0;
 
-      },
-      (error)=>
-      {
-        console.log("Error");
-      }
-    )
+
+      console.log(this.profil.username)
+      this.ser.getSiteByType(type).subscribe(
+        (data) => {
+          this.sites = data;
+          this.noResultsFound = this.sites.length === 0;
+
+        },
+        (error)=>
+        {
+          console.log("Error");
+        }
+      )
+
+
+
   }
 
   getFileNameFromResponse(response: any): string {
@@ -343,7 +403,7 @@ export class SiteComponent implements  OnInit {
   OpenNewSite() {
 
     var popup = this.dialog.open(NewSiteComponent, {
-      width: '50%', height: '599px',
+      width: '50%', height: '521px',
       exitAnimationDuration: '500ms',
       data: {title: 'Site'}
     })

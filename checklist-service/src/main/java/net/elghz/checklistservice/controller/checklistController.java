@@ -2,6 +2,9 @@ package net.elghz.checklistservice.controller;
 
 import net.elghz.checklistservice.dtos.ChecklistDTO;
 import net.elghz.checklistservice.dtos.PointMesureDTO;
+import net.elghz.checklistservice.entities.Checklist;
+import net.elghz.checklistservice.mapper.mapper;
+import net.elghz.checklistservice.repository.checklistRepo;
 import net.elghz.checklistservice.services.checklistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,8 +13,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-
+@RequestMapping("/pointMesure")
 public class checklistController {
+
+    @Autowired
+    checklistRepo repo;
+
+    @Autowired
+    mapper mp;
+    @PostMapping("/add/checklist")
+    public  ChecklistDTO addCHecklist(@RequestBody ChecklistDTO dt){
+      Checklist c = mp.from(dt);
+         repo.save(c);
+         return  dt;
+    }
 //
 //    @Autowired
 //    checklistService ser;

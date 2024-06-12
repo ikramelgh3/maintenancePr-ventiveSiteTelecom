@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service
+//@Service
 @Transactional
 @AllArgsConstructor
 public class userService {

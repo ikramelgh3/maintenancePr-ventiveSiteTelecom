@@ -10,6 +10,9 @@ import {RefrechSerService} from "../service/refrech-ser.service";
 import {responsableDTO} from "../models/responsableDTO";
 import {Site} from "../models/Site";
 import {PlanningdataserviceService} from "../planningdataservice.service";
+import {KeycloakProfile} from "keycloak-js";
+import {KeycloakService} from "keycloak-angular";
+import {User} from "../models/user";
 
 @Component({
   selector: 'app-new-planning',
@@ -22,17 +25,23 @@ export class NewPlanningComponent implements OnInit{
   public addForm!:FormGroup;
   responsableDTO!:responsableDTO[];
   site!:Site[];
-
+  public profil: KeycloakProfile | null = null;
   constructor( @Inject(MAT_DIALOG_DATA) public data:any,private ref:MatDialogRef<NewPlanningComponent>,
                private fb:FormBuilder , private ser:PlanningServiceService ,private snackBar: MatSnackBar,
-               private dataser:PlanningdataserviceService ) {
+               private dataser:PlanningdataserviceService,private keycloakService: KeycloakService ) {
     ref.disableClose = true;
   }
 
   inputdata:any;
+  respo!: User;
 
+  public userId: string | null = null;
   ngOnInit() {this.inputdata=this.data;
-
+    this.keycloakService.loadUserProfile().then(
+      (profile: KeycloakProfile) => {
+        this.profil = profile;
+        console.log('Profil chargé :', this.profil);
+    console.log('Profil chargé2 :', this.profil);
     this.addForm=this.fb.group({
       name:this.fb.control('', [Validators.required]),
       semestre:this.fb.control('', [Validators.required]),
@@ -40,12 +49,46 @@ export class NewPlanningComponent implements OnInit{
       dateFinRealisation:this.fb.control('', [Validators.required]),
       description:this.fb.control('', [Validators.required]),
       site:this.fb.control('',[Validators.required]),
-      responsableMaint:this.fb.control('',[Validators.required])
 
-    });this.listRespo();
+
+    })
     this.listSite();
+    this.getSiteOfCentr()
+        this.userId = this.profil?.id ?? null;
+this.getCentreTechniqueOfProf()
+    console.log("userId", this.profil.id)})
+  }
+centre!:String
+  getCentreTechniqueOfProf(){
+    // Vérifier si userId est défini
+    if (this.userId !== null) {
+      // Appeler la fonction getCentreTechniqueOfRespo avec userId
+      this.ser.getCentreTechniqueOfRespo(this.userId).subscribe((data)=>{
+        this.centre = data;
+        this.getSiteOfCentr();
+        this.getSiteByCt(this.centre);
+        console.log("centre", this.centre)
+      });
+    } else {
+      console.error('UserId est null. Impossible d\'appeler getCentreTechniqueOfRespo.');
+    }
   }
 
+  sitebyCt!:Site[]
+  getSiteByCt(ct:String){
+    this.ser.getSiteByCentre(ct).subscribe((data)=>{
+      this.sitebyCt =data;
+      console.log("les sites",this.sitebyCt)
+    })
+  }
+sites!:Site[]
+  getSiteOfCentr(){
+    console.log("le centre shhbce",this.centre)
+    this.ser.getAllSites().subscribe((data)=>{console.log("site",data)
+
+    this.sites= data
+    })
+  }
   referechDate() {
     this.ser.getPlannings().subscribe((res: any) => {
       this.planning = res;
@@ -57,9 +100,10 @@ export class NewPlanningComponent implements OnInit{
     this.ref.close();
   }
 
+
   add() {
     this.planning = this.addForm.value;
-    const idRes = this.planning.responsableMaint.id;
+    const idRes = this.userId;
     const idSite = this.planning.site.id;
     console.log(this.planning);
 
@@ -128,18 +172,7 @@ export class NewPlanningComponent implements OnInit{
     this.addForm.reset();
   }
 
-  listRespo() {
-    this.ser.getAllResponsable().subscribe(
-      (data)=>{
-        this.responsableDTO=data;
-        console.log(this.responsableDTO);
-      },
-      (error)=>{
-        console.log(error);
 
-      }
-    )
-  }
 
   listSite() {
     this.ser.getAllSites().subscribe(

@@ -35,7 +35,7 @@ public class PlanningMaintenance {
     private Long id_Site;
     @Transient
     private Site site;
-    private Long id_Respo;
+    private String id_Respo;
     @Transient
     private ResponsableMaint responsableMaint;
     @Transient

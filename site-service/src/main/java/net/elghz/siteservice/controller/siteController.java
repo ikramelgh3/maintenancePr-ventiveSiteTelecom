@@ -21,6 +21,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
+
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import net.elghz.siteservice.service.*;
@@ -33,6 +34,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+
+@RequestMapping("/sites")
 
 public class siteController {
     @Autowired  private siteService serv;
@@ -59,6 +62,7 @@ public class siteController {
         this.serv = serv;
     }
 
+
     @GetMapping("/sites")
     public List<siteDTO> allSites() {
         return serv.allSites();
@@ -79,6 +83,11 @@ public class siteController {
         return serv.sitesByType(type);
     }
 
+
+    @GetMapping("get/sites/type/{type}/{centre}")
+    public List<siteDTO> getSitesByTypeAndCentre(@PathVariable String type,@PathVariable String centre){
+        return serv.sitesByTypeOfCentre(type ,centre);
+    }
 
     @GetMapping("/site/id/{id}")
     public siteDTO findType(@PathVariable Long id) throws SiteNotFoundException {
@@ -399,7 +408,7 @@ public class siteController {
     }
 
 
-    @GetMapping("/exists/{name}")
+    @GetMapping("/existsN/{name}")
     public Boolean checkSiteExists(@PathVariable String name) {
         boolean exists = repo.existsByName(name);
         return exists;
@@ -449,6 +458,7 @@ public class siteController {
         photoRepo.deleteById(id);
 
     }
+
     @GetMapping("/getTotal")
     public  int getTot(){
         return  repo.findAll().size();
@@ -487,5 +497,8 @@ public class siteController {
         }
         return  sl.stream().map(mapper::from).collect(Collectors.toList());
     }
+
+
+
 
 }

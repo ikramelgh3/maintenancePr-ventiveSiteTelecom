@@ -1,6 +1,7 @@
 package net.elghz.siteservice.controller;
 
 import net.elghz.siteservice.dtos.DCDTO;
+import net.elghz.siteservice.dtos.equipementDTO;
 import net.elghz.siteservice.dtos.salleDTO;
 import net.elghz.siteservice.entities.DC;
 import net.elghz.siteservice.entities.etage;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/sites")
 public class SalleController {
     @Autowired private SalleService dcService;
 
@@ -140,6 +142,12 @@ public class SalleController {
     public ResponseEntity<?> allEquipementSalle(@PathVariable int numeroSalle ){
         return dcService.getAllEquipementFromSalle(numeroSalle);
     }
+
+    @GetMapping("/getAllEquipementsod/salle/{code}")
+    public List<equipementDTO>allEquipementSalle(@PathVariable String code ){
+        return dcService.getAllEquipementOfSalle(code);
+    }
+
 
     @GetMapping("/allEquipement/site/{name}")
     public ResponseEntity<?> getAllEquiOfSite(@PathVariable String name){

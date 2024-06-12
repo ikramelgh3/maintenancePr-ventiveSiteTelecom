@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableFeignClients
 @SpringBootApplication
+
 public class PlanningMaintenanceApplication {
 
 

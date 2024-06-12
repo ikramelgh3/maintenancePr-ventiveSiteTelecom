@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {APP_INITIALIZER, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { Ng2SearchPipeModule } from 'ng2-search-filter';
 import { AppRoutingModule } from './app-routing.module';
@@ -12,6 +12,7 @@ import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
 import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatList, MatListModule} from "@angular/material/list";
 import {NgxPaginationModule} from 'ngx-pagination';
+import { NgxMatTimepickerModule } from 'ngx-mat-timepicker';
 import { PlanningMaintenanceComponent } from './planning-maintenance/planning-maintenance.component';
 import {MatCard, MatCardModule} from "@angular/material/card";
 import {MatFormField, MatFormFieldModule} from "@angular/material/form-field";
@@ -63,6 +64,41 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
 import { UpdatePointMesureComponent } from './parametres/update-point-mesure/update-point-mesure.component';
 import { AddChecklistComponent } from './parametres/add-checklist/add-checklist.component';
 import { AddCTComponent } from './parametres/add-ct/add-ct.component';
+import {KeycloakAngularModule, KeycloakService} from "keycloak-angular";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import { NewUserComponent } from './users/new-user/new-user.component';
+import {UsersComponent} from "./users/users/users.component";
+import { UpdateUserComponent } from './users/update-user/update-user.component';
+import { InterventionsComponent } from './interventions/interventions/interventions.component';
+import { NewInterventionComponent } from './interventions/new-intervention/new-intervention.component';
+import { ArboInterveEquiComponent } from './interventions/arbo-interve-equi/arbo-interve-equi.component';
+import {AuthServiceService} from "./users/auth-service.service";
+import {NgxMaterialTimepickerModule} from "ngx-material-timepicker";
+import { AddPtToChecklistComponent } from './interventions/add-pt-to-checklist/add-pt-to-checklist.component';
+import { InetrvenantsComponent } from './interventions/inetrvenants/inetrvenants.component';
+import { AddInterventionToUserComponent } from './users/add-intervention-to-user/add-intervention-to-user.component';
+import { AddInterventionToEquipemntComponent } from './equipements/add-intervention-to-equipemnt/add-intervention-to-equipemnt.component';
+import { AddInterventionToPlanningComponent } from './planning-maintenance/add-intervention-to-planning/add-intervention-to-planning.component';
+import { MesInterventionsComponent } from './MesInterventions/mes-interventions/mes-interventions.component';
+
+function initializeKeycloak(keycloak: KeycloakService) {
+  return () =>
+    keycloak.init({
+      config: {
+        url: 'http://localhost:8180',
+        realm: 'TelecomTrack',
+        clientId: 'maintenance_angular'
+
+      },
+      initOptions: {
+        onLoad: 'login-required',
+        silentCheckSsoRedirectUri: window.location.origin + '/assets/silent-check-sso.html'
+      }
+    });
+
+
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -94,6 +130,18 @@ import { AddCTComponent } from './parametres/add-ct/add-ct.component';
     UpdatePointMesureComponent,
     AddChecklistComponent,
     AddCTComponent,
+    NewUserComponent,
+    UsersComponent,
+    UpdateUserComponent,
+    InterventionsComponent,
+    NewInterventionComponent,
+    ArboInterveEquiComponent,
+    AddPtToChecklistComponent,
+    InetrvenantsComponent,
+    AddInterventionToUserComponent,
+    AddInterventionToEquipemntComponent,
+    AddInterventionToPlanningComponent,
+    MesInterventionsComponent
 
 
 
@@ -101,6 +149,7 @@ import { AddCTComponent } from './parametres/add-ct/add-ct.component';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     NgxPaginationModule,
     AppRoutingModule,
     MatToolbarModule,
@@ -138,10 +187,20 @@ import { AddCTComponent } from './parametres/add-ct/add-ct.component';
     MatRadioModule,
     MatExpansionModule,
     MatProgressBarModule,
-    MatProgressSpinner
+    MatProgressSpinner,
+    KeycloakAngularModule,
+    NgxMatTimepickerModule,
+
   ],
+
   providers: [
-    provideAnimationsAsync()
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeKeycloak,
+      multi: true,
+      deps: [KeycloakService,AuthServiceService]
+    },
+    AuthServiceService
   ],
   bootstrap: [AppComponent],
 

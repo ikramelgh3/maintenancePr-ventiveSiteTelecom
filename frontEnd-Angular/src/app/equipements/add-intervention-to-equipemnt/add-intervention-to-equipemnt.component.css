@@ -1,0 +1,37 @@
+.content{
+  margin-top: -30px;
+
+}
+.row{
+  display: flex;
+  gap: 10px;
+  mat-form-field{
+    width: 100%;
+  }
+}
+
+.action{
+  padding: 0px 25px 20px;
+  button{
+    flex: 1;
+  }
+}
+/* Dans votre fichier styles.css ou styles.scss */
+
+.foot .action .custom-blue {
+
+  background-color: #6495ED;
+
+}
+
+
+/* Styles pour l'indicateur de chargement */
+.sending-email-snackbar {
+  background-color: rgba(0, 0, 0, 0.5); /* Fond semi-transparent */
+}
+
+/* Styles pour l'indicateur de chargement (spinner ou barre de progression) */
+.sending-email-snackbar .mat-progress-spinner,
+.sending-email-snackbar .mat-progress-bar {
+  color: white; /* Couleur du spinner ou de la barre de progression */
+}

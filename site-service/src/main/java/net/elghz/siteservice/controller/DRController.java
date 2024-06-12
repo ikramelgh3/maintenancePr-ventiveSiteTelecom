@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/sites")
 public class DRController {
     @Autowired private DRService dRService;
 

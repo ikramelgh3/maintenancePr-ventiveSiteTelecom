@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/sites")
 public class EtageController {
     @Autowired private EtageService dcService;
     @Autowired

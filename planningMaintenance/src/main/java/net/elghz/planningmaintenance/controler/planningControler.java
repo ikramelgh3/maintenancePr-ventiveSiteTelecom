@@ -15,6 +15,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,26 +25,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/planningsMaintenances")
 
 public class planningControler {
 
      @Autowired private planningService service;
      @Autowired private ImporterPlanning importerPlanning;
+@GetMapping("/auth")
+    public Authentication getCurrentAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 
 
-     @PostMapping("/add/planning")
+    @PostMapping("/add/planning")
     public PlanningMaintenanceDTO addPlanning(@RequestBody PlanningMaintenanceDTO dt){
           return  service.addPlanning(dt);
      }
 
 
     @PostMapping("/add/planningComplet/{idRes}/{idSite}")
-    public  PlanningMaintenanceDTO addPlanningComplet(@RequestBody PlanningMaintenanceDTO dt , @PathVariable Long idRes, @PathVariable Long idSite){
+    public  PlanningMaintenanceDTO addPlanningComplet(@RequestBody PlanningMaintenanceDTO dt , @PathVariable String idRes, @PathVariable Long idSite){
         return  service.addPlanningComplet(dt , idRes , idSite);
     }
 
     @PostMapping("/add/planningComp/{idRes}")
-    public PlanningMaintenanceDTO addPlanningCom(@RequestBody PlanningMaintenanceDTO dt , @PathVariable Long idRes){
+    public PlanningMaintenanceDTO addPlanningCom(@RequestBody PlanningMaintenanceDTO dt , @PathVariable String idRes){
         return  service.addPlanningCom(dt , idRes );
     }
 
@@ -94,7 +101,7 @@ public class planningControler {
     }
 
     @PatchMapping("/updatePlanning/{id}/{idSite}/{idResp}")
-    public ResponseEntity<?> updatePlanning(@PathVariable Long id, @RequestBody PlanningMaintenanceDTO planningDTO , @PathVariable Long idSite , @PathVariable Long idResp) {
+    public ResponseEntity<?> updatePlanning(@PathVariable Long id, @RequestBody PlanningMaintenanceDTO planningDTO , @PathVariable Long idSite , @PathVariable String idResp) {
         try {
             PlanningMaintenance updatedPlanning = service.updatePlanning(id, planningDTO , idSite , idResp);
             return new ResponseEntity<>(updatedPlanning, HttpStatus.OK);
@@ -119,7 +126,7 @@ public class planningControler {
 
     //get plannings of respo
     @GetMapping("/get/planningOfRespo/{idResp}")
-    public List<PlanningMaintenanceDTO> planningOfRespo(@PathVariable Long idResp){
+    public List<PlanningMaintenanceDTO> planningOfRespo(@PathVariable String idResp){
          return service.getPlanningsOfResp(idResp);
     }
 

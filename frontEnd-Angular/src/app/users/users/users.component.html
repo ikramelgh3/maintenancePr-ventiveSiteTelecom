@@ -1,0 +1,160 @@
+<div class="container">
+  <div style="background-color: white;width: 500px; position: relative; margin-top: -10px">
+
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <input matInput [(ngModel)]="searchInput" (input)="search()" placeholder="Rechercher parmi {{tot}} resultats...">
+    </div>
+    <mat-menu #importMenu1>
+      <button mat-menu-item sty class="buttonChoix" (click)="addUesr()" >
+        <mat-icon>add</mat-icon> Ajouer Utilisateur
+      </button>
+      <button mat-menu-item class="buttonChoix" >
+        <mat-icon>cloud_download</mat-icon> Exporter
+      </button>
+    </mat-menu>
+
+    <div style="display: flex; align-items: center;">
+
+      <button mat-icon-button (click)="getAllUser()"> <mat-icon style="color: black">refresh</mat-icon></button> &nbsp;
+
+      &nbsp;
+      <button mat-button [matMenuTriggerFor]="menu" style="color: #072f5f">Profil</button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="filterByRole('RESPONSABLE DE MAINTENANCE')" style="color: #072f5f">Responsable de maintenance </button>
+        <button mat-menu-item (click)="filterByRole('TECHNICIEN')" style="color: #072f5f">Technicien </button>
+        <button mat-menu-item (click)="filterByRole('INJECTEUR')" style="color: #072f5f">Injecteur </button>
+      </mat-menu>
+    </div>
+      <mat-divider></mat-divider>
+
+
+    <div *ngIf="noResultsFound" class="error-message" style="color: #6495ED; text-align: center;">Aucun utilisateur trouvé.</div>
+    <div style="width: 500px;">
+      <mat-list>
+        <ng-container *ngFor="let user of users | paginate: { itemsPerPage: 6, currentPage: p }">
+          <div style="display: flex; align-items: center;">
+            <a mat-list-item style="height: 70px; width: 100%; background-color: white; cursor: pointer; display: block; text-decoration: none;"
+               onmouseover="this.style.backgroundColor='#f0f0f0';"
+               onmouseout="this.style.backgroundColor='white';" (click)="getUserById(user.id)">
+              <div style="display: flex; align-items: center;">
+                <div style="flex: 1;">
+                  <!-- Première colonne pour le nom de l'utilisateur et l'e-mail -->
+                  <div style="font-size: 18px; color: #333;">{{ user.firstName }} {{ user.lastName }}&nbsp;</div>
+                  <div style="font-size: 14px; color: #999;">{{ user.email }}</div>
+                  <div style="font-size: 14px; color: #999;">{{ user.userName }}</div>
+                </div>
+                <div style="flex: 1; text-align: right;">
+                  <!-- Deuxième colonne pour la disponibilité et le rôle -->
+                  <div style="font-size: 16px; color: #072f5f;">
+                    <span *ngIf="getRoles(user.id) === 'TECHNICIEN'" style="color: goldenrod;">{{ getRoles(user.id) }}</span>
+                    <span *ngIf="getRoles(user.id) === 'RESPONSABLE DE MAINTENANCE'" style="color: blue;">{{ getRoles(user.id) }}</span>
+                    <span *ngIf="getRoles(user.id) !== 'TECHNICIEN' && getRoles(user.id) !== 'RESPONSABLE DE MAINTENANCE'">{{ getRoles(user.id) }}</span>
+                  </div>
+
+                </div>
+
+
+              </div>
+
+            </a>
+          </div>
+
+
+
+          <mat-divider></mat-divider>
+        </ng-container>
+      </mat-list>
+    </div>
+
+
+
+    <pagination-controls (pageChange)="p = $event " class="float-right">
+
+    </pagination-controls>
+
+
+  </div>
+
+  <div #siteDetails class="details" *ngIf="selectedUser" style="position: absolute; top: 10px; left: 530px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
+    <div style="color: black; margin-left: 500px; height: 20px">
+      <button mat-icon-button [matMenuTriggerFor]="importMenu1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #importMenu1>
+        <button mat-menu-item class="buttonChoix" (click)="UpdateUser()">
+          <mat-icon>update</mat-icon> Modifier
+        </button>
+        <button mat-menu-item class="buttonChoix" (click)="deleteUser(user.id)" >
+          <mat-icon>delete</mat-icon > Supprimer
+        </button>
+      </mat-menu>
+
+    </div>
+    <div class="divDetail"  *ngIf="user"  style="margin-left: 18px ; margin-top: 2px" >
+
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">person</mat-icon></span>
+        <div>
+          <span style="margin-left: 15px;">{{user.lastName}} {{user.firstName}}
+            <span *ngIf="getRoles(user.id) === 'TECHNICIEN'" style="color: goldenrod;margin-left: 16px">{{ getRoles(user.id) }}</span>
+                    <span *ngIf="getRoles(user.id) === 'RESPONSABLE DE MAINTENANCE'" style="color: blue;margin-left: 16px">{{ getRoles(user.id) }}</span>
+                    <span *ngIf="getRoles(user.id) !== 'TECHNICIEN' && getRoles(user.id) !== 'RESPONSABLE DE MAINTENANCE'" style="margin-left: 16px; color: indianred">{{ getRoles(user.id) }}</span>
+
+          </span>
+
+      </div>
+
+    </div>
+
+      <div *ngIf="isTechnicien">
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">label</mat-icon></span>
+          <div>
+            <span style="margin-left: 15px;">Type</span><br>
+            <span style="margin-left: 15px;color: #999999">{{ user.type }}</span>
+          </div>
+        </div>
+      </div>
+
+
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">email</mat-icon></span>
+        <div>
+          <span style="margin-left: 15px;">Email</span><br>
+          <span style="margin-left: 15px;color: #999999">{{user.email}}</span>
+        </div>
+
+      </div>
+
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">phone</mat-icon></span>
+        <div>
+          <span style="margin-left: 15px;">Téléphone</span><br>
+          <span style="margin-left: 15px;color: #999999">{{user.phone_number}}</span>
+        </div>
+
+      </div>
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">home</mat-icon></span>
+        <div>
+          <span style="margin-left: 15px;">Ville</span><br>
+          <span style="margin-left: 15px;color: #999999">{{user.city}}</span>
+        </div>
+
+      </div>
+      <div style="display: flex; align-items: center;">
+        <span><mat-icon style="color: gainsboro;">business</mat-icon></span>
+        <div>
+          <span style="margin-left: 15px;">Centre technique</span><br>
+          <span style="margin-left: 15px;color: #999999">{{user.available}}</span>
+        </div>
+
+      </div>
+
+
+  </div>
+</div>
+</div>

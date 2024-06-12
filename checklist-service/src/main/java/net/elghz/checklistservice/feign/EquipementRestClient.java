@@ -4,6 +4,7 @@ import net.elghz.checklistservice.model.ResponsableMaintenance;
 import net.elghz.checklistservice.model.equipement;
 import net.elghz.checklistservice.model.typeEquipement;
 import org.springframework.cloud.openfeign.FeignClient;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Optional;
 
-@FeignClient(name = "SITE-SERVICE" , url = "http://localhost:8082")
+@FeignClient(name = "SITE-SERVICE" , url = "http://localhost:8082/sites")
 public interface EquipementRestClient {
 
     @GetMapping("/findTypeEqui/{id}")

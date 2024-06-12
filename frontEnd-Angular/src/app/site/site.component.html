@@ -5,12 +5,12 @@
       <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu1">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <input matInput [(ngModel)]="searchInput" (input)="search()"  placeholder="Rechercher parmi {{totalItems}} resultats...">
+      <input matInput [(ngModel)]="searchInput" (input)="search()"  placeholder="Rechercher parmi {{sites?.length}} resultats...">
 
     </div>
 
     <mat-menu #importMenu1>
-      <button mat-menu-item sty class="buttonChoix" (click)="OpenNewSite()" >
+      <button mat-menu-item sty class="buttonChoix" (click)="OpenNewSite()"  *ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('INJECTEUR')">
         <mat-icon>add</mat-icon> Ajouer Site
       </button>
       <button mat-menu-item class="buttonChoix" (click)="exporterSites()">
@@ -19,7 +19,7 @@
     </mat-menu>
     <button mat-button [matMenuTriggerFor]="menu1"  style="color: #072f5f" >Type Site </button>
     <mat-menu #menu1="matMenu">
-      <button mat-menu-item (click)="getSites()" style="color: #072f5f">Tous les sites </button>
+      <button mat-menu-item (click)="getSiteAll()" style="color: #072f5f">Tous les sites </button>
       <button mat-menu-item (click)="getSiteByType('FIXE ')" style="color: #072f5f">Site Fixe </button>
       <button mat-menu-item (click)="getSiteByType('MOBILE ')" style="color:#072f5f">Site Mobile </button>
     </mat-menu>
@@ -54,7 +54,7 @@
 
   </div>
   <div #siteDetails class="details" *ngIf="selectedSiteDetails" style="position: absolute; top: 10px; left: 530px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
-    <div style="color: black; margin-left: 500px; height: 20px">
+    <div style="color: black; margin-left: 500px; height: 20px"  *ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('INJECTEUR')">>
       <button mat-icon-button [matMenuTriggerFor]="importMenu1">
         <mat-icon>more_vert</mat-icon>
       </button>
@@ -208,9 +208,6 @@
             <mat-divider></mat-divider>
           </ng-container>
         </mat-list>
-        <button mat-fab color="primary" class="add-equipment-btn">
-          <mat-icon>add</mat-icon>
-        </button>
         <div *ngIf="NotFoundImmubke">
           <p style="margin-left: 50px">Aucun immeuble n'est trouvé dans ce site.</p>
         </div>
@@ -237,7 +234,7 @@
             <p style="margin-left: 50px">Aucune image n'est trouvée dans ce site.</p>
           </div>
         </mat-list>
-        <button mat-fab color="primary" class="add-equipment-btn" (click)="addPict(SiteDetails.id)">
+        <button mat-fab color="primary" class="add-equipment-btn" (click)="addPict(SiteDetails.id)"  *ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('INJECTEUR')">
           <mat-icon>add</mat-icon>
         </button>
       </mat-tab>
@@ -263,37 +260,15 @@
           </ng-container>
 
         </mat-list>
-        <button mat-fab color="primary" class="add-equipment-btn"  (click)="addEquipet()">
+        <button mat-fab color="primary" class="add-equipment-btn"  (click)="addEquipet()"  *ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('INJECTEUR')">>
           <mat-icon>add</mat-icon>
         </button>
         <div *ngIf="not_found" >
           <p style="margin-left: 50px"> Aucune equipement n'est trouvé dans ce site.</p>
         </div>
       </mat-tab>
-      <mat-tab label="Interventions" style="color: white">
-        <ng-template mat-tab-label>
-          <span style="color: white;">Interventions</span>
-        </ng-template>
-        <mat-list>
-          <ng-container *ngFor="let int of Interventions ">
-            <div style="display: flex; align-items: center;">
-              <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">{{ int.name }}</div>
-              <div mat-line style="font-size: 16px; color: #999; margin-left: auto;margin-right: 20px">{{ int.status }}</div>
-            </div>
-            <div mat-line style="font-size: 14px; color: #333; margin-left: 15px;">Demandé par admin le {{ int.dateDebut | date: 'dd-MM-yyyy à HH:mm:ss' }}</div>
-            <mat-divider></mat-divider>
-          </ng-container>
 
-        </mat-list>
-        <button mat-fab color="primary" class="add-equipment-btn" >
-          <mat-icon>add</mat-icon>
-        </button>
-        <div *ngIf="not_foundInterv" >
-          <p style="margin-left: 50px"> Aucune intervention n'est trouvé dans ce site.</p>
-        </div>
-
-      </mat-tab>
-      <mat-tab label="Maintenance">
+      <mat-tab label="Maintenance" *ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')">
         <ng-template mat-tab-label>
           <span style="color: white;">Maintenance</span>
         </ng-template>

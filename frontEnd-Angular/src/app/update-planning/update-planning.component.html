@@ -24,15 +24,7 @@
   </div>
 
   <div class="row">
-    <mat-form-field appearance="outline">
-      <mat-label> Responsable de maintenance</mat-label>
-      <mat-select formControlName="Respo" required (selectionChange)="onRespoSelectionChange($event)">
-        <mat-option *ngFor="let val of responsableDTO" [value]="val.id">
-          {{ val.nom }}
-        </mat-option>
-      </mat-select>
-      <mat-error>Veuillez sélectionner le responsable</mat-error>
-    </mat-form-field>
+
 
     <mat-form-field appearance="outline">
       <mat-label> Site</mat-label>

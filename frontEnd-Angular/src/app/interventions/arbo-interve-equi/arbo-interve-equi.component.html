@@ -1,0 +1,64 @@
+<div style="background-color: #072f5f; width: 100%; height: 30px">
+  <h2 style="color: white; text-align: center">ARBORESCENCE</h2>
+</div>
+
+<div class="container">
+  <span><mat-icon>factory</mat-icon></span>
+  <span class="title">Sites</span>
+</div>
+<mat-accordion *ngIf="clic">
+  <mat-expansion-panel *ngFor="let site of sites" (opened)="panelOpenState = true"
+                       (closed)="panelOpenState = false" (click)="toggleBuilding(site.id)">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        {{ site.name }}
+      </mat-panel-title>
+      <mat-panel-description>
+
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+    <div *ngIf="clicImmuble">
+      <mat-accordion *ngIf="clicImmuble">
+        <mat-expansion-panel *ngFor="let immuble of immubles" (click)="toggleFloor(immuble.id); $event.stopPropagation()">
+
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              {{ immuble.codeImmuble }}
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div *ngIf="clicEtage">
+            <mat-accordion *ngIf="clicEtage">
+              <mat-expansion-panel *ngFor="let etage of etage" (click)="toggleRoom(etage.id);$event.stopPropagation()">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ etage.codeEtagge }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div *ngIf="clicSalle">
+
+                  <mat-accordion *ngIf="clicSalle">
+                    <mat-expansion-panel *ngFor="let sal of salle" (click)="toggleEquipemnts(sal.codeSalle);$event.stopPropagation()">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          {{ sal.codeSalle }}
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <div *ngIf="clicEq" >
+                  <ul>
+                    <li *ngFor="let s of equipements" (click)="selectEqui(s)" style="cursor: pointer">
+                      {{ s.nom }}
+                    </li>
+                  </ul>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
+
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </mat-expansion-panel>
+</mat-accordion>

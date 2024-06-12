@@ -21,7 +21,7 @@ public interface planningRepo extends PagingAndSortingRepository<PlanningMainten
     List<PlanningMaintenance> findById_Site(Long idSite);
 
     @Query("SELECT c FROM PlanningMaintenance c WHERE c.id_Respo = :idRespo")
-    List<PlanningMaintenance> findById_Respo(Long idRespo);
+    List<PlanningMaintenance> findById_Respo(String idRespo);
 
     boolean existsByName(String name);
 

@@ -7,7 +7,11 @@ public enum PlanningStatus {
     EN_ATTENTE("En attente"),
     EN_COURS("En cours"),
     TERMINE("Terminé"),
+    PLANIFIEE("Planifiee"),
+
     ANNULE("Annulé");
+
+
 
     private final String label;
 

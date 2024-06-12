@@ -1,0 +1,24 @@
+.divCon{
+  display: none;
+}
+input{
+
+  padding:5px ;
+  width: 400px;
+  outline: none;
+  border: none;
+  background: white;
+  margin-top: 5px;
+}
+::placeholder {
+  color: darkgrey;
+
+}
+.add-equipment-btn {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+  bottom: 5px;
+  right: 20px;
+  z-index: 1000;
+}

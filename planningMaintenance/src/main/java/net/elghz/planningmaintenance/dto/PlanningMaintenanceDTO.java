@@ -23,7 +23,7 @@ public class PlanningMaintenanceDTO {
     private Site site;
     private String description;
     private Date dateCreation;
-    private Long id_Respo;
+    private String id_Respo;
     private ResponsableMaint responsableMaint;
     List<Intervention> interventionList = new ArrayList<>();
 

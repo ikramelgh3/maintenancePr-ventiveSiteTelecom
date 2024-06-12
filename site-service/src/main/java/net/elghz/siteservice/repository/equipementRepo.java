@@ -17,6 +17,7 @@ public interface equipementRepo  extends JpaRepository<equipement,Long> {
 
     Optional<equipement> findByNumeroSerie(String numSerie);
 
+    List<equipement> findByStatut(Statut status);
     Optional<equipement> findByCode(String code);
     boolean existsByCodeAndIdIsNot(String code, Long id);
     boolean existsByNumeroSerieAndIdIsNot(String num, Long id);

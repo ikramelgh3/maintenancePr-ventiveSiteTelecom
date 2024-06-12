@@ -17,17 +17,21 @@ import {map} from "rxjs";
 import {UpdatePointMesureComponent} from "../parametres/update-point-mesure/update-point-mesure.component";
 import {AddChecklistComponent} from "../parametres/add-checklist/add-checklist.component";
 import {AddCTComponent} from "../parametres/add-ct/add-ct.component";
+import {Dr} from "../models/dr";
 @Component({
   selector: 'app-import-data',
   templateUrl: './import-data.component.html',
   styleUrl: './import-data.component.css'
 })
 export class ImportDataComponent implements  OnInit{
-
+  ctNotFound:boolean =false
+  checkliSuce:boolean = false;
+  checklistNotFoudn: Boolean =false;
   siteSucc:Boolean = false;
   showSpinner:boolean=false;
   eqSucc:Boolean= false;
   displayImport:Boolean= true
+  affichEqui:boolean= false
   showchek:boolean=false
   centreTEchnique!:CentreTechnique []
   afficheTableChecklist:boolean =false
@@ -37,24 +41,41 @@ export class ImportDataComponent implements  OnInit{
   dataSource = new MatTableDataSource<any>;
   showImprtEquip:boolean= false;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  searchInput: string = '';
+  searchInput1: string = '';
   constructor(
 
     private snackBar: MatSnackBar,private dialogService: DialogService,  private planningService: PlanningServiceService,
     private  router:Router, private dialog: MatDialog, private changeDetectorRef: ChangeDetectorRef
   ) { }
 
-  ngOnInit() {this.getAllCentreTechnqiue();
+  ngOnInit() {
+    this.getAllCentreTechnqiue();
     this.getSite()
     this.getAllEquipemenet()
     this.getChecklists();
-  }
+    this.getAllDRS();
+    this.dataSource.filterPredicate = (data: any, filter: string) => {
+      const transformedFilter = filter.trim().toLowerCase();
+      const matchId = data.id.toString().toLowerCase().includes(transformedFilter);
+      const matchDr = data.dc?.dr?.name.toString().toLowerCase().includes(transformedFilter);
+      const matchDc = data.dc?.name.toLowerCase().includes(transformedFilter);
+      const matchName = data.name.toLowerCase().includes(transformedFilter);
+      return matchId || matchDr || matchDc || matchName;
+    }
 
+  }
 
   getAllSite() {
     this.planningService.getAllSites().subscribe((data) => {
       this.sites = data;
       if (this.sites.length === 0) {
         this.showImprtEquip = true;
+      }
+      else{
+        this.showImprtEquip = false;
+
       }
     })
   }
@@ -64,37 +85,55 @@ export class ImportDataComponent implements  OnInit{
 
   processEquipments(data: any, fileInput: HTMLInputElement, file: File): void {
     const duplicates: Array<{ numeroSerie: string, code: string }> = [];
+    const missingSites: Array<{ siteName: string }> = [];
+    const missingTypes: Array<{ typeName: string }> = [];
     const importPromises: Array<Promise<void>> = [];
 
     data.slice(1).forEach((row: any) => {
       const numeroSerie = row[2]?.trim();
       const code = row[0]?.trim();
+      const siteName = row[12]?.trim(); // assuming the site name is in the 13th column
+      const typeEquipement = row[4]?.trim(); // assuming the type of equipment is in the 6th column
+
       if (numeroSerie && code) {
-        const promise = this.planningService.checkEquipExists(numeroSerie, code).toPromise().then((exists: boolean | undefined) => {
+        const checkEquipPromise = this.planningService.checkEquipExists(numeroSerie, code).toPromise().then((exists: boolean | undefined) => {
           if (exists) {
             duplicates.push({ numeroSerie, code });
           }
         });
-        importPromises.push(promise);
+        importPromises.push(checkEquipPromise);
       }
+      if (siteName) {
+        const checkSitePromise = this.planningService.checkSiteExistsByName(siteName).toPromise().then((exists: boolean | undefined) => {
+          if (!exists) {
+            missingSites.push({ siteName });
+          }
+        });
+        importPromises.push(checkSitePromise);
+      }
+
     });
 
     Promise.all(importPromises).then(() => {
       if (duplicates.length > 0) {
-        this.showSpinner=false
+        this.showSpinner = false;
         fileInput.value = '';
-        this.showSnackBar('Le(s) équipement(s) suivant(s) exist(ent) dèja dans la base de données : ' + JSON.stringify(duplicates)+', veuillez modifer les données de votre fichier', 'OK');
-      } else {
+        this.showSnackBar('Le(s) équipement(s) suivant(s) exist(ent) déjà dans la base de données : ' + JSON.stringify(duplicates) + ', veuillez modifier les données de votre fichier', 'OK');
+      } else if (missingSites.length > 0) {
+        this.showSpinner = false;
+        fileInput.value = '';
+        this.showSnackBar('Le(s) site(s) suivant(s) n\'exist(ent) pas dans la base de données : ' + JSON.stringify(missingSites) + ', veuillez modifier les données de votre fichier', 'OK');
+      }  else {
         this.planningService.importEquip(file).subscribe(
-          response => { this.showSpinner=false
-
+          response => {
+            this.showSpinner = false;
             this.showSnackBar('Les équipements sont bien importés', '');
             this.eqSucc = true;
             fileInput.value = '';
-            this.affiche = true;
+            this.affichEqui=true
           },
           error => {
-            this.showSpinner=false
+            this.showSpinner = false;
             fileInput.value = '';
             this.showSnackBar('Erreur lors de l\'importation des données!!!', 'OK');
           }
@@ -103,7 +142,7 @@ export class ImportDataComponent implements  OnInit{
     }).catch(error => {
       fileInput.value = '';
       console.error('Error during processing equipments: ', error);
-      this.showSpinner=false
+      this.showSpinner = false;
       this.showSnackBar('Erreur lors de la vérification des équipements!!!', 'OK');
     });
   }
@@ -111,7 +150,7 @@ export class ImportDataComponent implements  OnInit{
   uploadFileEqui(fileInput: HTMLInputElement): void {
     const file = fileInput.files ? fileInput.files[0] : null;
     if (file) {
-      this.showSpinner=true
+      this.showSpinner = true;
       if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
         const reader = new FileReader();
         reader.onload = (e: any) => {
@@ -124,15 +163,17 @@ export class ImportDataComponent implements  OnInit{
         };
         reader.readAsArrayBuffer(file);
       } else {
-        this.showSpinner=false
+        this.showSpinner = false;
         fileInput.value = '';
         this.showSnackBar('Le fichier sélectionné n\'est pas au format Excel.', 'OK');
       }
     } else {
-      this.showSpinner=false
+      this.showSpinner = false;
       this.showSnackBar('Aucun fichier sélectionné.', 'OK');
     }
   }
+
+
 
   showSnackBar(message: string, action: string): void {
     this.showSpinner=false
@@ -154,7 +195,7 @@ export class ImportDataComponent implements  OnInit{
   uploadFileSites(fileInput: HTMLInputElement): void {
     const file = fileInput.files ? fileInput.files[0] : null;
     if (file) {
-      this.showSpinner=true
+      this.showSpinner = true;
       if (file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
         console.log('Fichier sélectionné :', file);
         const reader = new FileReader();
@@ -169,16 +210,26 @@ export class ImportDataComponent implements  OnInit{
           const rows = sheetData.slice(1);
 
           let duplicates: string[] = [];
+          let missingCenters: string[] = [];
           let importPromises: Promise<void>[] = [];
 
           rows.forEach((row: any) => {
             const siteName = row[headers.indexOf('name')];
             const codeSite = row[headers.indexOf('code')];
-            if (siteName && codeSite) {
+            const centerCode = row[headers.indexOf('Centre Technique')]; // Assume 'centerCode' is the header for the center technical code
+            if (siteName && codeSite && centerCode) {
               importPromises.push(
                 this.planningService.checkSiteNameUnique1(codeSite, siteName).then((exists: boolean | undefined) => {
                   if (exists !== undefined && exists === true) {
                     duplicates.push(siteName);
+                  }
+                })
+              );
+
+              importPromises.push(
+                this.planningService.checkCTExist1(centerCode).then((exists: boolean | undefined) => {
+                  if (exists !== undefined && exists === false) {
+                    missingCenters.push(centerCode);
                   }
                 })
               );
@@ -187,26 +238,36 @@ export class ImportDataComponent implements  OnInit{
 
           Promise.all(importPromises).then(() => {
             if (duplicates.length > 0) {
-              this.showSpinner=false
+              this.showSpinner = false;
               fileInput.value = '';
               console.log('Les sites suivants existent déjà :', duplicates);
-              this.snackBar.open(`Le(s) site(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
+              this.snackBar.open(`Importation échouée, Le(s) site(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
+                duration: 8000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top',
+                panelClass: ['blue-snackbar']
+              });
+            } else if (missingCenters.length > 0) {
+              this.showSpinner = false;
+              fileInput.value = '';
+              console.log('Les centres techniques suivants sont manquants :', missingCenters);
+              this.snackBar.open(`Importation échouée, le(s) centre(s) technique(s) suivant(s) sont manquant(s) : ${missingCenters.join(', ')}`, 'OK', {
                 duration: 8000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
                 panelClass: ['blue-snackbar']
               });
             } else {
-              // Aucun doublon détecté, importer les sites
+              // Aucun doublon détecté et tous les centres techniques existent, importer les sites
               this.planningService.importSite(file).subscribe(
                 response => {
-                  this.showSpinner=false
+                  this.showSpinner = false;
                   console.log('Import successful: ', response);
                   fileInput.value = '';
                   this.cliq = true;
-                  this.siteSucc= true
-                  this.showImprtEquip=true
-                  this.affiche= true;
+                  this.siteSucc = true;
+                  this.showImprtEquip = false;
+                  this.affiche = true;
                   this.snackBar.open('Les sites sont bien importés', '', {
                     duration: 6000,
                     horizontalPosition: 'right',
@@ -216,7 +277,7 @@ export class ImportDataComponent implements  OnInit{
                 },
                 error => {
                   console.log('Import failed: ', error);
-                  this.showSpinner=false
+                  this.showSpinner = false;
                   fileInput.value = '';
                   this.snackBar.open('Erreur lors de l\'importation des données!!!', 'OK', {
                     duration: 8000,
@@ -231,7 +292,7 @@ export class ImportDataComponent implements  OnInit{
         };
         reader.readAsArrayBuffer(file);
       } else {
-        this.showSpinner=false
+        this.showSpinner = false;
         fileInput.value = '';
         console.log('Le fichier sélectionné n\'est pas au format Excel.');
         this.snackBar.open('Le fichier sélectionné n\'est pas au format Excel.', 'OK', {
@@ -242,7 +303,7 @@ export class ImportDataComponent implements  OnInit{
         });
       }
     } else {
-      this.showSpinner=false
+      this.showSpinner = false;
       fileInput.value = '';
       console.log('Aucun fichier sélectionné.');
       this.snackBar.open('Aucun fichier sélectionné.', 'OK', {
@@ -253,7 +314,6 @@ export class ImportDataComponent implements  OnInit{
       });
     }
   }
-
 
 
 
@@ -301,8 +361,8 @@ export class ImportDataComponent implements  OnInit{
               this.showSpinner=false
               fileInput.value = '';
               console.log('Duplicates:', duplicates);
-              console.log('Les sites suivants existent déjà :', duplicates);
-              this.snackBar.open(`Le(s) centres(s) technique(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
+              console.log('Importation échouée, les sites suivants existent déjà :', duplicates);
+              this.snackBar.open(`Importation échouée, le(s) centres(s) technique(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
                 duration: 8000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
@@ -372,11 +432,14 @@ export class ImportDataComponent implements  OnInit{
   getAllCentreTechnqiue() {
     this.planningService.getAllCT().subscribe(data => {
       this.ct = data;
+      this.totalItems= this.ct.length;
       if (this.ct.length !== 0) {
         this.cliq = true;
+        this.ctNotFound = false
       }
       else {
         this.cliq = false
+        this.ctNotFound = true
       }
       this.dataSource.data = data;
       console.log(this.ct);
@@ -489,6 +552,7 @@ export class ImportDataComponent implements  OnInit{
      this.planningService.getEquipements().subscribe((data)=>{
         this.equi = data;
         if(this.equi.length!==0){
+          this.affichEqui=true
           this.affiche=true
           this.showImprtEquip = false
         }
@@ -501,15 +565,27 @@ export class ImportDataComponent implements  OnInit{
 
 
   getChecklists() {
+
+
     this.planningService._refreshNeeded$.subscribe(()=>{
       this.getChecklists();
     })
     this.planningService.getChecklist().subscribe(data => {
       this.checklist = data;
-
+      console.log("dd",this.checklist)
       if(this.checklist.length!==0){
         this.afficheTableChecklist=true;
+        this.affiche=true
+        this.checklistNotFoudn=false;
+        this.checkliSuce = true;
       }
+      if(this.checklist.length===0){
+        this.checklistNotFoudn=true
+        this.affiche=false
+        this.siteSucc = false
+        this.checkliSuce = false;
+      }
+
       this.dataSource1.data = data;
       this.dataSource1.paginator = this.paginator;
       console.log(this.ct)
@@ -566,8 +642,8 @@ this.getChecklists();
               console.log('Duplicates:', duplicates);
               this.showSpinner=false
               fileInput.value = '';
-              console.log('Les sites suivants existent déjà :', duplicates);
-              this.snackBar.open(`Le(s) checklist(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
+              console.log('Importation échouée, les sites suivants existent déjà :', duplicates);
+              this.snackBar.open(`Importation échouée, le(s) checklist(s) suivant(s) exist(ent) déjà : ${duplicates.join(', ')}`, 'OK', {
                 duration: 8000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top',
@@ -582,6 +658,7 @@ this.getChecklists();
                   fileInput.value = '';
                   this.showSpinner=false
                   this.cliq = true;
+                  this.checkliSuce = true;
                   this.snackBar.open('Les checklists sont bien importés', '', {
                     duration: 6000,
                     horizontalPosition: 'right',
@@ -640,8 +717,62 @@ this.getChecklists();
 
     addCT(){
       const popup = this.dialog.open(AddCTComponent, {
-        width: '35%', height: '426px',
+        width: '35%', height: '380px',
         exitAnimationDuration: '0'
       });
     }
+  totalItems:number=0
+
+  DRS!: Dr[]
+  getAllDRS(){
+    this.planningService.getDR().subscribe((data)=>{
+      this.DRS= data;
+    })
+  }
+  search(): void {
+    if (this.searchInput.trim() !== '') {
+      this.planningService.getCTByKeyword(this.searchInput).subscribe(
+        (data: CentreTechnique[]) => {
+          this.ct = data;
+        //  this.noResultsFound = this.sites.length === 0;
+        },
+        (error) => {
+          console.error('Erreur lors de la recherche :', error);
+        }
+      );
+    } else {
+      this.getAllCentreTechnqiue();
+    }
+  }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
+  applyFilter1(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value.toLowerCase();
+    this.dataSource1.filter = filterValue.trim().toLowerCase();
+
+    // Recherche sur toutes les propriétés des données
+    this.dataSource1.filterPredicate = (data: any, filter: string) => {
+      const transformedFilter = filter.trim().toLowerCase();
+      return Object.keys(data).some(key => {
+        const value = data[key];
+        if (value !== null && value !== undefined && key !== 'action') {
+          if (key === 'typeEquipent' && value && value.name) {
+            // Recherche spécifique pour la colonne "Groupe"
+            return value.name.toLowerCase().includes(transformedFilter);
+          }
+          return value.toString().toLowerCase().includes(transformedFilter);
+        }
+        return false;
+      });
+    };
+
+    if (this.dataSource1.paginator) {
+      this.dataSource1.paginator.firstPage(); // Revenir à la première page après le filtrage
+    }
+  }
+
+
+
 }

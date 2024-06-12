@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "CHECKLIST-SERVICE" , url="http://localhost:8083")
+@FeignClient(name = "CHECKLIST-SERVICE" , url="http://localhost:8083/pointMesure")
 public interface checklistRestClient {
     @GetMapping("/checklist/equip/name/{name}")
     public ResponseEntity<?> getChecklistsEquipelt(@PathVariable String name);

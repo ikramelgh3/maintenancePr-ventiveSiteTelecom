@@ -64,7 +64,7 @@ public class PlanningsExcelExporter extends AbstractExporter {
                             createCell(row, 1, pl.getName(), dataCellStyle);
                             createCell(row, 2, pl.getSemestre(), dataCellStyle);
                             createCell(row, 3, pl.getDescription(), dataCellStyle);
-                            createCell(row, 4, pl.getResponsableMaint().getNom(), dataCellStyle);
+                            createCell(row, 4, pl.getResponsableMaint().getUserName(), dataCellStyle);
                             createCell(row, 5, pl.getSite().getName(), dataCellStyle);
                             createCell(row, 6, String.valueOf(pl.getDateCreation()), dataCellStyle);
                             createCell(row, 7, String.valueOf(pl.getDateDebutRealisation()), dataCellStyle);

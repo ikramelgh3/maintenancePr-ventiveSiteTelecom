@@ -12,7 +12,7 @@ export interface PlanningMaintenanceDTO{
    description:String;
     dateCreation:Date;
     status:String;
-    id_Respo:number;
+    id_Respo:string;
   id_Site:number;
   responsableMaint:responsableDTO;
   site:Site;

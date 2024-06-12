@@ -15,20 +15,177 @@ import {Etage} from "../src/app/models/etage";
 import {Salle} from "../src/app/models/salle";
 import {Dc} from "../src/app/models/dc";
 import {Checklist} from "../src/app/models/checklist";
+import {User} from "../src/app/models/user";
+import {Role} from "../src/app/models/Role";
+import {GlobalChecklist} from "../src/app/models/GlobalChecklist";
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlanningServiceService {
 
-  private baseUrl = "http://localhost:8888/PLANNING-MAINTENANCE";
-  private baseUrlRespo = "http://localhost:8888/USER-SERVICE";
-  private baseUrlSite = "http://localhost:8888/SITE-SERVICE";
-  private baseUrlIntervention = "http://localhost:8888/INTERVENTION-SERVICE";
-  private baseUrlChecklist = "http://localhost:8888/CHECKLIST-SERVICE";
-
+  private baseUrl = "http://localhost:8888/PLANNING-MAINTENANCE/planningsMaintenances";
+  private baseUrlRespo = "http://localhost:8888/USER-SERVICE/users";
+  private baseUrlSite = "http://localhost:8888/SITE-SERVICE/sites";
+  private baseUrlIntervention = "http://localhost:8888/INTERVENTION-SERVICE/interventions";
+  private baseUrlChecklist = "http://localhost:8888/CHECKLIST-SERVICE/pointMesure";
+  private baseUrlUser = "http://localhost:8888/USER-SERVICE/keycloak";
   constructor(private http: HttpClient) {
 
+  }
+
+
+  getAllIntervention():Observable<Intervention[]>{
+    const url = `${this.baseUrlIntervention}/get/all/Inter`;
+    return  this.http.get<Intervention[]>(url);
+  }
+  getAllUsers():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users`;
+     return  this.http.get<User[]>(url);
+  }
+  getInterventionOfTechnicein(id: string): Observable<Intervention[]> {
+
+    const url = `${this.baseUrlIntervention}/intervention/technicien/${id}`;
+    return this.http.get<Intervention[]>(url);
+
+  }
+
+  getAlltechniciens():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/technicians`;
+    return  this.http.get<User[]>(url);
+  }
+
+  getCentreTechniqueOfRespo(id:string):Observable<String>{
+    const url = `${this.baseUrlUser}/users/${id}/centre-technique`;
+    return  this.http.get(url , { responseType: 'text' });
+  }
+  totInterventions():Observable<number>{
+    const url = `${this.baseUrlIntervention}/nbreTot`;
+    return  this.http.get<number>(url);
+  }
+  getSiteByCentre(centre:String):Observable<Site[]>{
+    const url = `${this.baseUrlSite}/site/centreTehnique/${centre}`;
+    return  this.http.get<Site[]>(url);
+
+  }
+
+  totoTech():Observable<number>{
+    const url = `${this.baseUrlUser}/toto`;
+    return  this.http.get<number>(url);
+  }
+
+
+
+  getAlltechniciensExterne():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/technicians-extern`;
+    return  this.http.get<User[]>(url);
+  }
+  getAlltechniciensInterns():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/technicians-internal`;
+    return  this.http.get<User[]>(url);
+  }
+
+  getDisponibleTech():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/available-technicians`;
+    return  this.http.get<User[]>(url);
+  }
+
+  getNonDisponibleTech():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/Notavailable-technicians`;
+    return  this.http.get<User[]>(url);
+  }
+
+  getAllEquipementsOfSallle(code:string):Observable<Equipement[]>{
+  const url = `${this.baseUrlSite}/getAllEquipementsod/salle/${code}`;
+  return  this.http.get<Equipement[]>(url);
+}
+
+
+  getAllTechnicenAvaible():Observable<User[]>{
+    const url = `${this.baseUrlUser}/users/available-technicians`;
+    return  this.http.get<User[]>(url);
+  }
+
+
+
+  getUserById(id: string): Observable<User> {
+  const url = `${this.baseUrlUser}/users/${id}`;
+  return this.http.get<User>(url);
+}
+
+  getUsersByRole(role: string): Observable<User[]> {
+
+    const url = `${this.baseUrlUser}/roles/${role}/users`;
+    return this.http.get<User[]>(url);
+
+  }
+  getUsersAvaible(): Observable<User[]> {
+    const url = `${this.baseUrlUser}/users/available-technicians`;
+    return this.http.get<User[]>(url);
+
+  }
+  getRolesOfUser(id: string):Observable<Role[]>{
+    const url = `${this.baseUrlUser}/users/${id}/roles`;
+    return  this.http.get<Role[]>(url);
+  }
+
+  getTotalUsers():Observable<number>{
+    const url = `${this.baseUrlUser}/totalUser`;
+    return  this.http.get<number>(url);
+  }
+
+getUserByUsername(keyword:String):Observable<User[]>{
+  const url = `${this.baseUrlUser}/users/search/${keyword}`;
+  return this.http.get<User[]>(url);
+}
+
+getUserByFullName(fullName:String):Observable<User[]>{
+  const url = `${this.baseUrlUser}/users/search-by-fullname/${fullName}`;
+  return this.http.get<User[]>(url);
+}
+    getCTByKeyword(keyword:String):Observable<CentreTechnique[]>{
+    const url = `${this.baseUrlUser}/findCT/byKeyword/${keyword}`;
+    return this.http.get<CentreTechnique[]>(url);
+  }
+
+  updateUser(user:User): Observable<any> {
+    const url = `${this.baseUrlUser}/user`;
+    return this.http.put<any>(url, user).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+
+      })
+    );
+  }
+
+  deleteUser(id:string):Observable<any>{
+    const  url = `${this.baseUrlUser}/users/${id}`;
+    return  this.http.delete(url).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+
+
+
+checkUserExistByUserName(username: string): Observable<boolean> {
+  return this.http.get<boolean>(`${this.baseUrlUser}/users/check-username/${username}`);
+}
+  checkUserExistByEmail1(email: string, id:string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrlUser}/users/check-email1/${email}/${id}`);
+  }
+
+  checkUserExistByEmail(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrlUser}/users/check-email/${email}`);
+  }
+addUser(formData: User ): Observable<any> {
+    const  url = `${this.baseUrlUser}/Adduser`;
+    return this.http.post<any>(url, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
   }
   private _refreshBeeded$ = new Subject<void>();
   get _refreshNeeded$(){
@@ -46,6 +203,21 @@ export class PlanningServiceService {
     );
   }
 
+  addIntervention(formData: Intervention, idTech: string, idPl: number, idEq: number, idRespo: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrlIntervention}/ajouterIntervention/${idTech}/${idPl}/${idEq}/${idRespo}`, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
+
+  addInterventionC(formData: Intervention, idTech: string,  idEq: number, idRespo: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrlIntervention}/ajouterInterventionCorrective/${idTech}/${idEq}/${idRespo}`, formData).pipe(
+      tap(()=>{
+        this._refreshBeeded$.next();
+      })
+    );
+  }
   public deletePlanning(id: number): Observable<any> {
     const url = `${this.baseUrl}/delete/planning/${id}`; // Utilisez l'ID dans l'URL
     return this.http.delete(url);
@@ -56,6 +228,16 @@ export class PlanningServiceService {
     return this.http.get(url);
   }
 
+
+public getChecklistByIdType(idTy: number): Observable<any> {
+  const url = `${this.baseUrlIntervention}/checklist/point/${idTy}`;
+  return this.http.get(url);
+}
+public getInterventionById(id: number): Observable<any> {
+  const url = `${this.baseUrlIntervention}/find/Intervention/${id}`;
+  return this.http.get(url);
+}
+
   checkPlanningExists(name: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/check-existence/${name}`);
   }
@@ -64,7 +246,17 @@ export class PlanningServiceService {
 checkCTExist(name: string): Observable<boolean> {
   return this.http.get<boolean>(`${this.baseUrlSite}/existCT/${name}`);
 }
+  checkCTExist1(name: string): Promise<boolean | undefined> {
+    const url = `${this.baseUrlSite}/existCT/${name}`;
+    return this.http.get<boolean>(url).toPromise();
+  }
 
+
+
+checkTypeEquipementExist(type: string):Observable<boolean> {
+  const url = `${this.baseUrlSite}/exist/${type}`;
+  return this.http.get<boolean>(url);
+}
   checkPointMesureExist(name: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrlChecklist}/existCT/${name}`);
   }
@@ -82,11 +274,23 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
     return this.http.get<boolean>(url).toPromise();
   }
 
+  checkSiteExistsByName(code:String ): Observable<boolean> {
+    const url = `${this.baseUrlSite}/existsN/${code}`;
+    return this.http.get<boolean>(url);
+
+  }
+
 
   checkCTExsit( name: string): Promise<boolean | undefined> {
     const url = `${this.baseUrlSite}/existCT/${name}`;
     return this.http.get<boolean>(url).toPromise();
   }
+
+
+  getInterventionsOfPlanning(id:number): Observable<Intervention[]> {
+    return this.http.get<Intervention[]>(this.baseUrl + `/get/intervention/planning/${id}`);
+  }
+
 
   checkPointExist( name: string): Promise<boolean | undefined> {
    const url = `${this.baseUrlChecklist}/checklist/exist/${name}`
@@ -97,7 +301,7 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
     const url = `${this.baseUrlChecklist}/checklist/exist/${name}/${id}`
     return this.http.get<boolean>(url);
   }
-  updatePlanning(id: number, planning: PlanningMaintenanceDTO , idSite:number, idResp:number): Observable<any> {
+  updatePlanning(id: number, planning: PlanningMaintenanceDTO , idSite:number, idResp:string): Observable<any> {
     const url = `${this.baseUrl}/updatePlanning/${id}/${idSite}/${idResp}`;
     return this.http.patch<any>(url, planning).pipe(
       catchError(error => {
@@ -105,6 +309,10 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
       })
     );
   }
+  getAllPlanningOfRespo(id:string): Observable<PlanningMaintenanceDTO[]> {
+    return this.http.get<PlanningMaintenanceDTO[]>(this.baseUrl + `/get/planningOfRespo/${id}`);
+  }
+
 
   private selectedPlanningSubject = new BehaviorSubject<PlanningMaintenanceDTO | null>(null);
   selectedPlanning$ = this.selectedPlanningSubject.asObservable();
@@ -121,7 +329,7 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
     return this.http.get<Site[]>(this.baseUrlSite + "/sites");
   }
 
-  addPlanningComplet(planning: PlanningMaintenanceDTO, idRes: number, idSite: number): Observable<any> {
+  addPlanningComplet(planning: PlanningMaintenanceDTO, idRes: string | null, idSite: number): Observable<any> {
     const url = `${this.baseUrl}/add/planningComplet/${idRes}/${idSite}`;
     return this.http.post<any>(url, planning).pipe(
       tap(()=>{
@@ -143,6 +351,31 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
     const url = `${this.baseUrlSite}/site/id/${id}`;
     return this.http.get<Site>(url);
   }
+  getInterventionByType(type: String): Observable<Intervention[]> {
+
+    const url = `${this.baseUrlIntervention}/interventionsT/${type}`;
+    return this.http.get<Intervention[]>(url);
+
+  }
+
+  getInterventionByPriorite(type: String): Observable<Intervention[]> {
+
+    const url = `${this.baseUrlIntervention}/interventionsP/${type}`;
+    return this.http.get<Intervention[]>(url);
+
+  }
+  getInterventionByKeyword(type: String): Observable<Intervention[]> {
+
+    const url = `${this.baseUrlIntervention}/interventionsK/${type}`;
+    return this.http.get<Intervention[]>(url);
+
+  }
+  getInterventionByStatut(type: String): Observable<Intervention[]> {
+
+    const url = `${this.baseUrlIntervention}/interventionsS/${type}`;
+    return this.http.get<Intervention[]>(url);
+
+  }
   getPlanningByStatus(status: String): Observable<PlanningMaintenanceDTO[]> {
 
     const url = `${this.baseUrl}/get/plannings/${status}`;
@@ -160,10 +393,13 @@ checkEquipExists(numeroSérie:string,code:String ): Observable<boolean> {
     return this.http.get<PlanningMaintenanceDTO[]>(url);
 }
 
+
 getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     const url = `${this.baseUrl}/find/Plannings/byKeyword/${keyword}`;
     return this.http.get<PlanningMaintenanceDTO[]>(url);
 }
+
+
 
   exportToExcel(): Observable<any> {
     const url = `${this.baseUrl}/plannings/export/excel`;
@@ -184,6 +420,11 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
     const url = `${this.baseUrlSite}/import-sites`;
     return this.http.post(url, formData);
   }
+  sendEmail(idTec: string, idIn: number, idRes:string): Observable<void> {
+    const url = `${this.baseUrlIntervention}/send/email/technic/${idTec}/${idIn}/${idRes}`;
+    return this.http.get<void>(url);
+  }
+
 
 
   importEquip(file:File){
@@ -195,6 +436,10 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
   checkPlanningNameExists(name: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.baseUrl}/check-planning-name-exists/${name}`);
   }
+
+checkIntervention(name: string): Observable<boolean> {
+  return this.http.get<boolean>(`${this.baseUrlIntervention}/check-existenceIn/${name}`);
+}
   getEquipementsOfSite(id:number):Observable<Equipement[]>{
     const url = `${this.baseUrlSite}/equipements/ofSITE/${id}`;
     return this.http.get<Equipement[]>(url);
@@ -394,6 +639,16 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
      return this.http.get<Site[]>(url);
   }
 
+  getEquipementByTypeCent(centre:String):Observable<Equipement[]>{
+    const url =`${this.baseUrlSite}/listEquipemnt/ofCnetre/${centre}`;
+    return this.http.get<Equipement[]>(url);
+  }
+
+  getSiteByTypeCent(type:String, centre:String):Observable<Site[]>{
+    const url =`${this.baseUrlSite}/get/sites/type/${type}/${centre}`;
+    return this.http.get<Site[]>(url);
+  }
+
   getSitseByKeyword(keyword:String):Observable<Site[]>{
      const  url = `${this.baseUrlSite}/findSite/byKeyword/${keyword}`;
      return this.http.get<Site[]>(url);
@@ -425,6 +680,14 @@ getPlanningByKeyword(keyword:String):Observable<PlanningMaintenanceDTO[]>{
      const  url = `${this.baseUrlIntervention}/get/interventions/ofEqui/${id}`
     return  this.http.get<Intervention[]>(url);
   }
+
+
+
+  getChecklistOfType(id:number):Observable<GlobalChecklist>{
+    const  url = `${this.baseUrlChecklist}/checkByTypeEqui/${id}`
+    return  this.http.get<GlobalChecklist>(url);
+  }
+
   getAllTypeEquip():Observable<TypeEquipement[]>{
     const  url = `${this.baseUrlSite}/All/type/equipements`
     return this.http.get<TypeEquipement[]>(url);
@@ -499,6 +762,16 @@ checkifEquipeExisteByCode(code:string ,id:number):Observable<Boolean>{
     return  this.http.get<Boolean>(url);
   }
 
+getEquipementByType(id:number):Observable<Equipement[]>{
+  const  url = `${this.baseUrlSite}/getEquipementsoFtYpe/${id}`;
+  return this.http.get<Equipement[]>(url);
+}
+
+
+getEquiByEtat(etat:string):Observable<Equipement[]>{
+  const  url = `${this.baseUrlSite}/getEquips/etat/${etat}`;
+  return this.http.get<Equipement[]>(url);
+}
   getEquipementByKeyword(keyword:String):Observable<Equipement[]>{
     const  url = `${this.baseUrlSite}/findEquipement/byKeyword/${keyword}`;
     return this.http.get<Equipement[]>(url);

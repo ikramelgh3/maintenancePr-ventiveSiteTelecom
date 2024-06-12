@@ -1,0 +1,102 @@
+
+<div mat-dialog-title class="titleM" style="bottom: 30px">
+
+
+  <h1>Ajouter Intervention à {{data.user2.firstName}} {{data.user2.lastName}}</h1>
+  <div style="height: 3px; background-color: #072f5f; margin-top: -20px"></div>
+</div>
+<div></div>
+<div mat-dialog-content class="content" [formGroup]="addForm"  >
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label> Titre d'intervention</mat-label>
+      <input matInput type="text"  formControlName="name" required>
+      <mat-error>Veuillez remplir le  champs</mat-error>
+    </mat-form-field>
+
+
+    <mat-form-field appearance="outline">
+      <mat-label>Nature</mat-label>
+
+      <mat-select formControlName="type" required>
+        <mat-option *ngFor="let val of type" [value] ="val" > {{val}}</mat-option>
+      </mat-select>
+      <mat-error>Veuillez selectionner un type</mat-error>
+    </mat-form-field>
+
+  </div>
+  <div class="row"  *ngIf="addForm.get('type')?.value === 'Preventive'">
+    <mat-form-field appearance="outline">
+      <mat-label>Planning de maintenance</mat-label>
+
+      <mat-select formControlName="planning" >
+        <mat-option *ngFor="let val of plannings" [value] ="val" > {{val.name}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addForm.get('planning')?.invalid && (addForm.get('planning')?.dirty || addForm.get('planning')?.touched)">
+        Veuillez sélectionner une valeur
+      </mat-error>
+    </mat-form-field>
+
+  </div>
+
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Technicien</mat-label>
+
+     <input matInput value="{{data.user2.firstName}} {{data.user2.lastName}}" readonly>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Equipement</mat-label>
+      <input matInput type="text" [value]="equipement?.nom" (click)="arbo()" required>
+      <mat-error>Veuillez remplir le champ</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label> Date d'intervention </mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dateDebut" required>
+      <mat-hint> MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error>Veuillez selectionner une date</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Heure début prévue</mat-label>
+      <mat-select formControlName="heureDebut" required>
+        <mat-option *ngFor="let hour of hours" [value]="hour">{{hour}}</mat-option>
+      </mat-select>
+      <mat-error>Veuillez sélectionner une heure</mat-error>
+    </mat-form-field>
+
+
+
+  </div>
+  <br>
+  <div class="row">
+
+    <mat-form-field appearance="outline">
+      <mat-label> Priorité</mat-label>
+      <mat-select formControlName="priorite" required>
+        <mat-option *ngFor="let val of priorites" [value] ="val" > {{val}}</mat-option>
+
+      </mat-select>
+      <mat-error>Veuillez remplir le champs</mat-error>
+    </mat-form-field>
+
+  </div>
+</div>
+
+<div class="foot"  style="background-color: #E6E6FA; ">
+
+  <br>
+  <div mat-dialog-actions class="action">
+    <button  mat-raised-button (click)="closePopup()" > Annuler</button>
+    <button  mat-raised-button (click)="add()"  class="custom-blue"  [disabled]="addForm.invalid">Enregistrer</button>
+
+  </div>
+
+</div>
+
+

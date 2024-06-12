@@ -1,0 +1,128 @@
+<div style="margin-left: 20px; margin-top: 10px">
+  <h2>Ajouter Utilisateur</h2>
+  <div style="height: 3px; background-color: #072f5f; margin-top: -20px"></div>
+</div>
+<br><br>
+<div class="content" style="padding: 20px;" [formGroup]="addForm">
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Nom</mat-label>
+      <input matInput type="text" formControlName="lastName" required>
+      <mat-error *ngIf="addForm.get('firstName')?.hasError('required')">
+        Veuillez remplir le champs
+      </mat-error>
+      <mat-error *ngIf="addForm.get('firstName')?.hasError('minlength')">
+        La nom doit avoir au moins 2 caractères
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prénom</mat-label>
+      <input matInput formControlName="firstName">
+      <mat-error *ngIf="addForm.get('firstName')?.hasError('required')">
+        Veuillez remplir le champs
+      </mat-error>
+      <mat-error *ngIf="addForm.get('firstName')?.hasError('minlength')">
+        Le prénom doit avoir au moins 2 caractères
+      </mat-error>
+    </mat-form-field>
+
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email">
+      <mat-error *ngIf="addForm.get('eamil')?.hasError('required')">
+        Veuillez remplir le champ
+      </mat-error>
+      <mat-error *ngIf="addForm.get('email')?.hasError('pattern')">
+        Veuillez saisir un email valid
+      </mat-error>
+    </mat-form-field>
+
+
+
+
+    <mat-form-field appearance="outline">
+      <mat-label>Téléphone</mat-label>
+      <input matInput formControlName="phone_number">
+      <mat-error>{{ getErrorMessageForPhoneNumber() }}</mat-error>
+    </mat-form-field>
+
+  </div>
+
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput type="text" formControlName="userName" required>
+      <mat-error>{{ getErrorMessageForUserName() }}</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Centre technique</mat-label>
+      <mat-select formControlName="available" required>
+        <mat-option *ngFor="let val of centr" [value]="val">{{val}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addForm.get('available')?.invalid && (addForm.get('available')?.dirty || addForm.get('available')?.touched)">
+        Veuillez sélectionner une valeur
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" required (blur)="checkPassword()">
+      <mat-hint align="end">8-14 carac., maj, min, chiffre, spéc.</mat-hint>
+      <mat-error *ngIf="addForm.get('password')?.hasError('required')">
+        Veuillez remplir le champ
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Confirm Password</mat-label>
+      <input matInput type="password" formControlName="confirmPassword" required (mouseout)="checkPasswordsMatch()">
+      <mat-error *ngIf="addForm.get('confirmPassword')?.hasError('required')">
+        Veuillez remplir le champ
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="row">
+    <mat-form-field appearance="outline">
+      <mat-label>Ville</mat-label>
+      <mat-select formControlName="city" required>
+        <mat-option *ngFor="let val of cites" [value]="val">{{val}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addForm.get('city')?.invalid && (addForm.get('city')?.dirty || addForm.get('city')?.touched)">
+        Veuillez sélectionner une valeur
+      </mat-error>
+    </mat-form-field>
+
+
+
+    <mat-form-field appearance="outline">
+      <mat-label>Profil</mat-label>
+      <mat-select formControlName="roleName" required>
+        <mat-option *ngFor="let val of roles" [value]="val">{{val}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addForm.get('roleName')?.invalid && (addForm.get('roleName')?.dirty || addForm.get('roleName')?.touched)">
+        Veuillez sélectionner une valeur
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="row" *ngIf="addForm.get('roleName')?.value === 'TECHNICIEN'">
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select formControlName="type" >
+        <mat-option *ngFor="let val of type" [value]="val">{{val}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="addForm.get('type')?.invalid && (addForm.get('type')?.dirty || addForm.get('type')?.touched)">
+        Veuillez sélectionner une valeur
+      </mat-error>
+    </mat-form-field>
+  </div>
+</div>
+
+<div mat-dialog-actions style="background-color: #6495ED; display: flex; justify-content: flex-end;">
+  <button mat-raised-button style="margin-left: auto;" (click)="close()">Annuler</button>
+  <button mat-raised-button class="custom-blue" (click)="addUser()" [disabled]="addForm.invalid">Enregistrer</button>
+</div>

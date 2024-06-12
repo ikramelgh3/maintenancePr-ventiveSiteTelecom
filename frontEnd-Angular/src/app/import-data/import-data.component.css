@@ -5,3 +5,18 @@ th{
 }
 
 .mat-header-cell{}
+
+input{
+
+  padding:5px ;
+  width: 400px;
+  outline: none;
+  border: none;
+  background: white;
+  margin-top: 5px;
+  height: 20px;
+}
+::placeholder {
+  color: darkgrey;
+
+}

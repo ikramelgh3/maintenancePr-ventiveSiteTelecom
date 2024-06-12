@@ -2,6 +2,6 @@ import {Dc} from "./dc";
 
 export  interface CentreTechnique{
     id :number;
-    name:String;
+    name:string;
     dc :Dc ;
 }

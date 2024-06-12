@@ -13,6 +13,15 @@ import {responsableDTO} from "../models/responsableDTO";
 import {PlanningdataserviceService} from "../planningdataservice.service";
 import {Site} from "../models/Site";
 import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
+import {KeycloakProfile} from "keycloak-js";
+import {KeycloakService} from "keycloak-angular";
+import {Intervention} from "../models/intervention";
+import {
+  AddInterventionToEquipemntComponent
+} from "../equipements/add-intervention-to-equipemnt/add-intervention-to-equipemnt.component";
+import {
+  AddInterventionToPlanningComponent
+} from "./add-intervention-to-planning/add-intervention-to-planning.component";
 
 @Component({
   selector: 'app-planning-maintenance',
@@ -21,7 +30,7 @@ import {ImportDialogComponent} from "../import-dialog/import-dialog.component";
 })
 export class PlanningMaintenanceComponent implements OnInit {
   showPlanningDetails: boolean = false;
-
+  public  profil!:KeycloakProfile
   public plannings!: PlanningMaintenanceDTO[];
   public totalItems!:number ; // Nombre total d'éléments
   public id!: number;
@@ -33,28 +42,71 @@ export class PlanningMaintenanceComponent implements OnInit {
   p:any;
   private filteredPlannings!: PlanningMaintenanceDTO[];
   private site!: Site;
+
   protected noResultsFound: boolean=false;
   searchInput: string = '';
   private selectedFile!: File;
-  constructor(private planningService: PlanningServiceService, private dialog: MatDialog,
+  intervention!:Intervention[]
+  public userId: string | null = null;
+  constructor(private planningService: PlanningServiceService, private dialog: MatDialog,public  ky :KeycloakService,
               private dialogService: DialogService, private refrechS:RefrechSerService,
               private not: NotificationService, private route: Router,private snackBar: MatSnackBar
               , private activatedRoute: ActivatedRoute , private dataser:PlanningdataserviceService) { }
 
   ngOnInit() {
-    this.getTotalElment();
-    this.dataser.plannings$.subscribe((plannings) => {
-      this.plannings = plannings;
-      this.totalItems = this.plannings.length; // Mettre à jour le nombre total d'éléments
-    });
-    this.dataser.planningDetails$.subscribe((planningDetails) => {
-      this.selectedPlanningDetails = planningDetails;
-      if (this.planningDetailsContainer) {
-        this.planningDetailsContainer.nativeElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    });
-    this.getPlanning();
+    if (this.ky.isLoggedIn()) {
+      this.ky.loadUserProfile().then((profile) => {
+        this.profil = profile;
+        console.log("profile", this.profil);
+        this.userId = this.profil?.id ?? null;
+        console.log("idU", this.userId);
+       this.getPlanning()
+      });
+      this.planningService._refreshNeeded$.subscribe(() => {
+
+
+        this.getPlanningDetailsById(this.id)
+
+      })
+
+      this.getTotalElment();
+      this.dataser.plannings$.subscribe((plannings) => {
+        this.plannings = plannings;
+        this.totalItems = this.plannings.length; // Mettre à jour le nombre total d'éléments
+      });
+
+      this.dataser.planningDetails$.subscribe((planningDetails) => {
+        this.selectedPlanningDetails = planningDetails;
+        if (this.planningDetailsContainer) {
+          this.planningDetailsContainer.nativeElement.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
   }
+
+  not_foundInterv:boolean=false
+
+  getInterventionOfPlanning(id:number){
+     this.planningService.getInterventionsOfPlanning(id).subscribe((data)=>{{this.intervention = data}
+     console.log("inteventionn",this.intervention)})
+  }
+  getStatusColorIntervention(status:String ) {
+    switch (status) {
+      case "PLANIFIEE":
+        return "#1E90FF"; // Bleu
+      case "EN_COURS":
+        return "#FFA500"; // Orange
+      case "TERMINEE":
+        return "#32CD32"; // Vert
+      case "ANNULEE":
+        return "#FF4500"; // Rouge
+      case "REPORTEE":
+        return "#FFD700"; // Jaune
+      default:
+        return "#333333"; // Couleur par défaut (Gris foncé)
+    }
+  }
+
   filterByStatus(status: string) {
    this.planningService.getPlanningByStatus(status).subscribe(
      (data) =>{
@@ -68,6 +120,12 @@ export class PlanningMaintenanceComponent implements OnInit {
    )
   }
 
+  getPlanningOfResp(){
+    if (this.userId !== null) { this.planningService.getAllPlanningOfRespo(this.userId).subscribe((data)=>{this.plannings=data})
+
+    console.log("plannnnf",this.plannings)}
+
+  }
   getPlanningByType(type:String){
      this.planningService.getPlanningByTypeSite(type).subscribe(
        (data) => {
@@ -165,6 +223,8 @@ export class PlanningMaintenanceComponent implements OnInit {
   }
   getStatusColor(status: String): String {
     switch (status) {
+      case 'PLANIFIEE':
+        return '#072f5f';
       case 'EN_COURS':
         return '#4CAF50'; // Bleu
       case 'TERMINE':
@@ -192,6 +252,7 @@ export class PlanningMaintenanceComponent implements OnInit {
     console.log("respo" +this.responsableDTO);
   }
   getPlanningDetailsById(id: number) {
+    this.getInterventionOfPlanning(id);
     this.planningService.getPlanningById(id).subscribe(
       (data) => {
 
@@ -320,4 +381,12 @@ export class PlanningMaintenanceComponent implements OnInit {
   }
 
 
+  addInterventionToPlanning(){
+    var popup = this.dialog.open(AddInterventionToPlanningComponent, {
+      width: '60%', height: '569px',
+      exitAnimationDuration: '500ms',
+      data: { eq: this.selectedPlanningDetails }
+    })
+
+  }
 }

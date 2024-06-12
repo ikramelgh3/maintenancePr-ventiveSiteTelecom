@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "USERS-SERVICE" , url = "http://localhost:8084")
 public interface ResponsableMaintRestClient {
 
-    @GetMapping("/respo/id/{id}")
-    public ResponsableMaint findById(@PathVariable Long id);
 
+    @GetMapping("/keycloak/users/{id}")
+    public ResponsableMaint getUser(@PathVariable("id") String id);
     @GetMapping("/respo/name/{name}")
     public ResponsableMaint findByName(@PathVariable String  name);
 

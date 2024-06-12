@@ -9,7 +9,9 @@ import net.elghz.checklistservice.model.ResponsableMaintenance;
 import net.elghz.checklistservice.model.equipement;
 import net.elghz.checklistservice.model.typeEquipement;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -22,12 +24,11 @@ public class PointMesure {
     @CollectionTable(name = "resultats_possibles", joinColumns = @JoinColumn(name = "point_de_mesure_id"))
     @Column(name = "resultat")
     private List<String> resultatsPossibles;
-
+    @ManyToMany(mappedBy = "measurementPoints")
+    private Set<Checklist> checklists = new HashSet<>();
     @OneToMany(mappedBy = "pointDeMesure", cascade = CascadeType.ALL)
     private List<Resultat> resultats;
-    private Long respo_Id;
-    @Transient
-    private ResponsableMaintenance respoMaint;
+
     private Long typeEquipementId;
     @Transient
     private typeEquipement typeEquipent;

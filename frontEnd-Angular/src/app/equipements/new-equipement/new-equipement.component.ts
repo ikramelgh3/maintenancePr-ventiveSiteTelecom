@@ -33,6 +33,7 @@ equipement!:Equipement
     private dialogRef: MatDialogRef<NewEquipementComponent>,
   ) {
     this.getAllTYpeEquip();
+    dialogRef.disableClose = true;
 
     this.addForm = this.fb.group({
       code: this.fb.control('', Validators.required),

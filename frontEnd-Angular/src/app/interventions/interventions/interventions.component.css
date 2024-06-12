@@ -1,0 +1,73 @@
+.divCon{
+  display: none;
+}
+input{
+
+  padding:5px ;
+  width: 400px;
+  outline: none;
+  border: none;
+  background: white;
+  margin-top: 5px;
+}
+::placeholder {
+  color: darkgrey;
+
+}
+.details{
+  margin-left: -10px;
+}
+.details .divDetail{
+  margin-top: -20px;
+  margin-left: 15px;
+}
+.intervention {
+  color: #072f5f;
+}
+
+.type {
+  margin-bottom: 5px;
+}
+
+.corrective {
+  color: darkred;
+}
+
+.preventive {
+  color: darkgreen;
+}
+
+
+
+.planifiee {
+  color: #072f5f;
+}
+
+.en-cours {
+  color: #6495ED;
+}
+
+.terminee {
+  color: darkgreen;
+}
+
+.annulee {
+  color: grey;
+}
+
+.reportee {
+  color: maroon;
+}
+
+
+.faible {
+  color: #6495ED;
+}
+
+.normal {
+  color: darkgreen;
+}
+
+.urgent {
+  color: darkred;
+}

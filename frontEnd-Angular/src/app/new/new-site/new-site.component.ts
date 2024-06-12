@@ -169,8 +169,13 @@ export class NewSiteComponent implements OnInit {
     return !site.typeSite;
   }
 
-  isFixeSiteIncomplete(site: Site): boolean {
-    return !site.name || !site.code || !site.addresse || !site.centreTechnique || !site.typeInstallation || !site.typeAlimentation || !site.typeTransmission || !site.presenceGESecours;
+  areFieldsEmpty(): boolean {
+    const site: Site = this.addSite.value;
+    if (site.typeSite === 'Fixe') {
+      return !site.name || !site.code || !site.addresse || !site.centreTechnique || !site.typeInstallation || !site.typeAlimentation || !site.typeTransmission || !site.presenceGESecours;
+    } else {
+      return !site.name || !site.code || !site.addresse || !site.centreTechnique || !site.typeInstallation || !site.typeAlimentation || !site.typeTransmission || !site.presenceGESecours || !site.supportAntennes || !site.hauteurSupportAntenne || !site.lieuInsatallationBTS;
+    }
   }
 
 

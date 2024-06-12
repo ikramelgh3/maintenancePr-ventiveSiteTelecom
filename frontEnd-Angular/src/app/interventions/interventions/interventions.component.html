@@ -1,0 +1,211 @@
+<div class="container">
+  <div style="background-color: white;width: 500px; position: relative; margin-top: -10px">
+
+
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <input matInput [(ngModel)]="searchInput" (input)="search()" placeholder="Rechercher parmi {{tot}} resultats...">
+
+    </div>
+
+    <mat-menu #importMenu>
+      <button mat-menu-item sty class="buttonChoix" (click)="OpenNewIntervention()">
+        <mat-icon>add</mat-icon> Ajouer Intervention
+      </button>
+
+
+      <button mat-menu-item class="buttonChoix" (click)="exportToExcel()">
+        <mat-icon>cloud_download</mat-icon> Exporter
+      </button>
+    </mat-menu>
+    <div style="display: flex; align-items: center;">
+
+
+
+      <button mat-icon-button (click)="getInterventions()"> <mat-icon style="color: black">refresh</mat-icon></button> &nbsp;
+
+
+      <button mat-button [matMenuTriggerFor]="menu" style="color: #072f5f">Status</button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="filterByStatus('PLANIFIEE')" style="color: #072f5f">Planifiée </button>
+        <button mat-menu-item (click)="filterByStatus('EN_COURS')" style="color: #072f5f">En cours </button>
+        <button mat-menu-item (click)="filterByStatus('TERMINEE')" style="color: #072f5f">Terminé </button>
+      </mat-menu>
+
+      &nbsp;
+
+      <button mat-button [matMenuTriggerFor]="menu1"  style="color: #072f5f" >Type </button>
+      <mat-menu #menu1="matMenu">
+        <button mat-menu-item (click)="getInterventionByType('Preventive')" style="color: #072f5f">Préventive </button>
+        <button mat-menu-item (click)="getInterventionByType('Corrective')" style="color:#072f5f">Corrective </button>
+      </mat-menu>
+
+      &nbsp;
+      <button mat-button [matMenuTriggerFor]="menu2"  style="color: #072f5f">Priorité</button>
+      <mat-menu #menu2="matMenu">
+        <button mat-menu-item (click)="getInterventionByPriorite('Faible')" style="color: #072f5f"> Faible </button>
+        <button mat-menu-item (click)="getInterventionByPriorite('Normal')" style="color:#072f5f">Normal </button>
+        <button mat-menu-item (click)="getInterventionByPriorite('Urgent')" style="color:#072f5f">Urgent </button>
+      </mat-menu>
+    </div>
+
+
+
+    <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucune intervention trouvée.</div>
+
+<mat-divider></mat-divider>
+
+    <div  style="width: 500px;">
+      <mat-list>
+        <ng-container *ngFor="let user of interventions | paginate: { itemsPerPage: 5, currentPage: p }">
+          <div style="display: flex; align-items: center;">
+            <a mat-list-item style="height: 70px; width: 100%; background-color: white; cursor: pointer; display: block; text-decoration: none;"
+               onmouseover="this.style.backgroundColor='#f0f0f0';"
+               onmouseout="this.style.backgroundColor='white';" (click)="selectIntervention(user.id)">
+              <div style="display: flex; align-items: center;">
+                <div style="flex: 1;">
+
+                  <div mat-line style="font-size: 14px; color: #999;">#{{ user.id }} &nbsp;</div>
+                  <div mat-line style="font-size: 18px; color: #333;">{{ user.name }}</div>
+
+                </div>
+                <div style="flex: 1; text-align: right;">
+                  <div class="intervention" style="font-size: 16px;">
+                    <div class="type" [ngClass]="{'preventive': user.type === 'Preventive', 'corrective': user.type === 'Corrective'}">
+                      <span>{{ user.type }}</span>
+                    </div>
+                    <div class="status" [ngClass]="{
+        'planifiee': user.status === 'PLANIFIEE',
+        'en-cours': user.status === 'EN_COURS',
+        'terminee': user.status === 'TERMINEE',
+        'annulee': user.status === 'ANNULEE',
+        'reportee': user.status === 'REPORTEE'
+    }">
+                      <span>{{ user.status }}</span>
+                    </div>
+                  </div>
+
+
+
+
+                </div>
+              </div>
+              </a>
+          </div>
+
+
+          <mat-divider></mat-divider>
+        </ng-container>
+      </mat-list>
+    </div>
+
+    <pagination-controls (pageChange)="p = $event " class="float-right">
+
+    </pagination-controls>
+
+    <div #planningDetailsContainer class="details" *ngIf="inter" style="position: absolute; top: 0; left: 520px; width: 560px; max-height: 500px; overflow-y: auto; background-color: white; overflow-wrap: break-word; border-radius: 10px; z-index: 999;">
+      <div style="color: black; margin-left: 500px;">
+        <button mat-icon-button [matMenuTriggerFor]="importMenu1">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #importMenu1>
+          <button mat-menu-item class="buttonChoix" (click)="updateInter()">
+            <mat-icon>update</mat-icon> Modifier
+          </button>
+          <button mat-menu-item class="buttonChoix" (click)="deleteInter(inter.id)">
+            <mat-icon>delete</mat-icon> Supprimer
+          </button>
+        </mat-menu>
+      </div>
+
+      <div class="divDetail"  >
+        <span style=" color: #072f5f;font-size: 12px"><b># {{inter.id}}</b></span>&nbsp;&nbsp;
+
+
+        <span [ngClass]="{
+        'faible': inter.priorite === 'Faible',
+        'normal': inter.priorite === 'Normal',
+        'urgent': inter.priorite === 'Urgent'
+      }" style="font-size: 14px">
+    {{ inter.priorite }}
+  </span>
+
+        &nbsp; &nbsp;&nbsp;
+        <span [ngClass]="{'preventive': inter.type === 'Preventive', 'corrective': inter.type === 'Corrective'}">
+  {{ inter.type }}
+</span>
+
+        &nbsp;&nbsp; <span [ngClass]="{
+        'planifiee': inter.status === 'PLANIFIEE',
+        'en-cours': inter.status === 'EN_COURS',
+        'terminee': inter.status === 'TERMINEE',
+        'annulee': inter.status === 'ANNULEE',
+        'reportee': inter.status === 'REPORTEE'
+    }">{{ inter.status }}
+        </span>
+       <br>
+        <p style="color: black">{{ inter.name }}</p>
+
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">build</mat-icon></span>&nbsp;
+          <span>{{ inter.equipement.nom }}</span>
+        </div>
+
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">person</mat-icon></span>&nbsp;
+          <span>{{ inter.technicien.firstName }} {{ inter.technicien.lastName }}</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <span><mat-icon style="color: gainsboro;">event</mat-icon></span>
+          <div>
+            <span style="margin-left: 8px;">Date de réalisation prévue</span><br>
+            <span style="margin-left: 8px;">{{inter.dateDebut | date: 'dd-MM-yyyy à HH:mm:ss' }}</span>
+          </div>
+          <span style="margin-left: 80px;"><mat-icon style="color: gainsboro;">access_time</mat-icon></span>
+          <div>
+            <span style="margin-left: 8px;">L'heure ed début d'intervention</span><br>
+            <span style="margin-left: 8px;">{{inter.heureDebut }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+  </div>
+
+  <div *ngIf="inter" style="position: absolute; top: 215px; left: 530px; width: 560px; border-radius: 10px; background-color: white; max-height: 300px; overflow-y: auto;">
+    <mat-tab-group animationDuration="0ms" disableRipple >
+      <mat-tab label="Checklist" style="color: white">
+        <ng-template mat-tab-label>
+          <span style="color: white;">Checklist</span>
+        </ng-template>
+        <mat-list *ngFor="let  pt of pointMesure" >
+          <ng-container >
+            <div >
+              <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">Point de mesure: {{ pt.attribut }}</div>
+            <div mat-line style="font-size: 16px; color: #333333; margin-left: 15px;">Type d'équipement: {{inter.equipement.typeEquipementt.name}}</div>
+
+              <div mat-line style="font-size: 16px; color: #999999; margin-left: 15px;">Resultats possibles: {{pt.resultatsPossibles}}</div>
+            <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+        </mat-list>
+
+        <button mat-fab color="primary" class="add-equipment-btn" style="width: 40px; height: 40px; margin-left: 500px;top: -50px" (click)="addPoint()" >
+          <mat-icon>add</mat-icon>
+        </button>
+
+
+
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+
+
+</div>
+
+

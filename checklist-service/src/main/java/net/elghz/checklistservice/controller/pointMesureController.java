@@ -1,5 +1,6 @@
 package net.elghz.checklistservice.controller;
 
+import net.elghz.checklistservice.dtos.ChecklistDTO;
 import net.elghz.checklistservice.dtos.PointMesureDTO;
 import net.elghz.checklistservice.entities.Checklist;
 import net.elghz.checklistservice.entities.PointMesure;
@@ -11,6 +12,7 @@ import net.elghz.checklistservice.services.pointMesureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+
+@RequestMapping("/pointMesure")
 public class pointMesureController {
 
     @Autowired
@@ -29,6 +33,21 @@ public class pointMesureController {
     @Autowired
     importerPointsMesures importer;@Autowired
     pointMesureRepo repo;
+
+
+    @GetMapping("/rougrouperChklist")
+    public void regrouper(@RequestBody PointMesure p ,@PathVariable Long id){
+          ser.regrouperPointsMesureParTypeEtAjouterChecklist();
+    }
+    @GetMapping("/checkByTypeEqui/{id}")
+    public ChecklistDTO checklistByTypeEqui(@PathVariable Long id){
+        return ser.getCheBypeEq(id);
+    }
+
+    @GetMapping("/checklistByTypeEqui/{id}")
+    public List<ChecklistDTO> checklistByType(@PathVariable Long id){
+        return ser.getCheByTypeEq(id);
+    }
     @PostMapping ("/ptM/add")
     public ResponseEntity<?> addPT(@RequestBody PointMesureDTO ch){
         return  ser.addPT(ch);

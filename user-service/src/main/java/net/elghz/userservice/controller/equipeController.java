@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @AllArgsConstructor
 @RestController
+@RequestMapping("/users")
 public class equipeController {
 /*
      private equipeService service;

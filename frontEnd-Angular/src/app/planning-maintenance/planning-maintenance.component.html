@@ -5,7 +5,7 @@
       <button mat-icon-button style="color: black; margin-right: 5px;" [matMenuTriggerFor]="importMenu">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <input matInput [(ngModel)]="searchInput" (input)="search()" placeholder="Rechercher parmi {{totalItems}} resultats...">
+      <input matInput [(ngModel)]="searchInput" (input)="search()" placeholder="Rechercher parmi {{plannings.length}} resultats...">
 
     </div>
 
@@ -30,8 +30,8 @@
       &nbsp;
       <button mat-button [matMenuTriggerFor]="menu" style="color: #072f5f">Status</button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="filterByStatus('EN_ATTENTE')" style="color: #072f5f">En attente </button>
-        <button mat-menu-item (click)="filterByStatus('EN_COURS')" style="color: #072f5f">cours </button>
+        <button mat-menu-item (click)="filterByStatus('PLANIFIEE')" style="color: #072f5f">Planifié </button>
+        <button mat-menu-item (click)="filterByStatus('EN_COURS')" style="color: #072f5f">En cours </button>
         <button mat-menu-item (click)="filterByStatus('TERMINE')" style="color: #072f5f">Terminé </button>
       </mat-menu>
 
@@ -57,26 +57,30 @@
     <mat-divider></mat-divider>
     <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucun planning trouvé. </div>
 
-
-
     <div  style="width: 500px;">
       <mat-list>
         <ng-container *ngFor="let planning of plannings | paginate: {itemsPerPage:4 , currentPage:p}">
           <a mat-list-item style="height: 100px; width: 500px; background-color: white; cursor: pointer; display: block; text-decoration: none;"
              onmouseover="this.style.backgroundColor='#f0f0f0';"
              onmouseout="this.style.backgroundColor='white';"  (click)="selectPlanning(planning.id)" >
+            <div mat-line style="font-size: 14px; color: #999;">#{{ planning.id }}</div>
             <div mat-line style="font-size: 18px; color: #333;">{{ planning.name }}</div>
             <div mat-line >
               {{ getShortDescription(planning.description) }}
               <span *ngIf="isDescriptionLong(planning.description)"></span>
             </div>
-            <div mat-line style="font-size: 14px; color: #999;">#{{ planning.id }}</div>
             <div mat-line [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(planning.status) }" style="margin-left: 350px"><i>{{ planning.status }}</i></div>
           </a>
           <mat-divider></mat-divider>
         </ng-container>
       </mat-list>
+
+
     </div>
+    <div *ngIf="plannings.length === 0" class="error-message" style="color: #6495ED; text-align: center;">
+      Aucun planning trouvé.
+    </div>
+
 
     <pagination-controls (pageChange)="p = $event " class="float-right">
 
@@ -99,14 +103,13 @@
         </mat-menu>
       </div>
 
-
       <div class="divDetail"  >
         <span style=" color: #072f5f;font-size: 12px"><b># {{selectedPlanningDetails.id}}</b></span>&nbsp;&nbsp;
         <span style=" color: gray;font-size: 12px" [ngStyle]="{ 'font-size': '14px', 'color': getStatusColor(selectedPlanningDetails.status) }">{{ selectedPlanningDetails.status }}
         </span> &nbsp;&nbsp;
         <span style=" color: gray;font-size: 12px">{{ selectedPlanningDetails.semestre }}  </span><br>
         <p style="color: black">{{ selectedPlanningDetails.name }}</p>
-        <span style="color: gray;"> Crée le {{selectedPlanningDetails.dateCreation | date: 'dd-MM-yyyy à HH:mm:ss' }}, par Ahmed</span>
+
         <div style="max-height: 200px; overflow-y: auto;">
           <span style="margin-left: 8px;"> Description</span>
           <p style="line-height: 1; white-space: pre-wrap; margin-left: 8px;">{{ selectedPlanningDetails.description }}</p>
@@ -118,7 +121,7 @@
 
         <div style="display: flex; align-items: center;">
           <span><mat-icon style="color: gainsboro;">person</mat-icon></span>&nbsp;
-          <span>{{ selectedPlanningDetails.responsableMaint.nom }}</span>
+          <span>{{ selectedPlanningDetails.responsableMaint.lastName}} {{ selectedPlanningDetails.responsableMaint.firstName}}  </span>
         </div>
 
         <div style="display: flex; align-items: center;">
@@ -138,7 +141,33 @@
     </div>
   </div>
 </div>
-
+<div *ngIf="selectedPlanningDetails" style="position: absolute; top: 270px; left: 530px; width: 560px; border-radius: 10px; background-color: white; max-height: 300px; overflow-y: auto;">
+  <mat-tab-group animationDuration="0ms" disableRipple >
 <div>
+  <mat-tab label="Interventions" style="color: white"*ngIf="ky.getUserRoles().includes('ADMIN') ||ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')">
+    <ng-template mat-tab-label>
+      <span style="color: white;">Interventions</span>
+    </ng-template>
+    <mat-list>
+      <ng-container *ngFor="let int of intervention ">
+        <div >
+          <div mat-line style="font-size: 16px; color: #333; margin-left: 15px;">{{ int.name }}</div>
+          <div mat-line style="font-size: 16px; color: #999; margin-left: 15px;"> <span [ngStyle]="{ 'font-size': '14px', 'color': getStatusColorIntervention(int.status) }">{{ int.status }}</span></div>
+        </div>
+        <div mat-line style="font-size: 14px; color: #333; margin-left: 15px;">Attribuer à  {{int.technicien.firstName}} {{int.technicien.lastName}}, pour le jour: {{ int.dateDebut | date: 'dd-MM-yyyy à HH:mm:ss' }}</div>
+        <mat-divider></mat-divider>
+      </ng-container>
 
+    </mat-list>
+    <button mat-fab color="primary" class="add-equipment-btn" style="margin-left: 500px;width: 35px; height: 35px" (click)="addInterventionToPlanning()" >
+      <mat-icon>add</mat-icon>
+    </button>
+
+    <div *ngIf="not_foundInterv" >
+      <p style="margin-left: 50px"> Aucune intervention n'est trouvé dans ce site.</p>
+    </div>
+
+  </mat-tab>
+</div>
+  </mat-tab-group>
 </div>

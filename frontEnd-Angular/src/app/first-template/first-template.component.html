@@ -11,12 +11,12 @@
   <button mat-button style="color: white; margin-right: 30px"  [matMenuTriggerFor]="importMenu">
     <mat-icon>person_outline</mat-icon>
     <mat-icon iconPositionEnd>keyboard_arrow_down</mat-icon>
-    Profil </button>
+    <span *ngIf="profil">{{profil.username}}</span> </button>
 
 
   <mat-menu #importMenu>
     <button mat-menu-item> Consulter profil</button>
-    <button mat-menu-item> Se déconnecter</button>
+    <button mat-menu-item (click)="logOut()"> Se déconnecter</button>
   </mat-menu>
 </mat-toolbar>
 
@@ -24,48 +24,54 @@
   <mat-drawer #drawer opened="true" mode="side" position="start">
     <mat-list>
 
-      <mat-list-item >
+      <mat-list-item *ngIf="ky.getUserRoles().includes('ADMIN')">
         <button mat-button >
           <mat-icon  >dashboard</mat-icon>Tableau de bord</button>
       </mat-list-item>
-      <mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('TECHNICIEN')">
+        <button mat-button  routerLink="/MesInterventions">
+          <mat-icon >dashboard</mat-icon>Interventions</button>
+      </mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('ADMIN')|| ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')" >
         <button mat-button routerLink="/PlanningsMaintenance" >
           <mat-icon>event</mat-icon>Maintenances</button>
       </mat-list-item>
-      <mat-list-item>
-        <button mat-button >
+      <mat-list-item *ngIf=" ky.getUserRoles().includes('ADMIN') || ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')" >
+        <button mat-button routerLink="/Intervention" >
           <mat-icon>assignment</mat-icon>Interventions</button>
       </mat-list-item>
 
-      <mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('ADMIN')">
         <button mat-button >
           <mat-icon>report_problem</mat-icon>Anomalies</button>
       </mat-list-item>
-      <mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('ADMIN')  || ky.getUserRoles().includes('INJECTEUR')|| ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')" >
         <button mat-button routerLink="/Sites"  >
           <mat-icon>location_city</mat-icon>Sites</button>
       </mat-list-item>
-      <mat-list-item>
+      <mat-list-item *ngIf=" ky.getUserRoles().includes('ADMIN')  || ky.getUserRoles().includes('INJECTEUR') || ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE')" >
         <button mat-button routerLink="/Equipements">
-          <mat-icon>build</mat-icon>Equipements</button>
+          <mat-icon>build</mat-icon> Equipements
+        </button>
       </mat-list-item>
-      <mat-list-item>
-        <button mat-button >
+
+      <mat-list-item *ngIf="ky.getUserRoles().includes('RESPONSABLE DE MAINTENANCE') || ky.getUserRoles().includes('ADMIN')">
+        <button mat-button  routerLink="/Intervenants">
           <mat-icon>engineering</mat-icon>Intervenants</button>
       </mat-list-item>
-      <mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('ADMIN')">
         <button mat-button >
           <mat-icon>description</mat-icon>Rapports</button>
       </mat-list-item>
 
-      <mat-list-item>
-        <button mat-button >
+      <mat-list-item  *ngIf="ky.getUserRoles().includes('ADMIN')">
+        <button mat-button   routerLink="/users">
           <mat-icon>people</mat-icon>Utilisateurs</button>
       </mat-list-item>
 
-      <mat-list-item>
+      <mat-list-item *ngIf="ky.getUserRoles().includes('INJECTEUR')">
         <button mat-button routerLink="Parametrages" >
-          <mat-icon>settings</mat-icon> Paramétrage</button>
+          <mat-icon>settings</mat-icon> Parametrages </button>
       </mat-list-item>
 
 

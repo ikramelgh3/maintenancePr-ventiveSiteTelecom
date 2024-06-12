@@ -12,6 +12,8 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {PlanningdataserviceService} from "../planningdataservice.service";
 import {responsableDTO} from "../models/responsableDTO";
 import {Site} from "../models/Site";
+import {KeycloakProfile} from "keycloak-js";
+import {KeycloakService} from "keycloak-angular";
 
 @Component({
   selector: 'app-update-planning',
@@ -29,22 +31,30 @@ export class UpdatePlanningComponent implements OnInit{
   id_Respo!:number;
   id_Site!:number;
   Respo!:responsableDTO;
+  public profil: KeycloakProfile | null = null;
   Sit!:Site
   responsableDTO!:responsableDTO[];
   site!:Site[]
   constructor(@Inject(MAT_DIALOG_DATA) public data: { id: number },private ref:MatDialogRef<NewPlanningComponent>
   ,private fb:FormBuilder , private ser:PlanningServiceService , private router:Router
     , private not:NotificationService ,private snackBar: MatSnackBar,
-              private refrechS:RefrechSerService , private r:ActivatedRoute ,  private dataser:PlanningdataserviceService) {
+              private refrechS:RefrechSerService , private r:ActivatedRoute ,  private dataser:PlanningdataserviceService,private keycloakService: KeycloakService ) {
     ref.disableClose = true;
   }
+  public userId: string | null = null;
+
 
   ngOnInit() {
+    this.keycloakService.loadUserProfile().then(
+      (profile: KeycloakProfile) => {
+        this.profil = profile;
+        console.log('Profil chargé :', this.profil);
+        console.log('Profil chargé2 :', this.profil);})
     this.initForm();
     this.id = this.data.id;
     this.ser.getPlanningById(this.id).subscribe(data => {
       this.Planning = data;
-      this.getRespo(data.id_Respo);
+      //this.getRespo(data.id_Respo);
       this.getSite(data.id_Site);
       console.log("this is data", this.Planning);
       this.updateForm.patchValue({
@@ -54,22 +64,13 @@ export class UpdatePlanningComponent implements OnInit{
         dateFinRealisation: data.dateFinRealisation,
         description: data.description,
       });
+      this.userId = this.profil?.id ?? null;
       // Charger la liste des responsables et des sites
       this.listRespo();
       this.listSite();
     }, error => console.log(error));
   }
 
-  getRespo(Id:number){
-    this.ser.getRespoById(Id).subscribe((data) => {
-      this.Respo = data;
-      this.id_Respo = data.id;
-      // Mettre à jour la valeur du champ responsable dans le formulaire
-      this.updateForm.patchValue({
-        Respo: data.id // Ou autre propriété appropriée
-      });
-    });
-  }
 
   getSite(Id:number){
     this.ser.getSiteById(Id).subscribe((data) => {
@@ -122,8 +123,7 @@ export class UpdatePlanningComponent implements OnInit{
       dateDebutRealisation:this.fb.control('', [Validators.required]),
       dateFinRealisation:this.fb.control('', [Validators.required]),
       description:this.fb.control('', [Validators.required]),
-      Sit:this.fb.control('',[Validators.required]),
-      Respo:this.fb.control('',[Validators.required])
+      Sit:this.fb.control('',[Validators.required])
 
     });
   }
@@ -134,43 +134,49 @@ export class UpdatePlanningComponent implements OnInit{
   updatePlanning() {
     if (this.updateForm.valid) {
       const formData = this.updateForm.value;
-      this.ser.updatePlanning(this.id, formData , this.id_Site , this.id_Respo
-      ).subscribe(response => {
-        if (response instanceof HttpErrorResponse) {
-          if (response.status === 400 && response.error === 'Un planning avec ce nom existe déjà') {
-            this.snackBar.open('Un planning avec ce nom existe déjà', 'Fermer', {
+
+      if (this.userId !== null) {
+        this.ser.updatePlanning(this.id, formData, this.id_Site, this.userId
+        ).subscribe(response => {
+          if (response instanceof HttpErrorResponse) {
+            if (response.status === 400 && response.error === 'Un planning avec ce nom existe déjà') {
+              this.snackBar.open('Un planning avec ce nom existe déjà', 'Fermer', {
+                duration: 8000,
+                horizontalPosition: 'end',
+                verticalPosition: 'top',
+                panelClass: ['error-snackbar']
+              });
+            }
+          } else {
+
+            console.log(this.id_Site);
+            console.log(this.id_Respo);
+            console.log(this.Sit);
+            this.snackBar.open('Planning mis à jour avec succès', 'Fermer', {
               duration: 8000,
               horizontalPosition: 'end',
-              verticalPosition: 'top',
-              panelClass: ['error-snackbar']
+              verticalPosition: 'top'
             });
-          }
-        } else {
+            this.dataser.refreshPlannings();
+            this.dataser.refreshPlanningDetails(this.id)
+            this.closePopup();
 
-          console.log(this.id_Site);
-          console.log(this.id_Respo);
-          console.log(this.Sit);
-          this.snackBar.open('Planning mis à jour avec succès', 'Fermer', {
+          }
+        }, error => {
+          console.error('Un planning avec ce nom existe déjà: ', error);
+          this.snackBar.open('Un planning avec ce nom existe déjà', 'Fermer', {
             duration: 8000,
             horizontalPosition: 'end',
-            verticalPosition: 'top'
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
           });
-          this.dataser.refreshPlannings();
-          this.dataser.refreshPlanningDetails(this.id)
-          this.closePopup();
-
-        }
-      }, error => {
-        console.error('Un planning avec ce nom existe déjà: ', error);
-        this.snackBar.open('Un planning avec ce nom existe déjà', 'Fermer', {
-          duration: 8000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
         });
-      });
-    } else {
-      console.log('Le formulaire n\'est pas valide.');
+      } else {
+        console.log('Le formulaire n\'est pas valide.');
+      }
+    }
+    else {
+      console.error('UserId est null. Impossible d\'appeler getCentreTechniqueOfRespo.');
     }
   }
 

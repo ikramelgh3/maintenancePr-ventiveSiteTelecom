@@ -48,7 +48,7 @@ public class planningService {
     public int getSize(){
          return repo.findAll().size();
     }
-    public PlanningMaintenance updatePlanning(Long id, PlanningMaintenanceDTO planningDTO , Long site, Long resp) throws PlanningNameExistsException {
+    public PlanningMaintenance updatePlanning(Long id, PlanningMaintenanceDTO planningDTO , Long site, String resp) throws PlanningNameExistsException {
         Optional<PlanningMaintenance> optionalPlanning = repo.findById(id);
         if (optionalPlanning.isPresent()) {
             PlanningMaintenance existingPlanning = optionalPlanning.get();
@@ -80,7 +80,7 @@ public class planningService {
          return  repo.findBySemestre(semestre).stream().map(mp::from).collect(Collectors.toList());
     }
 
-    public PlanningMaintenanceDTO addPlanningComplet(PlanningMaintenanceDTO pl ,Long idRespo ,Long idSite  ){
+    public PlanningMaintenanceDTO addPlanningComplet(PlanningMaintenanceDTO pl ,String idRespo ,Long idSite  ){
         PlanningMaintenance pln = mp.from(pl);
         Optional<PlanningMaintenance> planningMaintenance = repo.findByName(pln.getName());
         if (!planningMaintenance.isPresent()){
@@ -90,7 +90,7 @@ public class planningService {
             pln.setStatus(PlanningStatus.EN_ATTENTE);
             pln.setId_Site(idSite);
             pln.setId_Respo(idRespo);
-            pln.setResponsableMaint(rrepo.findById(idRespo));
+            pln.setResponsableMaint(rrepo.getUser(idRespo));
             pln.setDateCreation(new Date());
            // pln.setStatus(PlanningStatus.EN_ATTENTE_VALIDATION);
             repo.save(pln);
@@ -102,12 +102,12 @@ public class planningService {
     }
 
 
-    public PlanningMaintenanceDTO addPlanningCom(PlanningMaintenanceDTO pl ,Long idRespo  ){
+    public PlanningMaintenanceDTO addPlanningCom(PlanningMaintenanceDTO pl ,String idRespo  ){
         PlanningMaintenance pln = mp.from(pl);
         Optional<PlanningMaintenance> planningMaintenance = repo.findByName(pln.getName());
         if (!planningMaintenance.isPresent()){
             pln.setId_Respo(idRespo);
-            pln.setResponsableMaint(rrepo.findById(idRespo));
+            pln.setResponsableMaint(rrepo.getUser(idRespo));
             // pln.setStatus(PlanningStatus.EN_ATTENTE_VALIDATION);
             repo.save(pln);
            return  pl;
@@ -139,8 +139,8 @@ public class planningService {
             PlanningMaintenanceDTO dto = mp.from(planningMaintenance);
 
             // Récupérer et définir le responsable associé au planning
-            Long idRespo = dto.getId_Respo();
-            ResponsableMaint responsable = rrepo.findById(idRespo);
+            String idRespo = dto.getId_Respo();
+            ResponsableMaint responsable = rrepo.getUser(idRespo);
             dto.setResponsableMaint(responsable);
 
             // Récupérer et définir le site associé au planning
@@ -189,8 +189,8 @@ public class planningService {
         List<PlanningMaintenanceDTO> planningMaintenancesDtos = planningMaintenances.stream().map(mp::from).collect(Collectors.toList());
         for( PlanningMaintenanceDTO dto :planningMaintenancesDtos){
 
-            Long idRespo = dto.getId_Respo();
-            ResponsableMaint r = rrepo.findById(idRespo);
+            String  idRespo = dto.getId_Respo();
+            ResponsableMaint r = rrepo.getUser(idRespo);
             dto.setResponsableMaint(r);
 
             Long idSite = dto.getId_Site();
@@ -214,7 +214,7 @@ public class planningService {
         List<PlanningMaintenanceDTO> dto=  repo.findByStatus(status).stream().map(mp::from).collect(Collectors.toList());
         for(PlanningMaintenanceDTO d :dto){
             Site s = srepo.findType(d.getId_Site());
-            ResponsableMaint a = rrepo.findById(d.getId_Respo());
+            ResponsableMaint a = rrepo.getUser(d.getId_Respo());
             d.setSite(s);
             d.setResponsableMaint(a);
         }
@@ -247,9 +247,17 @@ public class planningService {
     }
 
 
-    public List<PlanningMaintenanceDTO> getPlanningsOfResp(Long idResp) {
-        return repo.findById_Respo(idResp).stream().map(mp::from).collect(Collectors.toList());
-    }
+    public List<PlanningMaintenanceDTO> getPlanningsOfResp(String idResp) {
+
+        List <PlanningMaintenance>p = repo.findById_Respo(idResp);
+        for(PlanningMaintenance pp:p){
+            List<Intervention> i = irepo.getInterventionsOfPlanning(pp.getId());
+            pp.setInterventionList(i);
+
+            } return  p.stream().map(mp::from).collect(Collectors.toList());
+        }
+
+
 
 
     public ResponseEntity<?>addInterventionToPlanning(Long idPlanning, Intervention intervention){
@@ -280,7 +288,13 @@ public class planningService {
 
 
     public List<Intervention> getInterventionOfPlanning(Long idPl){
-        return irepo.getInterventionsOfPlanning(idPl);
+
+        List<Intervention> interventions = irepo.getInterventionsOfPlanning(idPl);
+        for(Intervention i : interventions){
+            String idT = i.getId_Techn();
+            i.setTechnicien(rrepo.getUser(idT));
+        }
+        return interventions;
     }
 
     public boolean existsById(Long id) {
@@ -300,7 +314,7 @@ public class planningService {
         for(Site s :sites){
            List<PlanningMaintenanceDTO>  dt = repo.findById_Site(s.getId()).stream().map(mp::from).collect(Collectors.toList());
            for(PlanningMaintenanceDTO d :dt){
-               d.setResponsableMaint(rrepo.findById(d.getId_Respo()));
+               d.setResponsableMaint(rrepo.getUser(d.getId_Respo()));
                d.setSite(srepo.findType(d.getId_Site()));
                pl.add(d);
 
