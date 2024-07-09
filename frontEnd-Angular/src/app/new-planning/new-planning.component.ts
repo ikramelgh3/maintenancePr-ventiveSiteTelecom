@@ -53,7 +53,7 @@ export class NewPlanningComponent implements OnInit{
 
     })
     this.listSite();
-    this.getSiteOfCentr()
+
         this.userId = this.profil?.id ?? null;
 this.getCentreTechniqueOfProf()
     console.log("userId", this.profil.id)})

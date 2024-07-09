@@ -53,6 +53,7 @@
 
 
 
+
     <div *ngIf="noResultsFound"class="error-message " style="color:  #6495ED; text-align: center ">Aucune intervention trouvée.</div>
 
 <mat-divider></mat-divider>
@@ -68,7 +69,9 @@
                 <div style="flex: 1;">
 
                   <div mat-line style="font-size: 14px; color: #999;">#{{ user.id }} &nbsp;</div>
-                  <div mat-line style="font-size: 18px; color: #333;">{{ user.name }}</div>
+                  <div mat-line style="font-size: 18px; color: #333;"> {{ getShortDescription(user.name) }}
+                    <span *ngIf="isDescriptionLong(user.name)"></span>
+                  </div>
 
                 </div>
                 <div style="flex: 1; text-align: right;">

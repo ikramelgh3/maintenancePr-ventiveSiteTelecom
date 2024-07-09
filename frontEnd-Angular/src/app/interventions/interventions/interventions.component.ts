@@ -61,7 +61,7 @@ export class InterventionsComponent implements OnInit {
   }
 
   isDescriptionLong(description: String): boolean {
-    return description.length > 45;
+    return description.length > 7;
   }
   getInterventions(){
 
@@ -109,6 +109,7 @@ export class InterventionsComponent implements OnInit {
 
   pointMesure: Checklist[] = [];
   getChecklist(id: number) {
+    console.log("id",id)
     this.ser.getChecklistOfType(id).subscribe((data) => {
       if (data && data.measurementPoints && data.measurementPoints.length > 0) {
         // Vérifiez si les données reçues sont valides
@@ -120,7 +121,12 @@ export class InterventionsComponent implements OnInit {
         // Vérifiez si pointMesure est correctement rempli
         console.log("PointMesure :", this.pointMesure);
       }
-    });
+    }
+
+
+
+    );
+    console.log("ee")
   }
   OpenNewIntervention() {
     var popup = this.dialog.open(NewInterventionComponent, {

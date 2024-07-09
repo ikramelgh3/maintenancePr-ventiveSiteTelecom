@@ -69,7 +69,7 @@
           <mat-icon>people</mat-icon>Utilisateurs</button>
       </mat-list-item>
 
-      <mat-list-item *ngIf="ky.getUserRoles().includes('INJECTEUR')">
+      <mat-list-item *ngIf="ky.getUserRoles().includes('INJECTEUR') || ky.getUserRoles().includes('ADMIN')">
         <button mat-button routerLink="Parametrages" >
           <mat-icon>settings</mat-icon> Parametrages </button>
       </mat-list-item>

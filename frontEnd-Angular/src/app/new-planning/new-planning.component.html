@@ -29,7 +29,7 @@
     <mat-form-field appearance="outline">
       <mat-label> Site</mat-label>
       <mat-select formControlName="site" required>
-        <mat-option *ngFor="let val of sitebyCt" [value] ="val" > {{val.name}}</mat-option>
+        <mat-option *ngFor="let val of site" [value] ="val" > {{val.name}}</mat-option>
 
       </mat-select>
       <mat-error>Veuillez remplir le champs</mat-error>
@@ -68,7 +68,6 @@
 </div>
 
 <div class="foot"  style="background-color: #E6E6FA; ">
-
 <br>
 <div mat-dialog-actions class="action">
   <button  mat-raised-button (click)="closePopup()" > Annuler</button>

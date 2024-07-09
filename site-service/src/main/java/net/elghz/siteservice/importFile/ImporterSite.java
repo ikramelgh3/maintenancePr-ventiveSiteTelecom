@@ -143,28 +143,9 @@ public class ImporterSite {
                     eq.setStatut(statut);
                 }
 
-                cell = row.getCell(7);
-                if (cell != null && cell.getCellType() == CellType.STRING) {
-                    String dateString = cell.getStringCellValue();
-                    try {
-                        Date date = dateFormat.parse(dateString);
-                        eq.setDateMiseService(date);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-                cell = row.getCell(8);
-                if (cell != null && cell.getCellType() == CellType.STRING) {
-                    String dateString = cell.getStringCellValue();
-                    try {
-                        Date date = dateFormat.parse(dateString);
-                        eq.setDateMiseHorsService(date);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
 
-                cell = row.getCell(9); // salle
+
+                cell = row.getCell(7); // salle
                 if (cell != null && cell.getCellType() == CellType.STRING) {
                     String idS  = cell.getStringCellValue().trim();
                     Optional<salle> optionalCentreTechnique = salleRepo.findByCodeSalle(idS);
@@ -184,7 +165,7 @@ public class ImporterSite {
                 }
 
                 // etage
-                cell = row.getCell(10); // etage
+                cell = row.getCell(8); // etage
                 if (cell != null && cell.getCellType() == CellType.STRING) {
                     String  dcName = cell.getStringCellValue().trim();
                     Optional<etage> optionalDC = etageRepo.findByCodeEtagge(dcName);
@@ -206,7 +187,7 @@ public class ImporterSite {
                 }
 
                 // imm
-                cell = row.getCell(11); //immuble
+                cell = row.getCell(9); //immuble
                 if (cell != null && cell.getCellType() == CellType.STRING) {
                     String  drName = cell.getStringCellValue().trim();
                     Optional<immuble> optionalDR = immubleRepo.findByCodeImmuble(drName);
@@ -227,7 +208,7 @@ public class ImporterSite {
                     }
                 }
 
-                cell = row.getCell(12); //site
+                cell = row.getCell(10); //site
                 if (cell != null && cell.getCellType() == CellType.STRING) {
                     String drName =cell.getStringCellValue().trim();
                     Optional<Site> optionalDR = repo.findByName(drName);

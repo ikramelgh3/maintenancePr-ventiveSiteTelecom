@@ -28,7 +28,6 @@ public class PointMesure {
     private Set<Checklist> checklists = new HashSet<>();
     @OneToMany(mappedBy = "pointDeMesure", cascade = CascadeType.ALL)
     private List<Resultat> resultats;
-
     private Long typeEquipementId;
     @Transient
     private typeEquipement typeEquipent;

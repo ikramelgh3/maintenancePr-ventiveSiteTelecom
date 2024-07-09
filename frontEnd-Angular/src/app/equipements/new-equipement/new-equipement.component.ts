@@ -43,7 +43,6 @@ equipement!:Equipement
       statut: this.fb.control('En service', Validators.required),
       salle: this.fb.control(this.sal, Validators.required),
       marque: this.fb.control('', Validators.required),
-      dateMiseService:this.fb.control('', Validators.required),
       descreption:this.fb.control('', Validators.required)
     });
 

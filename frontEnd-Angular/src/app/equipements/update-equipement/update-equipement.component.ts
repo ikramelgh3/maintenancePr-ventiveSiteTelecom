@@ -58,7 +58,6 @@ export class UpdateEquipementComponent implements OnInit{
         nom : this.equipement.nom,
         code : this.equipement.code,
         statut: this.equipement.statut,
-        dateMiseService: this.equipement.dateMiseService,
         descreption: this.equipement.descreption,
         marque:this.equipement.marque,
         numeroSerie:this.equipement.numeroSerie
@@ -75,7 +74,6 @@ export class UpdateEquipementComponent implements OnInit{
       statut:this.fb.control('', [Validators.required]),
       numeroSerie:this.fb.control('', [Validators.required]),
       marque:this.fb.control('',[Validators.required]),
-      dateMiseService:this.fb.control('',[Validators.required]),
       descreption:this.fb.control('',[Validators.required])
     });
   }
