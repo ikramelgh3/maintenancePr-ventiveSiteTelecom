@@ -14,8 +14,6 @@
         <module>user-service</module>
         <module>intervention-service</module>
         <module>site-service</module>
-        <module>anomalie-service</module>
-        <module>actionCorrective-service</module>
         <module>rapport-service</module>
 
     </modules>
